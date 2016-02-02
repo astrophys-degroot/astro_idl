@@ -1,0 +1,241 @@
+# Region file format: DS9 version 4.1
+# Filename: /Users/degroota/research/current1_mosfire_2013nov29/2013nov29/lok400_mask1_H/testinghskylines_nobright.fits
+global color=green dashlist=8 3 width=1 font="helvetica 10 normal roman" select=1 highlite=1 dash=0 fixed=0 edit=1 move=1 delete=1 include=1 source=1
+wcs;
+line(14605,50,14605,-50) # line=0 0 color=red
+line(14605,50,14605,-50) # line=0 0
+line(14605,50,14605,-50) # line=0 0 color=red
+line(14665,50,14665,-50) # line=0 0 color=red
+line(14665,50,14665,-50) # line=0 0
+line(14665,50,14665,-50) # line=0 0 color=red
+line(14698.8,50,14698.8,-50) # line=0 0 color=red
+line(14698.8,50,14698.8,-50) # line=0 0
+line(14698.8,50,14698.8,-50) # line=0 0 color=red
+line(14740.3,50,14740.3,-50) # line=0 0 color=red
+line(14740.3,50,14740.3,-50) # line=0 0
+line(14740.3,50,14740.3,-50) # line=0 0 color=red
+line(14781.021,50,14781.021,-50) # line=0 0 color=red
+line(14784.243,50,14784.243,-50) # line=0 0
+line(14787.562,50,14787.562,-50) # line=0 0 color=red
+line(14829.853,50,14829.853,-50) # line=0 0 color=red
+line(14833.098,50,14833.098,-50) # line=0 0
+line(14836.393,50,14836.393,-50) # line=0 0 color=red
+line(14862.407,50,14862.407,-50) # line=0 0 color=red
+line(14864.915,50,14864.915,-50) # line=0 0
+line(14867.349,50,14867.349,-50) # line=0 0 color=red
+line(14883.664,50,14883.664,-50) # line=0 0 color=red
+line(14887.721,50,14887.721,-50) # line=0 0
+line(14891.828,50,14891.828,-50) # line=0 0 color=red
+line(14929.28,50,14929.28,-50) # line=0 0 color=red
+line(14932.502,50,14932.502,-50) # line=0 0
+line(14935.759,50,14935.759,-50) # line=0 0 color=red
+line(15049.781,50,15049.781,-50) # line=0 0 color=red
+line(15054.763,50,15054.763,-50) # line=0 0
+line(15059.577,50,15059.577,-50) # line=0 0 color=red
+line(15085.648,50,15085.648,-50) # line=0 0 color=red
+line(15088.123,50,15088.123,-50) # line=0 0
+line(15090.533,50,15090.533,-50) # line=0 0 color=red
+line(15183.373,50,15183.373,-50) # line=0 0 color=red
+line(15187.483,50,15187.483,-50) # line=0 0
+line(15191.565,50,15191.565,-50) # line=0 0 color=red
+line(15235.565,50,15235.565,-50) # line=0 0 color=red
+line(15241.219,50,15241.219,-50) # line=0 0
+line(15246.873,50,15246.873,-50) # line=0 0 color=red
+line(15282.794,50,15282.794,-50) # line=0 0 color=red
+line(15287.658,50,15287.658,-50) # line=0 0
+line(15292.519,50,15292.519,-50) # line=0 0 color=red
+line(15326.756,50,15326.756,-50) # line=0 0 color=red
+line(15332.4,50,15332.4,-50) # line=0 0
+line(15338.1,50,15338.1,-50) # line=0 0 color=red
+line(15391.848,50,15391.848,-50) # line=0 0 color=red
+line(15395.158,50,15395.158,-50) # line=0 0
+line(15398.377,50,15398.377,-50) # line=0 0 color=red
+line(15427.721,50,15427.721,-50) # line=0 0 color=red
+line(15432.029,50,15432.029,-50) # line=0 0
+line(15437.471,50,15437.471,-50) # line=0 0 color=red
+line(15535.241,50,15535.241,-50) # line=0 0 color=red
+line(15542.57,50,15542.57,-50) # line=0 0
+line(15549.9,50,15549.9,-50) # line=0 0 color=red
+line(15567.823,50,15567.823,-50) # line=0 0 color=red
+line(15570.277,50,15570.277,-50) # line=0 0
+line(15572.712,50,15572.712,-50) # line=0 0 color=red
+line(15593.858,50,15593.858,-50) # line=0 0 color=red
+line(15597.777,50,15597.777,-50) # line=0 0
+line(15602.04,50,15602.04,-50) # line=0 0 color=red
+line(15626.525,50,15626.525,-50) # line=0 0 color=red
+line(15631.373,50,15631.373,-50) # line=0 0
+line(15636.222,50,15636.222,-50) # line=0 0 color=red
+line(15649.348,50,15649.348,-50) # line=0 0 color=red
+line(15655.088,50,15655.088,-50) # line=0 0
+line(15660.64,50,15660.64,-50) # line=0 0 color=red
+line(15699.718,50,15699.718,-50) # line=0 0 color=red
+line(15702.288,50,15702.288,-50) # line=0 0
+line(15706.242,50,15706.242,-50) # line=0 0 color=red
+line(15826.815,50,15826.815,-50) # line=0 0 color=red
+line(15832.575,50,15832.575,-50) # line=0 0
+line(15838.197,50,15838.197,-50) # line=0 0 color=red
+line(15841.355,50,15841.355,-50) # line=0 0 color=red
+line(15848.015,50,15848.015,-50) # line=0 0
+line(15852.882,50,15852.882,-50) # line=0 0 color=red
+line(15864.298,50,15864.298,-50) # line=0 0 color=red
+line(15869.188,50,15869.188,-50) # line=0 0
+line(15874.037,50,15874.037,-50) # line=0 0 color=red
+line(15968.567,50,15968.567,-50) # line=0 0 color=red
+line(15972.6,50,15972.6,-50) # line=0 0
+line(15976.64,50,15976.64,-50) # line=0 0 color=red
+line(16025.52,50,16025.52,-50) # line=0 0 color=red
+line(16030.8,50,16030.8,-50) # line=0 0
+line(16035.3,50,16035.3,-50) # line=0 0 color=red
+line(16074.423,50,16074.423,-50) # line=0 0 color=red
+line(16079.405,50,16079.405,-50) # line=0 0
+line(16084.175,50,16084.175,-50) # line=0 0 color=red
+line(16123.3,50,16123.3,-50) # line=0 0 color=red
+line(16128.982,50,16128.982,-50) # line=0 0
+line(16134.655,50,16134.655,-50) # line=0 0 color=red
+line(16190.073,50,16190.073,-50) # line=0 0 color=red
+line(16194.897,50,16194.897,-50) # line=0 0
+line(16198.215,50,16198.215,-50) # line=0 0 color=red
+line(16229.133,50,16229.133,-50) # line=0 0 color=red
+line(16234.848,50,16234.848,-50) # line=0 0
+line(16240.53,50,16240.53,-50) # line=0 0 color=red
+line(16312.245,50,16312.245,-50) # line=0 0 color=red
+line(16317.1,50,16317.1,-50) # line=0 0
+line(16321.975,50,16321.975,-50) # line=0 0 color=red
+line(16345.653,50,16345.653,-50) # line=0 0 color=red
+line(16351.342,50,16351.342,-50) # line=0 0
+line(16357.042,50,16357.042,-50) # line=0 0 color=red
+line(16383.894,50,16383.894,-50) # line=0 0 color=red
+line(16388.075,50,16388.075,-50) # line=0 0
+line(16392.012,50,16392.012,-50) # line=0 0 color=red
+line(16437.683,50,16437.683,-50) # line=0 0 color=red
+line(16441.804,50,16441.804,-50) # line=0 0
+line(16450.666,50,16450.666,-50) # line=0 0 color=red
+line(16473.48,50,16473.48,-50) # line=0 0 color=red
+line(16477.673,50,16477.673,-50) # line=0 0
+line(16483.252,50,16483.252,-50) # line=0 0 color=red
+line(16497.942,50,16497.942,-50) # line=0 0 color=red
+line(16502.06,50,16502.06,-50) # line=0 0
+line(16506.082,50,16506.082,-50) # line=0 0 color=red
+line(16550.088,50,16550.088,-50) # line=0 0 color=red
+line(16553.345,50,16553.345,-50) # line=0 0
+line(16556.603,50,16556.603,-50) # line=0 0 color=red
+line(16607.076,50,16607.076,-50) # line=0 0 color=red
+line(16610.418,50,16610.418,-50) # line=0 0
+line(16613.615,50,16613.615,-50) # line=0 0 color=red
+line(16685.293,50,16685.293,-50) # line=0 0 color=red
+line(16691.818,50,16691.818,-50) # line=0 0
+line(16696.7,50,16696.7,-50) # line=0 0 color=red
+line(16704.863,50,16704.863,-50) # line=0 0 color=red
+line(16708.8,50,16708.8,-50) # line=0 0
+line(16712.907,50,16712.907,-50) # line=0 0 color=red
+line(16729.29,50,16729.29,-50) # line=0 0 color=red
+line(16732.53,50,16732.53,-50) # line=0 0
+line(16735.737,50,16735.737,-50) # line=0 0 color=red
+line(16836.75,50,16836.75,-50) # line=0 0 color=red
+line(16840.075,50,16840.075,-50) # line=0 0
+line(16843.273,50,16843.273,-50) # line=0 0 color=red
+line(16898.7,50,16898.7,-50) # line=0 0 color=red
+line(16903.7,50,16903.7,-50) # line=0 0
+line(16908.412,50,16908.412,-50) # line=0 0 color=red
+line(16950.805,50,16950.805,-50) # line=0 0 color=red
+line(16954.888,50,16954.888,-50) # line=0 0
+line(16958.927,50,16958.927,-50) # line=0 0 color=red
+line(17004.575,50,17004.575,-50) # line=0 0 color=red
+line(17008.7,50,17008.7,-50) # line=0 0
+line(17012.69,50,17012.69,-50) # line=0 0 color=red
+line(17074.554,50,17074.554,-50) # line=0 0 color=red
+line(17078.655,50,17078.655,-50) # line=0 0
+line(17082.755,50,17082.755,-50) # line=0 0 color=red
+line(17118.585,50,17118.585,-50) # line=0 0 color=red
+line(17123.388,50,17123.388,-50) # line=0 0
+line(17128.4,50,17128.4,-50) # line=0 0 color=red
+line(17206.583,50,17206.583,-50) # line=0 0 color=red
+line(17210.642,50,17210.642,-50) # line=0 0
+line(17214.6,50,17214.6,-50) # line=0 0 color=red
+line(17242.39,50,17242.39,-50) # line=0 0 color=red
+line(17248.133,50,17248.133,-50) # line=0 0
+line(17252.105,50,17252.105,-50) # line=0 0 color=red
+line(17279.88,50,17279.88,-50) # line=0 0 color=red
+line(17283.112,50,17283.112,-50) # line=0 0
+line(17286.362,50,17286.362,-50) # line=0 0 color=red
+line(17327.093,50,17327.093,-50) # line=0 0 color=red
+line(17330.63,50,17330.63,-50) # line=0 0
+line(17333.7,50,17333.7,-50) # line=0 0 color=red
+line(17380.845,50,17380.845,-50) # line=0 0 color=red
+line(17385.958,50,17385.958,-50) # line=0 0
+line(17390.585,50,17390.585,-50) # line=0 0 color=red
+line(17424.788,50,17424.788,-50) # line=0 0 color=red
+line(17427.17,50,17427.17,-50) # line=0 0
+line(17431.33,50,17431.33,-50) # line=0 0 color=red
+line(17446.005,50,17446.005,-50) # line=0 0 color=red
+line(17449.985,50,17449.985,-50) # line=0 0
+line(17454.148,50,17454.148,-50) # line=0 0 color=red
+line(17501.4,50,17501.4,-50) # line=0 0 color=red
+line(17505.588,50,17505.588,-50) # line=0 0
+line(17509.477,50,17509.477,-50) # line=0 0 color=red
+line(17647.995,50,17647.995,-50) # line=0 0 color=red
+line(17653,50,17653,-50) # line=0 0
+line(17657.753,50,17657.753,-50) # line=0 0 color=red
+line(17669.188,50,17669.188,-50) # line=0 0 color=red
+line(17671.673,50,17671.673,-50) # line=0 0
+line(17675.7,50,17675.7,-50) # line=0 0 color=red
+line(17695.27,50,17695.27,-50) # line=0 0 color=red
+line(17698.503,50,17698.503,-50) # line=0 0
+line(17701.7,50,17701.7,-50) # line=0 0 color=red
+line(17807.575,50,17807.575,-50) # line=0 0 color=red
+line(17811.697,50,17811.697,-50) # line=0 0
+line(17814.13,50,17814.13,-50) # line=0 0 color=red
+line(17876.008,50,17876.008,-50) # line=0 0 color=red
+line(17880.342,50,17880.342,-50) # line=0 0
+line(17884.2,50,17884.2,-50) # line=0 0 color=red
+line(17990.096,50,17990.096,-50) # line=0 0 color=red
+line(17994.212,50,17994.212,-50) # line=0 0
+line(17998.243,50,17998.243,-50) # line=0 0 color=red
+line(18065.01,50,18065.01,-50) # line=0 0 color=red
+line(18068.275,50,18068.275,-50) # line=0 0
+line(18071.512,50,18071.512,-50) # line=0 0 color=red
+line(18115.484,50,18115.484,-50) # line=0 0 color=red
+line(18118.725,50,18118.725,-50) # line=0 0
+line(18122.027,50,18122.027,-50) # line=0 0 color=red
+line(15064.397,50,15064.397,-50) # line=0 0 color=red
+line(15068.648,50,15068.648,-50) # line=0 0
+line(15072.609,50,15072.609,-50) # line=0 0 color=red
+line(15497.829,50,15497.829,-50) # line=0 0 color=red
+line(15500.992,50,15500.992,-50) # line=0 0
+line(15504.308,50,15504.308,-50) # line=0 0 color=red
+line(15505.905,50,15505.905,-50) # line=0 0 color=red
+line(15509.994,50,15509.994,-50) # line=0 0
+line(15514.03,50,15514.03,-50) # line=0 0 color=red
+line(15800.741,50,15800.741,-50) # line=0 0 color=red
+line(15806.418,50,15806.418,-50) # line=0 0
+line(15812.167,50,15812.167,-50) # line=0 0 color=red
+line(15893.567,50,15893.567,-50) # line=0 0 color=red
+line(15897.682,50,15897.682,-50) # line=0 0
+line(15901.755,50,15901.755,-50) # line=0 0 color=red
+line(16338.281,50,16338.281,-50) # line=0 0 color=red
+line(16341.606,50,16341.606,-50) # line=0 0
+line(16344.854,50,16344.854,-50) # line=0 0 color=red
+line(16357.823,50,16357.823,-50) # line=0 0 color=red
+line(16360.343,50,16360.343,-50) # line=0 0
+line(16362.717,50,16362.717,-50) # line=0 0 color=red
+line(16411.603,50,16411.603,-50) # line=0 0 color=red
+line(16414.839,50,16414.839,-50) # line=0 0
+line(16418.119,50,16418.119,-50) # line=0 0 color=red
+line(17301.013,50,17301.013,-50) # line=0 0 color=red
+line(17303.441,50,17303.441,-50) # line=0 0
+line(17305.922,50,17305.922,-50) # line=0 0 color=red
+line(17348.239,50,17348.239,-50) # line=0 0 color=red
+line(17351.511,50,17351.511,-50) # line=0 0
+line(17354.758,50,17354.758,-50) # line=0 0 color=red
+line(17356.398,50,17356.398,-50) # line=0 0 color=red
+line(17359.634,50,17359.634,-50) # line=0 0
+line(17362.898,50,17362.898,-50) # line=0 0 color=red
+line(17525.806,50,17525.806,-50) # line=0 0 color=red
+line(17529.044,50,17529.044,-50) # line=0 0
+line(17532.331,50,17532.331,-50) # line=0 0 color=red
+line(17729.416,50,17729.416,-50) # line=0 0 color=red
+line(17733.473,50,17733.473,-50) # line=0 0
+line(17737.56,50,17737.56,-50) # line=0 0 color=red
+line(17657.751,50,17657.751,-50) # line=0 0 color=red
+line(17663.434,50,17663.434,-50) # line=0 0
+line(17669.142,50,17669.142,-50) # line=0 0 color=red
