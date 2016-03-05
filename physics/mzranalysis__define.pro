@@ -65,6 +65,19 @@ FUNCTION mzranalysis::workingon, dirsort, sortcat, compcat
   
   CASE self.working OF          ;what value of input
      
+
+     'onezero' : BEGIN          ;last permuation we worked on
+        cls = 'clfour'          ;how many clusters
+        sm = 'smcurrent'        ;which stacking method
+        sp = 'all'              ;which sample
+        qu = 'highq'            ;which quality
+        binby = ''              ;which quality
+        ver = '1-0'             ;which version
+        self.group = 'all'      ;name of group
+     END                        ;end last permutation
+     
+
+
      'one' : BEGIN              ;last permuation we worked on
         cls = 'clthree'         ;how many clusters
         sm = 'smcurrent'        ;which stacking method
@@ -153,9 +166,7 @@ FUNCTION mzranalysis::workingon, dirsort, sortcat, compcat
         binby = 'bincl'           ;which quality
         ver = '1-0'               ;which version
         self.group = 'envtwoplus' ;name of group
-     END                          ;end last permutation
-     
-     
+     END                          ;end last permutation    
 
      ELSE : BEGIN                               ;input choice not recognized
         print, 'WARNING!! Input not recognized' ;print info
@@ -379,6 +390,124 @@ END
 
 
 ;====================================================================================================
+PRO mzranalysis::plotbpt, NOIRAGN=noiragn, $
+                          TGHAFLUX=tghaflux, TGNIIFLUX=gniiflux, TGIRAGN=tgiragn, $
+                          TGHAFLAG=tghaflag, TGNIIFLAG=tgniiflag, $
+                          FNBPTPLOT=fnbptplot
+
+  
+  xdata = *self.compdata                                                          ;grab data
+
+  ;;;set default values
+  print, '  BPT plot being created...'                                                    ;print info 
+  ;IF keyword_set(TGHAFLUX) THEN tghaflux = tghaflux[0] ELSE tghaflux = self.tghaflux      ;set default value
+  ;IF keyword_set(TGHAFLAG) THEN tghaflag = tghaflag[0] ELSE tghaflag = self.tghaflag      ;set default value
+  ;IF keyword_set(TGNIIFLUX) THEN tgniiflux = tgniiflux[0] ELSE tgniiflux = self.tgniiflux ;set default value
+  ;IF keyword_set(TGNIIFLAG) THEN tgniiflag = tgniiflag[0] ELSE tgniiflag = self.tgniiflag ;set default value
+  ;IF keyword_set(TGAGN) THEN tgagn = tgagn[0] ELSE tgagn = self.tgagn                     ;set default value
+  ;IF keyword_set(FNBPTPLOT) THEN BEGIN                                                    ;if new plot name given
+  ;   fnbptplot = string(fnbptplot[0])                                                     ;take new name
+  ;   self.fnbptplot = string(fnbptplot[0])                                                ;store new name
+  ;ENDIF ELSE fnbptplot = self.fnbptplot                                                   ;set default value
+
+
+  ;;;read catalog and fine appropriate data
+                                ;self.readcat, 1                                        ;read in file
+                                ;self.sample                                            ;get sample
+                                ;xdata = *self.curdata         ;copy data
+                                ;xdata = *self.compdata        ;copy data
+                                ;xdata = xdata[*self.sample]                            ;grab subset
+                                ;chk = tag_exist(xdata, tghaflux, INDEX=hafind)         ;find necessary tag
+                                ;text = '   This plot requires a Halpha flux keyword: ' ;text to pass
+                                ;IF chk EQ 0 THEN hafind = tagprompt(xdata, text)       ;find necessary tag
+                                ;chk = tag_exist(xdata, tghaflag, INDEX=hagind)         ;find necessary tag
+                                ;text = '   This plot requires a Halpha flag keyword: ' ;text to pass
+                                ;IF chk EQ 0 THEN hagind = tagprompt(xdata, text)       ;find necessary tag
+                                ;chk = tag_exist(xdata, tgniiflux, INDEX=niifind)       ;find necessary tag
+                                ;text = '   This plot requires a [NII] flux keyword: '  ;text to pass
+                                ;IF chk EQ 0 THEN niifind = tagprompt(xdata, text)      ;find necessary tag
+                                ;chk = tag_exist(xdata, tgniiflag, INDEX=niigind)       ;find necessary tag
+                                ;text = '   This plot requires a [NII] flag keyword: '  ;text to pass
+                                ;IF chk EQ 0 THEN niigind = tagprompt(xdata, text)      ;find necessary tag
+  IF ~keyword_set(NOIRAGN) THEN BEGIN                                                 ;if IR AGN
+     chk = tag_exist(xdata, tgagn, INDEX=iragnind)                                    ;find necessary tag
+     text = '   This plot options a IRAC AGN keyword: '                               ;text to pass
+     IF chk EQ 0 THEN iragnind = tagprompt(xdata, text)                               ;find necessary tag
+  ENDIF                                                                               ;end IR AGN
+
+  ;;;upper limits
+  niiul = where((xdata.(self.indniiflag) GE self.niiflagul), COMPLEMENT=niisnr) ;appropriate flag test
+  
+
+  ;;;find plausible metallicity measurements
+  N2 = xdata.(self.indniiflux)                                                                                       ;create array
+  N2[niiul] = alog10((xdata[niiul].(self.indniiflux)+xdata[niiul].(self.indeniiflux))/xdata[niiul].(self.indhaflux)) ;find ratio
+  N2[niisnr] = alog10((xdata[niisnr].(self.indniiflux))/xdata[niisnr].(self.indhaflux))                              ;find ratio
+  N2chk = where((N2 NE N2) OR (N2 NE 0.0))                                                                           ;find any NaNs or zeros
+                                ;IF chk[0] NE -1 THEN N2 = N2[N2chk]                         ;if present, remove
+  N2 = N2[N2chk]                ;if present, remove
+  fakeys = fltarr(n_elements(N2))   ;create array for fake y values
+  fakeysul = fltarr(n_elements(N2)) ;create array for fake y values
+  fakeys[*] = -0.82                 ;set fake y values
+  fakeysul[*] = -0.92               ;set fake y values
+
+  
+
+  ;;;find which detections are also IR AGN selected
+  IF ~keyword_set(NOIRAGN) THEN BEGIN               ;cont next line
+     IF (iragnind NE -1) THEN BEGIN                 ;if index is real
+        iragn = where(xdata[N2chk].(iragnind) EQ 1) ;find IRAC AGN
+     ENDIF
+  ENDIF
+  
+  ;;;get models
+  model = kewley_2013(1, 1.5)   ;get [NII] related models
+  model2 = kewley_2006(1)       ;get [NII] SF related models
+  model3 = kewley_2006(2)       ;get [NII] composite related models
+
+  ;;;make the plot
+  w = window(LOCATION=[100+50*self.nwin,-25+25*self.nwin])         ;window
+  bptplot = plot([1.0], [1.0], '.', /CURRENT, /NODATA, $           ;plot data
+                 XTITLE='log([NII/H$\alpha$])', $                  ;plot options
+                 XRANGE=[self.bptxmin,self.bptxmax], $             ;plot options
+                 YTITLE='log([OIII/H$\beta$])', $                  ;plot options
+                 YRANGE=[self.bptymin,self.bptymax], FONT_SIZE=14) ;plot options
+
+  bptplot1 = plot(model.lmixxs, model.lmixys, '-', /OVERPLOT, $          ;plot model
+                  THICK=2, color='green')                                ;plot options
+  bptplot1 = plot(model.umixxs, model.umixys, '-', /OVERPLOT, $          ;plot model
+                  THICK=2, color='green')                                ;plot options
+  bptplot1 = plot(model.lsfxs, model.lsfys, '-', /OVERPLOT, $            ;plot model
+                  THICK=2, color='green')                                ;plot options
+  bptplot1 = plot(model.usfxs, model.usfys, '-', /OVERPLOT, $            ;plot model
+                  THICK=2, color='green', NAME='Kewley 2013 Scenario 1') ;plot model
+  bptplot2 = plot(model2.xs, model2.ys, '--', /OVERPLOT, $               ;plot options
+                  THICK=2, color='black', NAME='Kewley 2006 SF')         ;plot model
+  bptplot3 = plot(model3.xs, model3.ys, '-', /OVERPLOT, $                ;plot options
+                  THICK=2, color='black', NAME='Kewley 2006 Comp')       ;plot model
+
+  IF (niisnr[0] NE -1) THEN mydata = plot(N2[niisnr], fakeys[niisnr], 'd', /OVERPLOT, SYM_SIZE=2.0, /SYM_FILLED) ;plot real ratios
+  IF (niiul[0] NE -1) THEN mydata = plot(N2[niiul], fakeysul[niiul], 'tl', /OVERPLOT, SYM_SIZE=2.0, /SYM_FILLED) ;plot upper limits
+
+  IF ~keyword_set(NOIRAGN) THEN $                                                        ;cont next line
+     IF (iragn[0] NE -1) THEN mydata = plot(N2[iragn], fakeys[iragn], 'tl', /OVERPLOT, $ ;over plot IR AGN
+                                            SYM_SIZE=7, SYM_THICK=3, COLOR='green')      ;plot options
+
+  mylegend = legend(TARGET=[bptplot1, bptplot2, bptplot3], $               ;legend
+                    POSITION=[self.bptxmax-1.3,self.bptymax-0.1], /DATA, $ ;legend options
+                    SHADOW=0, LINESTYLE=6, FONT_SIZE=11)                   ;legend options
+
+  
+  ;bptplot.save, fnbptplot, RESOLUTION=600 ;save plot
+  ;self.bptmade = 1                        ;set as plot made this call
+  ;self.nwin = self.nwin + 1               ;up window number
+
+
+END
+;====================================================================================================
+
+
+;====================================================================================================
 FUNCTION mzranalysis::mcmass, howmany
 
  
@@ -469,7 +598,7 @@ PRO mzranalysis::specsort, GROUP=group
   xdata = *self.compdata                                                                  ;grab data
   massbins = *self.massbins                                                               ;grab data  
   zbins = [1.2,1.8]                                                                       ;sanity 
-  passing = [self.tglab1, self.tglab2]                                                    ;structure tag info to put in output
+  passing = [self.tglab1, self.tglab2, self.tghaflux, self.tgniiflux]                     ;structure tag info to put in output
   CASE group OF                                                                           ;which group are we working with ;
      'all' : densebins = [-0.5, 3.5]                                                      ;need this ;
      'allplus' : densebins = [-0.5, 3.5]                                                  ;need this ;
@@ -508,6 +637,37 @@ END
 
 
 ;====================================================================================================
+PRO mzranalysis::findstats, VERSION=version
+
+
+  IF keyword_set(VERSION) THEN version = string(version[0]) ELSE version = 'v3-6-1' ;set default
+  
+  metadata = mrdfits(self.dirsort + self.sortcat, 1, hdr)
+  keys = metadata.key
+  key_values = keys[UNIQ(keys, SORT(keys))]
+
+  med_mass = []
+  mean_mass = []
+  med_n2 = []
+  mean_n2 = []
+  FOR ii=0, n_elements(key_values)-1, 1 DO BEGIN
+     these = where(metadata.key EQ key_values[ii])
+     med_mass = [med_mass, median(metadata[these].ph_lmass)]
+     mean_mass = [mean_mass, mean(metadata[these].ph_lmass)]
+     med_n2 = [med_n2, median(metadata[these].SP_M_NIIR_FLUX/metadata[these].SP_M_HA_FLUX)]
+     mean_n2 = [mean_n2, mean(metadata[these].SP_M_NIIR_FLUX/metadata[these].SP_M_HA_FLUX)]
+  ENDFOR
+
+  self.binmedmass = ptr_new(med_mass)
+  self.binmeanmass = ptr_new(mean_mass)
+  self.binmedn2 = ptr_new(med_n2)
+  self.binmeann2 = ptr_new(mean_n2)
+
+END
+;====================================================================================================
+
+
+;====================================================================================================
 PRO mzranalysis::specstack, SUBSETS=subsets, SM=sm 
 
   IF keyword_set(SUBSETS) THEN subsets = (string(subsets)) ELSE subsets = *self.subset ;set default
@@ -539,6 +699,8 @@ PRO mzranalysis::collatespecstack, VERSION=version
   spectra_collate, xin, OUTFILE=compcat
 END
 ;====================================================================================================
+
+
 
 
 ;====================================================================================================
@@ -724,6 +886,14 @@ PRO mzranalysis::plotmzrstack, FNPLMZRSTACK=fnplmzrstack, ISERROR=iserror, $
   self.readstack                ;file name
   data = *self.stackdata        ;copy data
   
+
+  ;;;grab median and mean mass, N2 values in case we want them
+  medmass = *self.binmedmass
+  meanmass = *self.binmeanmass
+  medn2 = *self.binmedn2
+  meann2 = *self.binmeann2
+
+
   ;;;If mass errors given are the actual errors or the data values off by the error
   IF keyword_set(ISERROR) THEN BEGIN                        ;if keyword is set
      emassi = data.(self.indsemassi)                        ;take errors as is
@@ -755,6 +925,8 @@ PRO mzranalysis::plotmzrstack, FNPLMZRSTACK=fnplmzrstack, ISERROR=iserror, $
                  ULIMS=ulims, LABEL=label, OUTFILE=fnplmzrstack, SATURATE=1, $     ;
                  FITINFO=*self.fitinfo, $                                          ;
                  SHOWST14PT=1, SHOWST14TR=0, SHOWSA14=1, $                         ;
+                 SHOWMEAN=1, MEANMASS=meanmass, MEANN2=meann2, $                   ;
+                 SHOWMED=1, MEDMASS=medmass, MEDN2=medn2, $ 
                  SHOWERB06PTS=1, SHOWERB06TREND=0, SHOWTR04=1)                     ;plot mzr
 
 END
@@ -777,118 +949,6 @@ END
 
 
 
-
-
-;====================================================================================================
-PRO mzranalysis::plotbpt, NOIRAGN=noiragn, $
-                          TGHAFLUX=tghaflux, TGNIIFLUX=gniiflux, TGIRAGN=tgiragn, $
-                          TGHAFLAG=tghaflag, TGNIIFLAG=tgniiflag, $
-                          FNBPTPLOT=fnbptplot
-
-  
-  ;;;set default values
-  print, '  BPT plot being created...'                                                    ;print info 
-  IF keyword_set(TGHAFLUX) THEN tghaflux = tghaflux[0] ELSE tghaflux = self.tghaflux      ;set default value
-  IF keyword_set(TGHAFLAG) THEN tghaflag = tghaflag[0] ELSE tghaflag = self.tghaflag      ;set default value
-  IF keyword_set(TGNIIFLUX) THEN tgniiflux = tgniiflux[0] ELSE tgniiflux = self.tgniiflux ;set default value
-  IF keyword_set(TGNIIFLAG) THEN tgniiflag = tgniiflag[0] ELSE tgniiflag = self.tgniiflag ;set default value
-  IF keyword_set(TGAGN) THEN tgagn = tgagn[0] ELSE tgagn = self.tgagn                     ;set default value
-  IF keyword_set(FNBPTPLOT) THEN BEGIN                                                    ;if new plot name given
-     fnbptplot = string(fnbptplot[0])                                                     ;take new name
-     self.fnbptplot = string(fnbptplot[0])                                                ;store new name
-  ENDIF ELSE fnbptplot = self.fnbptplot                                                   ;set default value
-
-
-  ;;;read catalog and fine appropriate data
-  self.readcat, 1                                        ;read in file
-                                ;self.sample                                            ;get sample
-  xdata = *self.curdata         ;copy data
-                                ;xdata = *self.compdata        ;copy data
-                                ;xdata = xdata[*self.sample]                            ;grab subset
-  chk = tag_exist(xdata, tghaflux, INDEX=hafind)         ;find necessary tag
-  text = '   This plot requires a Halpha flux keyword: ' ;text to pass
-  IF chk EQ 0 THEN hafind = tagprompt(xdata, text)       ;find necessary tag
-  chk = tag_exist(xdata, tghaflag, INDEX=hagind)         ;find necessary tag
-  text = '   This plot requires a Halpha flag keyword: ' ;text to pass
-  IF chk EQ 0 THEN hagind = tagprompt(xdata, text)       ;find necessary tag
-  chk = tag_exist(xdata, tgniiflux, INDEX=niifind)       ;find necessary tag
-  text = '   This plot requires a [NII] flux keyword: '  ;text to pass
-  IF chk EQ 0 THEN niifind = tagprompt(xdata, text)      ;find necessary tag
-  chk = tag_exist(xdata, tgniiflag, INDEX=niigind)       ;find necessary tag
-  text = '   This plot requires a [NII] flag keyword: '  ;text to pass
-  IF chk EQ 0 THEN niigind = tagprompt(xdata, text)      ;find necessary tag
-  IF ~keyword_set(NOIRAGN) THEN BEGIN                    ;if IR AGN
-     chk = tag_exist(xdata, tgagn, INDEX=iragnind)       ;find necessary tag
-     text = '   This plot options a IRAC AGN keyword: '  ;text to pass
-     IF chk EQ 0 THEN iragnind = tagprompt(xdata, text)  ;find necessary tag
-  ENDIF                                                  ;end IR AGN
-
-  ;;;find plausible metallicity measurements
-  N2 = alog10(xdata.(niifind)/xdata.(hafind)) ;find ratio
-  N2chk = where((N2 NE N2) OR (N2 NE 0.0))    ;find any NaNs or zeros
-  IF chk[0] NE -1 THEN N2 = N2[N2chk]         ;if present, remove
-  fakeys = fltarr(n_elements(N2))             ;create array for fake y values
-  fakeysul = fltarr(n_elements(N2))           ;create array for fake y values
-  fakeys[*] = -0.82                           ;set fake y values
-  fakeysul[*] = -0.92                         ;set fake y values
-
-  
-  ;;;upper limits
-  niiul = where((xdata[N2chk].(niigind) GE self.niifgul), COMPLEMENT=niisnr) ;appropriate flag test
-  
-
-  ;;;find which detections are also IR AGN selected
-  IF ~keyword_set(NOIRAGN) THEN BEGIN               ;cont next line
-     IF (iragnind NE -1) THEN BEGIN                 ;if index is real
-        iragn = where(xdata[N2chk].(iragnind) EQ 1) ;find IRAC AGN
-     ENDIF
-  ENDIF
-  
-  ;;;get models
-  model = kewley_2013(1, 1.5)   ;get [NII] related models
-  model2 = kewley_2006(1)       ;get [NII] SF related models
-  model3 = kewley_2006(2)       ;get [NII] composite related models
-
-  ;;;make the plot
-  w = window(LOCATION=[100+50*self.nwin,-25+25*self.nwin])         ;window
-  bptplot = plot([1.0], [1.0], '.', /CURRENT, /NODATA, $           ;plot data
-                 XTITLE='log([NII/H$\alpha$])', $                  ;plot options
-                 XRANGE=[self.bptxmin,self.bptxmax], $             ;plot options
-                 YTITLE='log([OIII/H$\beta$])', $                  ;plot options
-                 YRANGE=[self.bptymin,self.bptymax], FONT_SIZE=14) ;plot options
-
-  bptplot1 = plot(model.lmixxs, model.lmixys, '-', /OVERPLOT, $          ;plot model
-                  THICK=2, color='green')                                ;plot options
-  bptplot1 = plot(model.umixxs, model.umixys, '-', /OVERPLOT, $          ;plot model
-                  THICK=2, color='green')                                ;plot options
-  bptplot1 = plot(model.lsfxs, model.lsfys, '-', /OVERPLOT, $            ;plot model
-                  THICK=2, color='green')                                ;plot options
-  bptplot1 = plot(model.usfxs, model.usfys, '-', /OVERPLOT, $            ;plot model
-                  THICK=2, color='green', NAME='Kewley 2013 Scenario 1') ;plot model
-  bptplot2 = plot(model2.xs, model2.ys, '--', /OVERPLOT, $               ;plot options
-                  THICK=2, color='black', NAME='Kewley 2006 SF')         ;plot model
-  bptplot3 = plot(model3.xs, model3.ys, '-', /OVERPLOT, $                ;plot options
-                  THICK=2, color='black', NAME='Kewley 2006 Comp')       ;plot model
-
-  IF (niisnr[0] NE -1) THEN mydata = plot(N2[niisnr], fakeys[niisnr], 'd', /OVERPLOT, SYM_SIZE=2.0, /SYM_FILLED) ;plot real ratios
-  IF (niiul[0] NE -1) THEN mydata = plot(N2[niiul], fakeysul[niiul], 'tl', /OVERPLOT, SYM_SIZE=2.0, /SYM_FILLED) ;plot upper limits
-
-  IF ~keyword_set(NOIRAGN) THEN $                                                        ;cont next line
-     IF (iragn[0] NE -1) THEN mydata = plot(N2[iragn], fakeys[iragn], 'tl', /OVERPLOT, $ ;over plot IR AGN
-                                            SYM_SIZE=7, SYM_THICK=3, COLOR='green')      ;plot options
-
-  mylegend = legend(TARGET=[bptplot1, bptplot2, bptplot3], $               ;legend
-                    POSITION=[self.bptxmax-1.3,self.bptymax-0.1], /DATA, $ ;legend options
-                    SHADOW=0, LINESTYLE=6, FONT_SIZE=11)                   ;legend options
-
-  
-  bptplot.save, fnbptplot, RESOLUTION=600 ;save plot
-  self.bptmade = 1                        ;set as plot made this call
-  self.nwin = self.nwin + 1               ;up window number
-
-
-END
-;====================================================================================================
 
 
 ;====================================================================================================
@@ -1242,6 +1302,8 @@ PRO mzranalysis__define
           FITINFO:ptr_new(), $ 
           FNPLSPECSTACK:'A', FNPLMZRINDIV:'A', FNMZRFIT:'A', FNPLMZRSTACK:'A', $
           
+          BINMEDMASS:ptr_new(), BINMEANMASS:ptr_new(), BINMEDN2:ptr_new(), BINMEANN2:ptr_new(), $
+
           curcat:'A', dircurcat:'A', curdata:ptr_new(), curhdr:ptr_new(), ncurdata:0, $
           dirplot:'A', dirart:'A', sample:ptr_new(), cleansample:ptr_new(), GROUP:'A', $
           SORTCAT:'A', DIRSORT:'A', $

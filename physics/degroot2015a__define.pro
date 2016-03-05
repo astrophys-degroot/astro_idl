@@ -62,6 +62,7 @@ PRO degroot2015a::sample, infile, outfile, REMTAGS=remtags, TGRA=tgra, TGDEC=tgd
                           TGNIIFLUX=tgniiflux, NIIFLUXMIN=niifluxmin, NIIFLUXMAX=niifluxmax, $
                           TGMASS=tgmass, MASSMIN=massmin, MASSMAX=massmax, HELP=help
 
+
   IF keyword_set(TGRA) THEN tgra = tgra[0] ELSE tgra = 'mra'                                          ;set default value
   IF keyword_set(TGDEC) THEN tgdec = tgdec[0] ELSE tgdec = 'mdec'                                     ;set default value
   IF keyword_set(TGMFLAG) THEN tgmflag = string(tgmflag[0]) ELSE tgmflag = 'mflag'                    ;set default value
@@ -69,8 +70,9 @@ PRO degroot2015a::sample, infile, outfile, REMTAGS=remtags, TGRA=tgra, TGDEC=tgd
   IF keyword_set(MFLAGMAX) THEN mflagmax = string(mflagmax[0]) ELSE mflagmax = 0                      ;set default value
   IF keyword_set(TGSPZ1) THEN tgspz1 = string(tgspz1[0]) ELSE tgspz1 = 'sp_speczbest'                 ;set default value
   IF keyword_set(TGSPZFLAG1) THEN tgspzflag1 = string(tgspzflag1[0]) ELSE tgspzflag1 = 'sp_speczflag' ;set default value
-  IF keyword_set(SPZFLAG1MIN) THEN spzflag1min = string(spzflag1min[0]) ELSE spzflag1min = 0          ;set default value
-  IF keyword_set(SPZFLAG1MAX) THEN spzflag1max = string(spzflag1max[0]) ELSE spzflag1max = 0          ;set default value
+  IF keyword_set(TGCLMEM) THEN tgclmem = string(tgclmem[0]) ELSE tgclmem = 'AN_SHIGAP'                 ;set default value
+  IF keyword_set(SPZFLAG1MIN) THEN spzflag1min = string(spzflag1min[0]) ELSE spzflag1min = 0           ;set default value
+  IF keyword_set(SPZFLAG1MAX) THEN spzflag1max = string(spzflag1max[0]) ELSE spzflag1max = 3          ;set default value
   IF keyword_set(TGSPZ2) THEN tgspz2 = string(tgspz2[0]) ELSE tgspz2 = 'sp_m_z'                       ;set default value
   IF keyword_set(SPECZMIN) THEN speczmin = float(speczmin[0]) ELSE speczmin = 1.23                    ;set default value
   IF keyword_set(SPECZMAX) THEN speczmax = float(speczmax[0]) ELSE speczmax = 1.75                    ;set default value
@@ -79,13 +81,14 @@ PRO degroot2015a::sample, infile, outfile, REMTAGS=remtags, TGRA=tgra, TGDEC=tgd
   IF keyword_set(HAFLUXMIN) THEN hafluxmin = float(hafluxmin[0]) ELSE hafluxmin = 0.0                 ;set default value
   IF keyword_set(HAFLUXMAX) THEN hafluxmax = float(hafluxmax[0]) ELSE hafluxmax = 99999.0             ;set default value 
   IF keyword_set(TGEHAFLUX) THEN tgehaflux = tgehaflux[0] ELSE tgehaflux = 'SP_M_HA_FLUXERR'          ;set default value
-  IF keyword_set(HASNRMIN) THEN hasnrmin = float(hasnrmin[0]) ELSE hasnrmin = 3.0                     ;set default value
+  IF keyword_set(HASNRMIN) THEN hasnrmin = float(hasnrmin[0]) ELSE hasnrmin = 5.0                     ;set default value
   IF keyword_set(TGNIIFLUX) THEN tgniiflux = tgniiflux[0] ELSE tgniiflux = 'sp_m_niir_flux'           ;set default value
-  IF keyword_set(NIIFLUXMIN) THEN niifluxmin = float(niifluxmin[0]) ELSE niifluxmin = 0.0             ;set default value
+  IF keyword_set(NIIFLUXMIN) THEN niifluxmin = float(niifluxmin[0]) ELSE niifluxmin = -99999.0        ;set default value
   IF keyword_set(NIIFLUXMAX) THEN niifluxmax = float(niifluxmax[0]) ELSE niifluxmax = 99999.0         ;set default value 
+  IF keyword_set(TGNIIFLAG) THEN tgniiflag = tgniiflag[0] ELSE tgniiflag = 'sp_m_niir_flag'           ;set default value
   IF keyword_set(TGMASS) THEN tgmass = tgmass[0] ELSE tgmass = 'ph_lmass'                             ;set default value
   IF keyword_set(MASSMIN) THEN massmin = float(massmin[0]) ELSE massmin = 8.0                         ;set default value
-  IF keyword_set(MASSMAX) THEN massmax = float(massmax[0]) ELSE massmax = 12.0                        ;set default value 
+  IF keyword_set(MASSMAX) THEN massmax = float(massmax[0]) ELSE massmax = 14.0                        ;set default value 
 
   
   ;;;read in catalog
@@ -136,47 +139,16 @@ PRO degroot2015a::sample, infile, outfile, REMTAGS=remtags, TGRA=tgra, TGDEC=tgd
   postntags = n_elements(xdatatags)                                                               ;number tags left
   IF keyword_set(HELP) THEN help, xdata, /STRUC
   
-  ;;;Cut on RA, Dec
-  IF keyword_set(TGRA) and keyword_set(TGDEC) THEN BEGIN                        ;check variables as set
-     chk1 = tag_exist(xdata, tgra, INDEX=indra)                                 ;find tag index
-     chk2 = tag_exist(xdata, tgdec, INDEX=inddec)                               ;make sure tag name exists
-     IF (indra NE -1) AND (inddec NE -1) THEN BEGIN                             ;if tag names do exist
-        cl1 = where((xdata.(inddec) LT -10.0) AND (xdata.(inddec) GT -90.0))    ;find first cluster
-        pass = cleancat.cleanradec(xdata[cl1].(indra), xdata[cl1].(inddec))     ;find entries to keep        
-        cl23 = where(xdata.(inddec) GT -10.0 AND (xdata.(inddec) LT 90.0) AND $ ;cont next line
-                     (xdata.(indra) GT 30.0))                                   ;find first cluster
-        pass = cleancat.cleanradec(xdata[cl23].(indra), xdata[cl23].(inddec))   ;find entries to keep
-
-        keep = where( ((xdata.(inddec) LT -10.0) OR $                                               ;cont next line
-                       (xdata.(inddec) GT -10.0 AND (xdata.(indra) GT 30.0))) AND $                 ;cont next line
-                      ((xdata.(inddec) GT -90.0) AND (xdata.(inddec) LT 90.0) AND $                 ;cont next line
-                       (xdata.(indra) GT 0.0) AND (xdata.(indra) LT 360.0)), NCOMPLEMENT=lostradec) ;find which make the cut
-        xdata = xdata[keep]                                                                         ;cut the data
-     ENDIF                                                                                          ;end tag names exist
-  ENDIF                                                                                             ;end check variables as set
-
   ;;;cut on spec-z
   IF keyword_set(TGSPZ1) THEN BEGIN                                      ;check variables set
      chk = tag_exist(xdata, tgspz1, INDEX=indspz1)                       ;find necessary tag
      IF (indspz1 NE -1) THEN BEGIN                                       ;if tag is found
         z1 = where((xdata.(indspz1) GE speczmin) AND $                   ;cont next line
                    (xdata.(indspz1) LT speczmax), NCOMPLEMENT=lostspecz) ;find real
-        pass = cleancat.cleanspecz(xdata[z1].(indspz1))                  ;find entries to keep
+        pass = cleancat.cleanspecz(xdata[z1].(indspz1), /NORMALIZE)      ;find entries to keep
         xdata = xdata[z1]                                                ;cut the data
      ENDIF                                                               ;end tag found
   ENDIF                                                                  ;end check variables set
-
-  
-  ;;;cut on Halpha flux
-  ;IF keyword_set(TGHAFLUX) THEN BEGIN                                         ;check variables set
-  ;   chk = tag_exist(xdata, tghaflux, INDEX=indhaflux)                        ;find necessary tag
-  ;   IF (indhaflux NE -1) THEN BEGIN                                          ;if tag is found
-  ;      ha1 = where((xdata.(indhaflux) GE hafluxmin) AND $                    ;cont next line
-  ;                  (xdata.(indhaflux) LT hafluxmax), NCOMPLEMENT=losthaflux) ;find real
-  ;      pass = cleancat.cleanhaflux(xdata[ha1].(indhaflux))                   ;find entries to keep
-  ;      xdata = xdata[ha1]                                                    ;cut the data
-  ;   ENDIF                                                                    ;end tag found
-  ;ENDIF                                                                       ;end check variables set
 
   ;;;cut on Halpha SNR
   IF keyword_set(TGHAFLUX) AND keyword_set(TGEHAFLUX) THEN BEGIN                                  ;check variables set
@@ -188,41 +160,29 @@ PRO degroot2015a::sample, infile, outfile, REMTAGS=remtags, TGRA=tgra, TGDEC=tgd
         xdata = xdata[ha1]                                                                        ;cut the data
      ENDIF                                                                                        ;end tag found
   ENDIF                                                                                           ;end check variables set
+  ;;;cut on Halpha flux
+  ;IF keyword_set(TGHAFLUX) THEN BEGIN                                         ;check variables set
+  ;   chk = tag_exist(xdata, tghaflux, INDEX=indhaflux)                        ;find necessary tag
+  ;   IF (indhaflux NE -1) THEN BEGIN                                          ;if tag is found
+  ;      ha1 = where((xdata.(indhaflux) GE hafluxmin) AND $                    ;cont next line
+  ;                  (xdata.(indhaflux) LT hafluxmax), NCOMPLEMENT=losthaflux) ;find real
+  ;      pass = cleancat.cleanhaflux(xdata[ha1].(indhaflux))                   ;find entries to keep
+  ;      xdata = xdata[ha1]                                                    ;cut the data
+  ;   ENDIF                                                                    ;end tag found
+  ;ENDIF                                                                       ;end check variables set
+
 
   ;;;cut on NII flux
-  IF keyword_set(TGNIIFLUX) THEN BEGIN                                            ;check variables set
+  ;IF keyword_set(TGNIIFLUX) THEN BEGIN                                            ;check variables set
      chk = tag_exist(xdata, tgniiflux, INDEX=indniiflux)                          ;find necessary tag
-     IF (indniiflux NE -1) THEN BEGIN                                             ;if tag is found
-        nii1 = where((xdata.(indniiflux) GE niifluxmin) AND $                     ;cont next line
-                     (xdata.(indniiflux) LT niifluxmax), NCOMPLEMENT=lostniiflux) ;find real
-        pass = cleancat.cleanniiflux(xdata[nii1].(indniiflux))                    ;find entries to keep
-        xdata = xdata[nii1]                                                       ;cut the data
-     ENDIF                                                                        ;end tag found
-  ENDIF                                                                           ;end check variables set
-
-
-  ;;;cut on stellar mass 
-  IF keyword_set(TGMASS) THEN BEGIN                                       ;check variables set
-     chk = tag_exist(xdata, tgmass, INDEX=indmass)                        ;find necessary tag
-     IF (indmass NE -1) THEN BEGIN                                        ;if tag is found
-        mass1 = where((xdata.(indmass) GE massmin) AND $                  ;cont next line
-                      (xdata.(indmass) LT massmax), NCOMPLEMENT=lostmass) ;find real
-        pass = cleancat.cleanmass(xdata[mass1].(indmass))                 ;find entries to keep
-        xdata = xdata[mass1]                                              ;cut the data
-     ENDIF                                                                ;end tag found
-  ENDIF                                                                   ;end check variables set
-
-
-  ;;;cut on spec-z discrepancy
-  IF (keyword_set(TGSPZ1) AND keyword_set(TGSPZ2)) THEN BEGIN                                     ;check variables set
-     chk = tag_exist(xdata, tgspz1, INDEX=indspz1)                                                ;find necessary tag
-     chk = tag_exist(xdata, tgspz2, INDEX=indspz2)                                                ;find necessary tag
-     IF ((indspz1 NE -1) AND (indspz2 NE -1)) THEN BEGIN                                          ;if tag is found
-        specz = where(abs(xdata.(indspz1) - xdata.(indspz2)) LT spzdiff, NCOMPLEMENT=lostspzdiff) ;find real
-                                ;pass = cleancat.?????(xdata[mass1].(indmass)) ;find entries to keep
-        xdata = xdata[specz]    ;cut the data
-     ENDIF                      ;end tag found
-  ENDIF                         ;end check variables set
+     chk = tag_exist(xdata, tgniiflag, INDEX=indniiflag)                          ;find necessary tag
+  ;   IF (indniiflux NE -1) THEN BEGIN                                             ;if tag is found
+  ;      nii1 = where((xdata.(indniiflux) GE niifluxmin) AND $                     ;cont next line
+  ;                   (xdata.(indniiflux) LT niifluxmax), NCOMPLEMENT=lostniiflux) ;find real
+  ;      pass = cleancat.cleanniiflux(xdata[nii1].(indniiflux))                    ;find entries to keep
+  ;      xdata = xdata[nii1]                                                       ;cut the data
+  ;   ENDIF                                                                        ;end tag found
+  ;ENDIF                                                                           ;end check variables set
 
 
   ;;;cut on matching flag
@@ -236,16 +196,70 @@ PRO degroot2015a::sample, infile, outfile, REMTAGS=remtags, TGRA=tgra, TGDEC=tgd
      ENDIF                      ;end tag found
   ENDIF                         ;end check variables set
 
-  ;;;cut on matching flag
-  IF keyword_set(TGSPZFLAG1) THEN BEGIN                                                  ;check variables set
-     chk = tag_exist(xdata, tgspzflag1, INDEX=indspzflag1)                               ;find necessary tag
-     IF (indspzflag1 NE -1) THEN BEGIN                                                   ;if tag is found
-        spzflag1 = where((xdata.(indspzflag1) GE spzflag1min) AND $                      ;cont next line
-                         (xdata.(indspzflag1) LE spzflag1max), NCOMPLEMENT=lostspzflag1) ;find real
+
+  ;;;cut on stellar mass 
+  IF keyword_set(TGMASS) THEN BEGIN                                       ;check variables set
+     chk = tag_exist(xdata, tgmass, INDEX=indmass)                        ;find necessary tag
+     print, xdata.(indmass) 
+     IF (indmass NE -1) THEN BEGIN                                        ;if tag is found
+        mass1 = where((xdata.(indmass) GE massmin) AND $                  ;cont next line
+                      (xdata.(indmass) LT massmax), NCOMPLEMENT=lostmass) ;find real
+        pass = cleancat.cleanmass(xdata[mass1].(indmass))                 ;find entries to keep
+        xdata = xdata[mass1]                                              ;cut the data
+     ENDIF                                                                ;end tag found
+  ENDIF                                                                   ;end check variables set
+
+
+
+  ;;;Cut on RA, Dec
+  IF keyword_set(TGRA) and keyword_set(TGDEC) THEN BEGIN                        ;check variables as set
+     chk1 = tag_exist(xdata, tgra, INDEX=indra)                                 ;find tag index
+     chk2 = tag_exist(xdata, tgdec, INDEX=inddec)                               ;make sure tag name exists
+     IF (indra NE -1) AND (inddec NE -1) THEN BEGIN                             ;if tag names do exist
+        cl1 = where((xdata.(inddec) LT -10.0) AND (xdata.(inddec) GT -90.0))    ;find first cluster
+        pass = cleancat.cleanradec(xdata[cl1].(indra), xdata[cl1].(inddec))     ;find entries to keep        
+        cl23 = where(xdata.(inddec) GT -10.0 AND (xdata.(inddec) LT 90.0) AND $ ;cont next line
+                     (xdata.(indra) GT 30.0))                                   ;find first cluster
+        pass = cleancat.cleanradec(xdata[cl23].(indra), xdata[cl23].(inddec))   ;find entries to keep
+        cl4 = where(xdata.(inddec) GT 50.0 AND (xdata.(inddec) LT 70.0) AND $   ;cont next line
+                    (xdata.(indra) GT 160.0) AND xdata.(indra) LT 165.0)        ;find first cluster
+        pass = cleancat.cleanradec(xdata[cl4].(indra), xdata[cl4].(inddec))     ;find entries to keep
+
+        keep = where( ((xdata.(inddec) LT -10.0) OR $                                               ;cont next line
+                       (xdata.(inddec) GT -10.0 AND (xdata.(indra) GT 30.0)) OR $                   ;cont next line
+                       (xdata.(inddec) GT 50.0 AND (xdata.(inddec) LT 70.0))) AND $                 ;cont next line
+                      ((xdata.(inddec) GT -90.0) AND (xdata.(inddec) LT 90.0) AND $                 ;cont next line
+                       (xdata.(indra) GT 0.0) AND (xdata.(indra) LT 360.0)), NCOMPLEMENT=lostradec) ;find which make the cut
+        xdata = xdata[keep]                                                                         ;cut the data
+     ENDIF                                                                                          ;end tag names exist
+  ENDIF                                                                                             ;end check variables as set
+
+
+  ;;;cut on spec-z discrepancy
+  IF (keyword_set(TGSPZ1) AND keyword_set(TGSPZ2)) THEN BEGIN                                     ;check variables set
+     chk = tag_exist(xdata, tgspz1, INDEX=indspz1)                                                ;find necessary tag
+     chk = tag_exist(xdata, tgspz2, INDEX=indspz2)                                                ;find necessary tag
+     IF ((indspz1 NE -1) AND (indspz2 NE -1)) THEN BEGIN                                          ;if tag is found
+        specz = where(abs(xdata.(indspz1) - xdata.(indspz2)) LT spzdiff, NCOMPLEMENT=lostspzdiff) ;find real
                                 ;pass = cleancat.?????(xdata[mass1].(indmass)) ;find entries to keep
-        xdata = xdata[spzflag1] ;cut the data
+        xdata = xdata[specz]    ;cut the data
      ENDIF                      ;end tag found
   ENDIF                         ;end check variables set
+
+  ;;;cut on matching flag
+  ;IF keyword_set(TGSPZFLAG1) THEN BEGIN                                                  ;check variables set
+  ;   chk = tag_exist(xdata, tgspzflag1, INDEX=indspzflag1)                               ;find necessary tag
+  ;   IF (indspzflag1 NE -1) THEN BEGIN                                                   ;if tag is found
+  ;      spzflag1 = where((xdata.(indspzflag1) GE spzflag1min) AND $                      ;cont next line
+  ;                       (xdata.(indspzflag1) LE spzflag1max), NCOMPLEMENT=lostspzflag1) ;find real
+  ;                              ;pass = cleancat.?????(xdata[mass1].(indmass)) ;find entries to keep
+  ;      xdata = xdata[spzflag1] ;cut the data
+  ;   ENDIF                      ;end tag found
+  ;ENDIF                         ;end check variables set
+
+
+ 
+
 
   ;;;print user friendly info
   print, ' '                                                                       ;spacer
@@ -256,17 +270,29 @@ PRO degroot2015a::sample, infile, outfile, REMTAGS=remtags, TGRA=tgra, TGDEC=tgd
   print, 'After Cleaning...'                                                       ;print info
   print, '  Number of data per entry: ', postntags                                 ;print info
   print, '  Number of entries in cleaned catalog: ', n_elements(xdata)             ;print info
-  print, '    Number of entries lost by RA, Dec cleaning: ', lostradec             ;print info
   print, '    Number of entries lost by spec-z cleaning: ', lostspecz              ;print info
-  ;print, '    Number of entries lost by Halpha flux cleaning: ', losthaflux        ;print info
   print, '    Number of entries lost by Halpha SNR cleaning: ', losthasnr          ;print info
-  print, '    Number of entries lost by [NII] flux cleaning: ', lostniiflux        ;print info
+  ;print, '    Number of entries lost by Halpha flux cleaning: ', losthaflux        ;print info
+  ;print, '    Number of entries lost by [NII] flux cleaning: ', lostniiflux        ;print info
+  print, '    Number of entries lost by matching flag: ', lostmflag                ;print info
   print, '    Number of entries lost by stellar mass cleaning: ', lostmass         ;print info
   print, '    Number of entries lost by spec-z discrepancy: ', lostspzdiff         ;print info
-  print, '    Number of entries lost by matching flag: ', lostmflag                ;print info
-  print, '    Number of entries lost by spec-z quality flag: ', lostspzflag1       ;print info
+  print, '    Number of entries lost by RA, Dec cleaning: ', lostradec             ;print info
+  ;print, '    Number of entries lost by spec-z quality flag: ', lostspzflag1       ;print info
   print, '%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%' ;eye catcher
   print, ' '                                                                       ;spacer
+
+
+  ;;;make final plots
+  ;;;final spec-z histograms
+  nii1 = where((xdata.(indniiflag) LT 32), NCOMPLEMENT=lostniiflux) ;find real
+  pass = cleancat.cleanspecz(xdata.(indspz1), BINSIZE=0.02, $
+                             UPLIM=xdata[nii1].(indspz1)) ;find entries to keep
+
+  chk = tag_exist(xdata, tgclmem, INDEX=indclmem)                    ;find necessary tag
+  cl = where((xdata.(indclmem) EQ 1), NCOMPLEMENT=field)             ;find real
+  pass = cleancat.cleanspecz(xdata.(indspz1), BINSIZE=0.02, $        ;
+                             UPLIM=xdata[cl].(indspz1), COLOR='red') ;find entries to keep
 
 
 
@@ -283,7 +309,9 @@ PRO degroot2015a::sample, infile, outfile, REMTAGS=remtags, TGRA=tgra, TGDEC=tgd
   xdatatags = tag_names(xdata)      ;get new list of tag names
   postntags = n_elements(xdatatags) ;number tags left
   cleancat.scatterscatter, xdata    ;lots of scatter plot
-  
+
+
+
 
 
 END
@@ -404,8 +432,10 @@ PRO degroot2015a::runmzranalysis, xsubset
   run.findtags                                                                                  ;find all the tags we need
   IF xsubset.mcmass GT 1 THEN newmass = run.mcmass(xsubset.mcmass)                              ;get perturbed masses
   run.plotmzrindiv, ALLTOG=alltog                                                               ;plot individual points
+  run.plotbpt, /NOIRAGN                                                                         ;plot sudo-BPT points
   run.makebins, BINSET=xsubset.binset, NINBIN=xsubset.ninbin                                    ;find mass bin sizes
   run.specsort                                                                                  ;sort data into bins
+  run.findstats                                                                                 ;find stats for bins
   run.specstack, SM=xsubset.sm                                                                  ;stack spectra
   run.collatespecstack                                                                          ;stack spectra
   run.readstack                                                                                 ;read in the mzr stack data
@@ -442,7 +472,8 @@ PRO degroot2015a::workingon, subset, CATALOG=catalog, BINSET=binset
           {name:'six', catalog:'kemclass_pz_specz_v0-8-2.fits', BINSET:'field', NINBIN:20, SM:'smcurrent', FITMZR:'tr04', MCMASS:1}, $
           {name:'seven', catalog:'kemclass_pz_specz_v0-8-2.fits', BINSET:'cluster', NINBIN:14, SM:'smcurrent', FITMZR:'tr04', MCMASS:1}, $ 
           {name:'eight', catalog:'kemclass_pz_specz_v0-8-3.fits', BINSET:'field', NINBIN:20, SM:'smcurrent', FITMZR:'tr04', MCMASS:1}, $
-          {name:'nine', catalog:'kemclass_pz_specz_v0-8-3.fits', BINSET:'cluster', NINBIN:14, SM:'smcurrent', FITMZR:'tr04', MCMASS:1} ] 
+          {name:'nine', catalog:'kemclass_pz_specz_v0-8-3.fits', BINSET:'cluster', NINBIN:14, SM:'smcurrent', FITMZR:'tr04', MCMASS:1}, $ 
+          {name:'onezero', catalog:'kemclass_pz_specz_v1-0-3.fits', BINSET:'all', NINBIN:25, SM:'smcurrent', FITMZR:'tr04', MCMASS:1} ] 
   
 
   chk = where(sets.name EQ strlowcase(string(subset[0])))

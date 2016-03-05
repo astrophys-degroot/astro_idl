@@ -164,24 +164,47 @@ END
 
 
 ;====================================================================================================
-FUNCTION KEMCLASS_CLEAN::cleanspecz, xspecz
+FUNCTION KEMCLASS_CLEAN::cleanspecz, xspecz, NORMALIZE=normalize, BINSIZE=binsize, UPLIM=uplim, $
+                                     COLOR=color
+
+  IF keyword_set(BINSIZE) THEN binsize = float(binsize[0]) ELSE binsize = 0.05 ;set default
+  IF keyword_set(COLOR) THEN color = string(color[0]) ELSE color = 'green'     ;set default
 
   
   ;;;find histrogram data
-  pdfspecz = histogram(xspecz, LOCATIONS=xspeczbins, BINSIZE=0.05)  ;histogspeczm
-  pdfspecz = pdfspecz / float(n_elements(xspecz))                   ;normalize histogspeczm
-  xspeczbins = [xspeczbins[0]-0.1, xspeczbins, xspeczbins[-1]+0.1]  ;pass bins
-  pdfspecz = [0.0,pdfspecz,0.0]                                     ;pad array
+  pdfspecz = histogram(xspecz, LOCATIONS=xspeczbins, BINSIZE=binsize)              ;histogspecz
+  If keyword_set(NORMALIZE) THEN pdfspecz = pdfspecz / float(n_elements(xspecz))   ;normalize histogspeczm
+  xspeczbins = [xspeczbins[0]-2.0*binsize, xspeczbins, xspeczbins[-1]+2.0*binsize] ;pass bins
+  pdfspecz = [0.0,pdfspecz,0.0]                                                    ;pad array
 
+
+  IF keyword_set(UPLIM) THEN BEGIN
+     pdfuplim = histogram(uplim, LOCATIONS=xuplimbins, BINSIZE=binsize, MAX=xspeczbins[-1], $
+                          MIN=xspeczbins[0]) ;histogspecz
+  ENDIF
 
   ;;;do the plotting
   mywin = window(LOCATION=[100+50*self.nwin,25*self.nwin]) ;window
   
-  myplot = plot(xspeczbins, pdfspecz, COLOR='black', /STAIRSTEP, $ ;plot specz hist
-                XTITLE = 'Spectroscopic Redshift', $               ;plot options
-                YTITLE = 'Frequency', $                            ;plot options
-                /CURRENT)                                          ;plot options
+  myplot = plot(xspeczbins, pdfspecz, $              ;plot specz hist
+                COLOR='black', /STAIRSTEP, $         ;plot options
+                THICK=2.0, $                         ;plot options
+                XTITLE = 'Spectroscopic Redshift', $ ;plot options
+                YTITLE = 'Frequency', $              ;plot options
+                FONT_SIZE=14, FONT_STYLE=1, $        ;plot options
+                /CURRENT)                            ;plot options
 
+  IF keyword_set(UPLIM) THEN BEGIN
+     myplot = plot(xuplimbins, pdfuplim, $                                 ;plot specz hist
+                   COLOR=color, FILL_COLOR=color, FILL_BACKGROUND=1, $ ;plot options
+                   /STAIRSTEP, $                                           ;plot options
+                   THICK=2.0, $                                            ;plot options
+                   XTITLE = 'Spectroscopic Redshift', $                    ;plot options
+                   YTITLE = 'Frequency', $                                 ;plot options
+                   FONT_SIZE=14, FONT_STYLE=1, $                           ;plot options
+                   /CURRENT, /OVERPLOT)                                    ;plot options
+  ENDIF
+  
   self.nwin = self.nwin + 1     ;up window number
   RETURN, 1
 END

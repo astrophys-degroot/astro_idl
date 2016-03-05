@@ -412,12 +412,6 @@ FUNCTION specstack::normalize, xmyout, TNORMALIZE=tnormalize, LAMBVAL=lambval
         ENDFOR                                                                                                  ;end loop over spectra
      END                                                                                                        ;end Halpha peak flux for normalization
 
-     2 : BEGIN
-     END
-
-     3 : BEGIN
-     END
-
      99 : BEGIN                                                ;no normalization
         print, '   No normalization performed on the spectra.' ;print info
         self.normalize = 'NONE'                                ;store common grid info
@@ -489,27 +483,30 @@ END
 
 ;====================================================================================================
 FUNCTION specstack::rejection, xmyout, TREJECTION=trejection, $
-                               CLIPSIG=clipsig, CLIPITERS=clipiters
+                               NMINMAX=nminmax, CLIPSIG=clipsig, CLIPITERS=clipiters
 
   
   IF keyword_set(TREJECTION) THEN trejection = trejection[0] ELSE trejection = self.trejection ;set default
+  IF keyword_set(NMINMAX) THEN nminmax = nminmax[0] ELSE nminmax = 2                           ;set default
   IF keyword_set(CLIPSIG) THEN clipsig = clipsig[0] ELSE clipsig = 2.0                         ;set default
   IF keyword_set(CLIPITERS) THEN clipiters = clipiters[0] ELSE clipiters = 5                   ;set default 
 
-  CASE TREJECTION OF                                                   ;which type of rejection
-     1 : BEGIN                                                         ;begin min/max rejection
-        print, '   Using a MIN/MAX rejection.'                         ;print info
-        self.rejection = 'MINMAX'                                      ;store type info
-        FOR xx=0, n_elements(xmyout[0].spec1d)-1, 1 DO BEGIN           ;loop over wavelength
-           good = where(xmyout.spec1dflag[xx] EQ 0)                    ;find non-rejects
-           IF ((good[0] NE -1) AND (n_elements(good) GT 2)) THEN BEGIN ;if enough real data exists
-              minval = min(xmyout[good].spec1d[xx], minind)            ;find minimum
-              maxval = max(xmyout[good].spec1d[xx], maxind)            ;find maximum
-              xmyout[good[minind]].spec1dflag[xx] = 1                  ;reject
-              xmyout[good[maxind]].spec1dflag[xx] = 1                  ;reject
-           ENDIF                                                       ;end if real data exists
-        ENDFOR                                                         ;end loop over wavelength
-     END                                                               ;end min/max rejection
+  CASE TREJECTION OF                                                      ;which type of rejection
+     1 : BEGIN                                                            ;begin min/max rejection
+        print, '   Using a MIN/MAX rejection.'                            ;print info
+        self.rejection = 'MINMAX'                                         ;store type info
+        FOR xx=0, n_elements(xmyout[0].spec1d)-1, 1 DO BEGIN              ;loop over wavelength
+           FOR yy=0, nminmax-1, 1 DO BEGIN                                ;loop over number of min/max rejections
+              good = where(xmyout.spec1dflag[xx] EQ 0)                    ;find non-rejects
+              IF ((good[0] NE -1) AND (n_elements(good) GT 2)) THEN BEGIN ;if enough real data exists
+                 minval = min(xmyout[good].spec1d[xx], minind)            ;find minimum
+                 maxval = max(xmyout[good].spec1d[xx], maxind)            ;find maximum
+                 xmyout[good[minind]].spec1dflag[xx] = 1                  ;reject
+                 xmyout[good[maxind]].spec1dflag[xx] = 1                  ;reject
+              ENDIF                                                       ;end if real data exists
+           ENDFOR                                                         ;end loop over min max rejections
+        ENDFOR                                                            ;end loop over wavelength
+     END                                                                  ;end min/max rejection
 
      2 : BEGIN                                                                                    ;begin sigma-clip rejection
         print, '   Using a sigma-clipping rejection.'                                             ;print info
@@ -818,16 +815,21 @@ PRO specstack::display, xmystacked, xmyout, LOWIND=lowind, HIIND=hiind
   IF keyword_set(HIIND) THEN hiind = hiind[0] ELSE hiind = 2500     ;set default
   
   
-  stackwin = window(LOCATION=[100,100])                                                                                    ;create window
-  stackplot = plot(xmystacked.lambdas[lowind:hiind], xmystacked.spec1d[lowind:hiind]+10.0, $                               ;plotting
+  stackwin = window(LOCATION=[100,100])                          ;create window
+  stackplot = plot(xmystacked.lambdas, xmystacked.spec1d+10.0, $ ;plotting
+                                ;stackplot = plot(xmystacked.lambdas[lowind:hiind], xmystacked.spec1d[lowind:hiind]+10.0, $                               ;plotting
                                 ;stackplot = plot(xmystacked.lambdas[lowind:hiind], xmystacked.spec1d[lowind:hiind], $ ;plotting
                    /CURRENT, $  ;plot options
-                   TITLE='Stacked Spectrum and Input Spectra', $                       ;plot options
-                   XTITLE='Rest Frame Wavelength [$\AA$]', $                           ;plot options
-                   YTITLE='Flux [arbitrary units]', COLOR='blue')                      ;plot options
-  FOR xx=0, n_elements(xmyout)-1, 1 DO BEGIN                                           ;loop over individual
-     stackplot = plot(xmyout[xx].lambdas[lowind:hiind], $                              ;cont next line
-                      (xmyout[xx].spec1d[lowind:hiind])+(5.0-xx), /OVERPLOT)           ;plotting individual
+                   TITLE='Stacked Spectrum and Input Spectra', $       ;plot options
+                   XTITLE='Rest Frame Wavelength [$\AA$]', $           ;plot options
+                   XRANGE=[6400.0,7000.0], $                           ;force wavelength range
+                   YTITLE='Flux [arbitrary units]', COLOR='blue')      ;plot options
+  FOR xx=0, n_elements(xmyout)-1, 1 DO BEGIN                           ;loop over individual
+     use = where(xmyout[xx].spec1dflag EQ 0)                           ;get non-flagged
+     IF use[0] NE -1 THEN BEGIN                                        ;if usable points
+        stackplot = plot(xmyout[xx].lambdas[use], $                    ;cont next line
+                         (xmyout[xx].spec1d[use])+(5.0-xx), /OVERPLOT) ;plotting individual
+     ENDIF                                                             ;end if  useable points
                                 ;(xmyout[xx].spec1d[lowind:hiind]), /OVERPLOT) ;plotting individual
   ENDFOR                        ;end loop over individual
   

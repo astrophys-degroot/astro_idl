@@ -119,6 +119,8 @@ function PLOT_MZR, mass, metalrule, CLMEM=clmem, NS=ns, $ ;, DEMETALLICITY=dmeta
                    SHOWTR04=showtr04, $
                    SHOWST14TR=showst14tr, SHOWST14PT=showst14pt, $
                    SHOWSA14PT=showsa14pt, $
+                   SHOWMEAN=showmean, MEANMASS=meanmass, MEANN2=meann2, $ 
+                   SHOWMED=showmed, MEDMASS=medmass, MEDN2=medn2, $ 
                    NULLVAL=nullval, OUTFILE=outfile, DOUTFILE=doutfile, VERBOSE=verbose
 
 ;+
@@ -368,6 +370,20 @@ function PLOT_MZR, mass, metalrule, CLMEM=clmem, NS=ns, $ ;, DEMETALLICITY=dmeta
      mylabel = text(mass, metals, label, /DATA) ;label things
   ENDIF                                         ;end label keyword set
 
+
+  ;;;plot mean, median data if desired
+  IF keyword_set(SHOWMEAN) THEN BEGIN                                                    ;show the mean points
+     myplot3 = SCATTERPLOT(meanmass, (8.9+0.57*alog10(meann2)), /OVERPLOT, SYMBOL='o', $ ;plot values
+                           SYM_SIZE=1.0, /SYM_FILLED, SYM_COLOR='green', $               ;plot options
+                           NAME='mean_bins')                                             ;plot options
+  ENDIF                                                                                  ;end show the mean points
+  IF keyword_set(SHOWMED) THEN BEGIN                                                     ;show the med points
+     myplot3 = SCATTERPLOT(medmass, (8.9+0.57*alog10(medn2)), /OVERPLOT, SYMBOL='o', $   ;plot values
+                           SYM_SIZE=1.0, /SYM_FILLED, SYM_COLOR='red', $                 ;plot options
+                           NAME='med_bins')                                              ;plot options
+  ENDIF                                                                                  ;end show the med points
+
+
   ;;;plot published data
   If keyword_set(saturate) THEN  BEGIN
      myplot = plot([xmin-0.1,xmax+0.1], [saturatehard,saturatehard], '-', THICK=2, /OVERPLOT, NAME='AGN CUT')   ;plot options
@@ -400,17 +416,17 @@ function PLOT_MZR, mass, metalrule, CLMEM=clmem, NS=ns, $ ;, DEMETALLICITY=dmeta
 
   IF keyword_set(SHOWST14PT) THEN BEGIN ;show Steidel work
      mzrpoints = steidelcomp(1)         ;comparison
-     targets2 = [targets2, mzrpoints]     ;add to legend targets
+     targets2 = [targets2, mzrpoints]   ;add to legend targets
   ENDIF                                 ;end show Steidel work
 
   IF keyword_set(SHOWST14TR) THEN BEGIN ;show Steidel work
      mzrtrend = steidelcomp(2, fakexs)  ;comparison
-     targets2 = [targets2, mzrtrend]      ;add to legend targets
+     targets2 = [targets2, mzrtrend]    ;add to legend targets
   ENDIF                                 ;end show Steidel work
 
   IF keyword_set(SHOWSA14PT) THEN BEGIN ;show Sanders work
      mzrpoints = sanderscomp(1)         ;comparison
-     targets2 = [targets2, mzrpoints]     ;add to legend targets
+     targets2 = [targets2, mzrpoints]   ;add to legend targets
   ENDIF                                 ;end show Sanders work
 
   IF keyword_set(STACK) THEN BEGIN                                                            ;if error are put on each point

@@ -329,11 +329,14 @@ FUNCTION mosfire_analyze1d::readfiles, xwhich, ERRFAC=errfac
               stores = replicate(store, nslits)
               FOR xx=0, n_elements(slitstart)-1, 1 DO BEGIN
                  bits = strsplit(content[slitstart[xx]], /EXTRACT)
-                 chk = where(bits EQ 'Slit')
+                 chk = where(bits EQ 'Slit', nchk)
+                 IF nchk GT 1 THEN chk = chk[0] ;in case some weird output place two on the same line
                  stores[xx].object = bits[chk + 1]
                  chk = where(bits EQ 'from')
+                 IF nchk GT 1 THEN chk = chk[0] ;in case some weird output place two on the same line
                  stores[xx].low = bits[chk + 1]
                  chk = where(bits EQ 'to')
+                 IF nchk GT 1 THEN chk = chk[0] ;in case some weird output place two on the same line
                  stores[xx].high = bits[chk + 1]
                  chk = where((residstores.line GE stores[xx].low) AND (residstores.line LT stores[xx].high))
                  IF (chk[0] NE -1) THEN BEGIN

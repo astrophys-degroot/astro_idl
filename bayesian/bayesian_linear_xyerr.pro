@@ -53,9 +53,9 @@ pro bayesian_linear_xyerr, xs, ys, xerr, yerr, $
   if keyword_set(SLPMIN) then slpmin = slpmin[0] else slpmin = 0.0   ;sets new value
   if keyword_set(SLPMAX) then slpmax = slpmax[0] else slpmax = 5.0   ;sets new value
   if keyword_set(SLPBIN) then slpbin = slpbin[0] else slpbin = 0.05  ;sets new value
-  if keyword_set(TXMIN) then txmin = txmin[0] else txmin = -2.0       ;sets new value
-  if keyword_set(TXMAX) then txmax = txmax[0] else txmax = 7.0       ;sets new value
-  if keyword_set(TXBIN) then txbin = txbin[0] else txbin = 0.05      ;sets new value
+  if keyword_set(TXMIN) then txmin = txmin[0] else txmin = -30.0       ;sets new value
+  if keyword_set(TXMAX) then txmax = txmax[0] else txmax = 30.0       ;sets new value
+  if keyword_set(TXBIN) then txbin = txbin[0] else txbin = 1.0      ;sets new value
   if keyword_set(PLOTFIT) then plotfit = 'Y' else plotfit = 'N'      ;sets new value
   if keyword_set(PLOTDATA) then plotdata = 'Y' else plotdata = 'N'   ;sets new value
   if keyword_set(VERBOSE) then verbose = verbose[0] else verbose = 1 ;sets new value

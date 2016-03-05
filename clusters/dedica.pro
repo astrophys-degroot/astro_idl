@@ -216,8 +216,11 @@ function dedica_analyze, xvals, yvals, ITERMAX=itermax, LOWERLIM=lowerlim, MINDI
   pcnt = 0                                      ;count peaks
   WHILE niters LT n_elements(labels) DO BEGIN   ;iterate
      curymax = max(yvals, maxind)               ;find maximum
-     ccdown = (ddyvals[curymax] LE 0.000000001) ;double check peak is concave down
-
+                                ;the derivative calculations are
+                                ;complete shit
+                                ;ccdown = (ddyvals[curymax] LE 0.000000001) ;double check peak is concave down
+     ccdown = 1
+     
      IF ccdown EQ 1 THEN BEGIN                                                                          ;if peak is concave down
         godown = 1                                                                                      ;start counter
         inddown = maxind-1                                                                              ;get current index

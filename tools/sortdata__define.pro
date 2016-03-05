@@ -721,6 +721,22 @@ FUNCTION sortdata::filldir, xmask, xobj
         xstruc.file = strcompress('xmm105_mask2_v1_H_' + xobj + '_eps_1d_v11.fits', /REMOVE_ALL)
         xstruc.dir = '/Users/adegroot/research/dataredux/mosfire/xmm105_mask2_v1/2014nov17/H/'
      END
+    'lok400_mask1_H' : BEGIN
+        xstruc.file = strcompress('lok400_mask1_H_' + xobj + '_eps_1d_v11.fits', /REMOVE_ALL)
+        xstruc.dir = '/Users/adegroot/research/dataredux/mosfire/LOK400_mask1/2013nov29/H/'
+     END
+    'LOK400_mask2_H' : BEGIN
+        xstruc.file = strcompress('LOK400_mask2_H_' + xobj + '_eps_1d_v11.fits', /REMOVE_ALL)
+        xstruc.dir = '/Users/adegroot/research/dataredux/mosfire/LOK400_mask2/2014may14/H/'
+     END
+    'LOK400_mask3_H' : BEGIN
+        xstruc.file = strcompress('LOK400_mask3_H_' + xobj + '_eps_1d_v11.fits', /REMOVE_ALL)
+        xstruc.dir = '/Users/adegroot/research/dataredux/mosfire/LOK400_mask3/2014nov16/H/'
+     END
+    'lok400_mask4_v1_H' : BEGIN
+        xstruc.file = strcompress('lok400_mask4_v1_H_' + xobj + '_eps_1d_v11.fits', /REMOVE_ALL)
+        xstruc.dir = '/Users/adegroot/research/dataredux/mosfire/lok400_mask4_v1/2014nov17/H/'
+     END
 
      ELSE : BEGIN
         ;print, 'WARNING!! Something has gone horribly wrong!'

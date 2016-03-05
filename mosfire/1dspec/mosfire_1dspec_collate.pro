@@ -21,7 +21,6 @@ FUNCTION addredshift, xcat, xheader, xx, ZTAG=ztag, DZTAG=dztag, QFLAGTAG=qflagt
   IF keyword_set(QFLAGTAG) THEN qflagtag = qflagtag[0] ELSE qflagtag = 'ZQFLAG' ;set new value
 
   print, float(fxpar(xheader, ztag))   
-  stop
   xcat[xx].z = float(fxpar(xheader, ztag)) ;get value from header
   
   xcat[xx].dz = float(fxpar(xheader, dztag))             ;get value from header
