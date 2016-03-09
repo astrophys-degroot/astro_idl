@@ -396,7 +396,8 @@ END
 
 
 ;====================================================================================================
-PRO cdfs44::mergeMOSFIRE, OUTFILE=outfile, OUTDIR=outdir
+PRO cdfs44::mergeMOSFIRE, OUTFILE=outfile, OUTDIR=outdir, $
+                          APPLYOFF=applyoff, APPLYBASE=applybase, WHICHAPPLY=whichapply
 
 
   files = ['/Users/adegroot/research/dataredux/mosfire/CDFS44_mask1_1.0/2012nov25/H/cdfs44_mask1_1dspeccat_v6-3.fits', $
@@ -408,7 +409,7 @@ PRO cdfs44::mergeMOSFIRE, OUTFILE=outfile, OUTDIR=outdir
            '/Users/adegroot/research/dataredux/mosfire/cdfs44_mask7_v2/2014nov17/H/cdfs44_mask7_1dspeccat_v6-3.fits', $
            '/Users/adegroot/research/dataredux/mosfire/cdfs44_mask8_v2/2014nov17/H/cdfs44_mask8_1dspeccat_v6-3.fits']
   
-  IF keyword_set(OUTFILE) THEN outfile = string(outfile[0]) ELSE outfile = 'cdfs44_mosfire_specz_v6-4.fits'
+  IF keyword_set(OUTFILE) THEN outfile = string(outfile[0]) ELSE outfile = 'cdfs44_mosfire_specz_v6-5.fits'
   IF keyword_set(OUTDIR) THEN outdir = string(outdir[0]) ELSE outdir = '/Users/adegroot/research/clusters/cdfs/cdfs44/catalogs/spectroscopic/'
 
 
@@ -426,7 +427,7 @@ PRO cdfs44::mergeMOSFIRE, OUTFILE=outfile, OUTDIR=outdir
   out = replicate(data[0], ntot)
   nrun = 0
   FOR xx=0, n_elements(files)-1, 1 DO BEGIN
-     data = mrdfits(files[xx], 1, hdr)
+     data = mrdfits(files[xx], 1, hdr, /SILENT)
      nmask = n_elements(data.(0))
      FOR yy=0, nmask-1, 1 DO BEGIN
         out[nrun] = data[yy]
@@ -434,6 +435,225 @@ PRO cdfs44::mergeMOSFIRE, OUTFILE=outfile, OUTDIR=outdir
      ENDFOR
   ENDFOR
   
+
+  ;;;if we want to check WCS offsets
+  IF keyword_set(APPLYOFF) THEN BEGIN                                                                ;
+     IF keyword_set(APPLYBASE) THEN applybase = int(applybase[0]) ELSE applybase = 7                 ;set default
+     IF keyword_set(WHICHAPPLY) THEN whichapply = string(whichapply[0]) ELSE whichapply = 'rotation' ;set default
+     print, '    Finding and apply offset to WCS solution...'                                        ;
+     
+     ;;;reorder the list to put the base at first
+     ;;;;known issues here if the applybase value is not the last
+     ;;;;element of the list
+     files = [files[applybase], files[0:applybase-1]] ;
+     
+     ;;;loop over the catalogs
+     FOR ii=0, n_elements(files)-1, 1 DO BEGIN            ;
+        curfull = files[ii]                               ;
+        split_curfull = strsplit(curfull, '/', EXTRACT=1) ;
+        curfile = split_curfull[-1]                       ;
+
+        ;;;the lookup case for MAGMA input
+        magmadir = '/Users/adegroot/research/clusters/cdfs/cdfs44/spectroscopy/masks/'                      ;
+        CASE curfile OF                                                                                     ; 
+           'cdfs44_mask1_1dspeccat_v6-3.fits' : magmafile = 'CDFS44_mask1_1.0/CDFS44_mask1_1.0_orig.coords' ;
+           'cdfs44_mask2_1dspeccat_v6-3.fits' : magmafile = 'CDFS44_mask2_1.0/CDFS44_mask2_1.0_orig.coords' ;
+           'cdfs44_mask3_1dspeccat_v6-3.fits' : magmafile = 'CDFS44_mask3_1.0/CDFS44_mask3_1.0_orig.coords' ;
+           'cdfs44_mask4_1dspeccat_v6-3.fits' : magmafile = 'CDFS44_mask4_1.0/CDFS44_mask4_1.0_orig.coords' ;
+           'cdfs44_mask5_1dspeccat_v6-3.fits' : magmafile = 'cdfs44_mask5_v2/cdfs44_mask5_v2_orig.coords'   ;
+           'cdfs44_mask6_1dspeccat_v6-3.fits' : magmafile = 'cdfs44_mask6_v2/cdfs44_mask6_v2_orig.coords'   ;
+           'cdfs44_mask7_1dspeccat_v6-3.fits' : magmafile = 'cdfs44_mask7_v2/cdfs44_mask7_v2_orig.coords'   ;
+           'cdfs44_mask8_1dspeccat_v6-3.fits' : magmafile = 'cdfs44_mask8_v2/cdfs44_mask8_v2_orig.coords'   ;
+           ELSE : BEGIN                                                                                     ;
+              print, 'Mask not found to look up MAGMA input catalog!!'                                      ;
+              print, '  Can not proceed with WCS comparison and offset!!'                                   ;
+           ENDELSE                                                                                          ;
+        ENDCASE                                                                                             ;
+        IF ii EQ 0 THEN magmamaster = magmadir + magmafile                                                  ;
+        
+        ;;;read in magma files, convert sexigesimal to degrees
+        IF ii EQ 0 THEN readcol, magmamaster, mmid, mmpriority, mmmag, mmrah, mmram, mmras, mmdech, mmdecm, mmdecs, $               ;
+                                 mmeqoch, mmequi, mmthing1, mmthing2, FORMAT=('A,F,F,I,I,F,I,I,F,F,F,F,F')                          ;
+        IF ii NE 0 THEN BEGIN                                                                                                       ;
+           readcol, magmadir + magmafile, mnewid, mnewpriority, mnewmag, mnewrah, mnewram, mnewras, mnewdech, mnewdecm, mnewdecs, $ ;
+                    mneweqoch, mnewequi, mnewthing1, mnewthing2, FORMAT=('A,F,F,I,I,F,I,I,F,F,F,F,F')                               ;
+           mmra = 15.0*(double(mmrah) + mmram/60.0 + mmras/3600.0)                                                                  ;
+           mmdec = tenv(mmdech, mmdecm, mmdecs)                                                                                     ;
+           mnewra = 15.0*(double(mnewrah) + mnewram/60.0 + mnewras/3600.0)                                                          ;
+           mnewdec = tenv(mnewdech, mnewdecm, mnewdecs)                                                                             ;
+
+           ;;;double checking code
+           ;print, magmamaster
+           ;print, magmafile
+           ;openw, lun, 'wtfwcs1.txt', /get_lun
+           ;FOR ii=0, n_elements(mmra)-1, 1 DO BEGIN
+           ;   printf, lun, mmra[ii], mmdec[ii]
+           ;ENDFOR
+           ;free_lun, lun
+           ;openw, lun, 'wtfwcs2.txt', /get_lun
+           ;FOR ii=0, n_elements(mnewra)-1, 1 DO BEGIN
+           ;   printf, lun, mnewra[ii], mnewdec[ii]
+           ;ENDFOR
+           ;free_lun, lun
+           ;stop
+
+
+           ;;;define a set of "matches" to correct
+           matches = []
+           radii = []
+           radius = 0.2
+           dradius = 0.4
+           maxradii = 10.0
+           cnt = 0
+           perfectmatch = 'false'
+           WHILE radius LT maxradii and cnt LT 100 DO BEGIN
+              close_match, mnewra, mnewdec, mmra, mmdec, match1, match2, float(radius)/3600.0, 1, miss1, SILENT=1
+              radii = [radii, radius]
+              matches = [matches, n_elements(match1)]              
+              radius = radius + dradius
+              IF n_elements(match1) EQ n_elements(mmra) THEN BEGIN
+                 cnt = 100
+                 perfectmatch = 'true'
+              ENDIF
+              cnt = cnt + 1
+           ENDWHILE
+
+           IF perfectmatch NE 'true' THEN BEGIN
+              
+              ;;;basically an ROC to find best matching radius
+              radii = radii / maxradii
+              matches = matches/float(n_elements(mnewra))
+              closest = ((radii)^2+(1.0-matches)^2)^0.5
+              minclosest = min(closest, minind)
+              print, '  Optimal matching radius [arcsec]', radii[minind]*maxradii
+              myplot = plot(radii, matches, 'bo', $
+                            TITLE = curfile)
+              myplot = plot(radii, closest, 'r+', /CURRENT, /OVERPLOT)
+
+           ;;;redo the match with the best radii
+              close_match, mnewra, mnewdec, mmra, mmdec, match1, match2, float(radii[minind]*maxradii)/3600.0, 1, miss1, SILENT=1
+              submnewra = mnewra[match1]
+              submnewdec = mnewdec[match1]
+              submmra = mmra[match2]
+              submmdec = mmdec[match2]
+              
+              diffras = (submnewra-submmra)
+              meddiffra = median(diffras)
+              diffdecs = (submnewdec-submmdec)
+              ;print, diffdecs
+              meddiffdec = median(diffdecs)
+
+              IF (meddiffra GT 0.00001) OR (meddiffdec GT 0.00001) THEN BEGIN
+                 print, meddiffra
+                 print, meddiffdec
+                 print, meddiffra*3600.0
+                 print, meddiffdec*3600.0
+
+
+                 mywin = window(LOCATION=[100,100], DIMENSIONS=[800,400])         ;window
+                 pdfra = histogram(diffras*3600.0, LOCATIONS=rabins, BINSIZE=0.1) ;bin it up
+                 myplot1 = plot(rabins, pdfra, COLOR='black', /STAIRSTEP, $       ;plot dec hist
+                                XTITLE='RA Offset [arcsec]', $                    ;plot options
+                                YTITLE='Frequency', $                             ;plot options
+                                /CURRENT, LAYOUT=[1,2,1])                         ;plot options
+                 pdfdec = histogram(diffdecs*3600.0, LOCATIONS=decbins, BINSIZE=0.1) ;bin it up
+                 myplot1 = plot(decbins, pdfdec, COLOR='black', /STAIRSTEP, $        ;plot dec hist
+                                XTITLE='DEC Offset [arcsec]', $                      ;plot options
+                                YTITLE='Frequency', $                                ;plot options
+                                /CURRENT, LAYOUT=[1,2,2])                            ;plot options
+
+
+
+                                ;submmra = submmra[0:5]
+                                ;print, submmra
+                                ;submmdec = submmdec[0:5]
+                                ;print, submmdec
+                                ;submnewra = submnewra[0:5]
+                                ;print, submnewra
+                                ;submnewdec = submnewdec[0:5]
+                                ;print, submnewdec
+
+                 fullnew = [[submnewra],[submnewdec]]
+                 fullmm = [[submmra],[submmdec]]
+                 SVDC, fullnew, W, U, V
+                 help, W
+                                ;print, W
+                 wdiag = diag_matrix(W)
+                 help, wdiag
+                                ;print, wdiag
+                 winvert = invert(wdiag)
+                 help, winvert
+                                ;print, winvert
+                 help, U
+                                ;print, U
+                 help, V
+                                ;print, V
+
+                                ;print, '************'
+                                ;print, fullnew
+                                ;print, '************'
+                                ;print, U ## wdiag ## transpose(V)
+                 this = V ## winvert ## transpose(U)
+                                ;print, this
+
+                                ;print, ''
+                                ;print, fullmm ## this
+                                ;stop
+                                ;print, ''
+                                ;print, this ## fullmm
+                 
+              ENDIF ELSE BEGIN
+                 print, 'THERE IS NO DIFFERENCE'
+              ENDELSE
+              
+
+              ;stop       
+
+           ENDIF ELSE BEGIN
+              print, 'SAME DAMN CATALOG'
+              ;;just copy columns
+
+           ENDELSE
+
+
+
+        ENDIF
+     ENDFOR                     ;
+  ENDIF                         ;
+
+  stop
+
+  help, transpose(U)
+                                ;print, matrix_multiply(fullmm, transpose(U))
+  help, matrix_multiply(transpose(fullmm), U)
+  stop
+  print, matrix_multiply(transpose(fullmm), U)
+  stop
+
+  if ii eq 2 THEN BEGIN
+     openw, lun, 'text2.txt', /get_lun
+     FOR ii=0, n_elements(mnewra)-1, 1 DO BEGIN
+              printf, lun, mnewra[ii], mnewdec[ii]
+           ENDFOR
+           free_lun, lun
+        ENDIF
+        ;;;find the offset to determine
+        CASE whichapply OF
+           'simple' : BEGIN
+              print, 'still working on this'
+           END
+           'rotation' : BEGIN
+              print, 'now here'
+              
+           END
+        ENDCASE
+
+  ;;;by keyword choose which method to determine an offset by
+  ;;;;;simple ra dec shift
+  ;;;;;ra, dec shift plus rotation
+  ;;;;;copy current ra dec values to new columns
+  ;;;;;apply offset and store as current columns
+
   ;;;write the file
   mwrfits, out, outfile, /CREATE
 
