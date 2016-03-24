@@ -690,7 +690,10 @@ FUNCTION xmm105::init, CATALOG=catalog, OUTFILE=outfile, $
   IF keyword_set(ZSEC) THEN self.zsec = zsec[0] ELSE self.zsec = 1.435
   IF keyword_set(ZSECLOW) THEN self.zseclow = zseclow[0] ELSE self.zseclow = 1.430
   IF keyword_set(ZSECHIGH) THEN self.zsechigh = zsechigh[0] ELSE self.zsechigh = 1.440
-  
+  ;ZGAPPPER self.zgapper = 1.5950 
+  ;DZGAPPER self.dzgapper = 0.0074
+
+
   IF keyword_set(CATALOG) THEN self.catalog = catalog[0] ELSE self.catalog = 'xmm105_pz_specz_full_v3-1-3_all.fits'
   IF keyword_set(OUTFILE) THEN self.outfile = outfile[0] ELSE self.outfile = 'xmm105_pz_specz_full_v3-1-4_all.fits'
 

@@ -472,9 +472,10 @@ PRO cdfs44::mergeMOSFIRE, OUTFILE=outfile, OUTDIR=outdir, $
         IF ii EQ 0 THEN magmamaster = magmadir + magmafile                                                  ;
         
         ;;;read in magma files, convert sexigesimal to degrees
-        IF ii EQ 0 THEN readcol, magmamaster, mmid, mmpriority, mmmag, mmrah, mmram, mmras, mmdech, mmdecm, mmdecs, $               ;
-                                 mmeqoch, mmequi, mmthing1, mmthing2, FORMAT=('A,F,F,I,I,F,I,I,F,F,F,F,F')                          ;
-        IF ii NE 0 THEN BEGIN                                                                                                       ;
+        IF ii EQ 0 THEN BEGIN
+           readcol, magmamaster, mmid, mmpriority, mmmag, mmrah, mmram, mmras, mmdech, mmdecm, mmdecs, $                            ;
+                    mmeqoch, mmequi, mmthing1, mmthing2, FORMAT=('A,F,F,I,I,F,I,I,F,F,F,F,F')                                       ;
+        ENDIF ELSE BEGIN                                                                                                            ;
            readcol, magmadir + magmafile, mnewid, mnewpriority, mnewmag, mnewrah, mnewram, mnewras, mnewdech, mnewdecm, mnewdecs, $ ;
                     mneweqoch, mnewequi, mnewthing1, mnewthing2, FORMAT=('A,F,F,I,I,F,I,I,F,F,F,F,F')                               ;
            mmra = 15.0*(double(mmrah) + mmram/60.0 + mmras/3600.0)                                                                  ;
@@ -483,19 +484,19 @@ PRO cdfs44::mergeMOSFIRE, OUTFILE=outfile, OUTDIR=outdir, $
            mnewdec = tenv(mnewdech, mnewdecm, mnewdecs)                                                                             ;
 
            ;;;double checking code
-           ;print, magmamaster
-           ;print, magmafile
-           ;openw, lun, 'wtfwcs1.txt', /get_lun
-           ;FOR ii=0, n_elements(mmra)-1, 1 DO BEGIN
-           ;   printf, lun, mmra[ii], mmdec[ii]
-           ;ENDFOR
-           ;free_lun, lun
-           ;openw, lun, 'wtfwcs2.txt', /get_lun
-           ;FOR ii=0, n_elements(mnewra)-1, 1 DO BEGIN
-           ;   printf, lun, mnewra[ii], mnewdec[ii]
-           ;ENDFOR
-           ;free_lun, lun
-           ;stop
+                                ;print, magmamaster
+                                ;print, magmafile
+                                ;openw, lun, 'wtfwcs1.txt', /get_lun
+                                ;FOR ii=0, n_elements(mmra)-1, 1 DO BEGIN
+                                ;   printf, lun, mmra[ii], mmdec[ii]
+                                ;ENDFOR
+                                ;free_lun, lun
+                                ;openw, lun, 'wtfwcs2.txt', /get_lun
+                                ;FOR ii=0, n_elements(mnewra)-1, 1 DO BEGIN
+                                ;   printf, lun, mnewra[ii], mnewdec[ii]
+                                ;ENDFOR
+                                ;free_lun, lun
+                                ;stop
 
 
            ;;;define a set of "matches" to correct
@@ -519,7 +520,6 @@ PRO cdfs44::mergeMOSFIRE, OUTFILE=outfile, OUTDIR=outdir, $
            ENDWHILE
 
            IF perfectmatch NE 'true' THEN BEGIN
-              
               ;;;basically an ROC to find best matching radius
               radii = radii / maxradii
               matches = matches/float(n_elements(mnewra))
@@ -540,7 +540,7 @@ PRO cdfs44::mergeMOSFIRE, OUTFILE=outfile, OUTDIR=outdir, $
               diffras = (submnewra-submmra)
               meddiffra = median(diffras)
               diffdecs = (submnewdec-submmdec)
-              ;print, diffdecs
+                                ;print, diffdecs
               meddiffdec = median(diffdecs)
 
               IF (meddiffra GT 0.00001) OR (meddiffdec GT 0.00001) THEN BEGIN
@@ -550,12 +550,12 @@ PRO cdfs44::mergeMOSFIRE, OUTFILE=outfile, OUTDIR=outdir, $
                  print, meddiffdec*3600.0
 
 
-                 mywin = window(LOCATION=[100,100], DIMENSIONS=[800,400])         ;window
-                 pdfra = histogram(diffras*3600.0, LOCATIONS=rabins, BINSIZE=0.1) ;bin it up
-                 myplot1 = plot(rabins, pdfra, COLOR='black', /STAIRSTEP, $       ;plot dec hist
-                                XTITLE='RA Offset [arcsec]', $                    ;plot options
-                                YTITLE='Frequency', $                             ;plot options
-                                /CURRENT, LAYOUT=[1,2,1])                         ;plot options
+                 mywin = window(LOCATION=[100,100], DIMENSIONS=[800,400])            ;window
+                 pdfra = histogram(diffras*3600.0, LOCATIONS=rabins, BINSIZE=0.1)    ;bin it up
+                 myplot1 = plot(rabins, pdfra, COLOR='black', /STAIRSTEP, $          ;plot dec hist
+                                XTITLE='RA Offset [arcsec]', $                       ;plot options
+                                YTITLE='Frequency', $                                ;plot options
+                                /CURRENT, LAYOUT=[1,2,1])                            ;plot options
                  pdfdec = histogram(diffdecs*3600.0, LOCATIONS=decbins, BINSIZE=0.1) ;bin it up
                  myplot1 = plot(decbins, pdfdec, COLOR='black', /STAIRSTEP, $        ;plot dec hist
                                 XTITLE='DEC Offset [arcsec]', $                      ;plot options
@@ -607,7 +607,7 @@ PRO cdfs44::mergeMOSFIRE, OUTFILE=outfile, OUTDIR=outdir, $
               ENDELSE
               
 
-              ;stop       
+                                ;stop       
 
            ENDIF ELSE BEGIN
               print, 'SAME DAMN CATALOG'
@@ -617,7 +617,7 @@ PRO cdfs44::mergeMOSFIRE, OUTFILE=outfile, OUTDIR=outdir, $
 
 
 
-        ENDIF
+        ENDELSE
      ENDFOR                     ;
   ENDIF                         ;
 
@@ -1083,6 +1083,8 @@ FUNCTION cdfs44::init, CATALOG=catalog, OUTFILE=outfile, $
   IF keyword_set(ZSEC) THEN self.zsec = zsec[0] ELSE self.zsec = 1.535
   IF keyword_set(ZSECLOW) THEN self.zseclow = zseclow[0] ELSE self.zseclow = 1.530
   IF keyword_set(ZSECHIGH) THEN self.zsechigh = zsechigh[0] ELSE self.zsechigh = 1.540
+  ;ZGAPPPER self.zgapper = 1.6222
+  ;DZGAPPER self.dzgapper = 0.0051
 
   IF keyword_set(CATALOG) THEN self.catalog = catalog[0] ELSE self.catalog = 'UNKNOWN'
   IF keyword_set(OUTFILE) THEN self.outfile = outfile[0] ELSE self.outfile = 'UNKNOWN'

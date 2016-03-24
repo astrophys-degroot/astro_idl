@@ -240,13 +240,14 @@ PRO mzranalysis::findtags
 
 
   xdata = *self.compdata        ;grab data
+  help, xdata, /STRUC
 
   ;;;find the necessary tags
   tags = {tgra:['blurb','MRA', 'RA', 'RAJ2000'], $         ;possible tags
           tgdec:['blast','MDEC', 'DEC', 'DEJ2000'], $      ;possible tags
           tgmass:['ph_lmass'], $                           ;possible tags
-          tgemassi:['ph_l68_lmass'], $                     ;possible tags
-          tgemassa:['ph_u68_lmass'], $                     ;possible tags
+          ;tgemassi:['ph_l68_lmass'], $                     ;possible tags
+          ;tgemassa:['ph_u68_lmass'], $                     ;possible tags
           tgspz1:['SP_SPECZBEST','SP_M_Z'], $              ;possible tags
           tghaflux:['SP_M_HA_FLUX'], $                     ;possible tags
           tgniiflux:['SP_M_NIIR_FLUX'], $                  ;possible tags
@@ -281,6 +282,7 @@ PRO mzranalysis::findtags
      found = 0                                                      ;create flag
      WHILE (cnt LT n_elements(tags.(xx)) AND (found EQ 0)) DO BEGIN ;search down the list
         cnt = cnt + 1                                               ;up counter
+        print, tags.(xx)[cnt]
         chk = tag_exist(xdata, tags.(xx)[cnt], INDEX=ind)           ;find necessary tag
         IF (ind NE -1) THEN found = 1                               ;flip flag 
      ENDWHILE                                                       ;end search down the list

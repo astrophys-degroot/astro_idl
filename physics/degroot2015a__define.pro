@@ -63,32 +63,35 @@ PRO degroot2015a::sample, infile, outfile, REMTAGS=remtags, TGRA=tgra, TGDEC=tgd
                           TGMASS=tgmass, MASSMIN=massmin, MASSMAX=massmax, HELP=help
 
 
-  IF keyword_set(TGRA) THEN tgra = tgra[0] ELSE tgra = 'mra'                                          ;set default value
-  IF keyword_set(TGDEC) THEN tgdec = tgdec[0] ELSE tgdec = 'mdec'                                     ;set default value
-  IF keyword_set(TGMFLAG) THEN tgmflag = string(tgmflag[0]) ELSE tgmflag = 'mflag'                    ;set default value
-  IF keyword_set(MFLAGMIN) THEN mflagmin = string(mflagmin[0]) ELSE mflagmin = 0                      ;set default value
-  IF keyword_set(MFLAGMAX) THEN mflagmax = string(mflagmax[0]) ELSE mflagmax = 0                      ;set default value
-  IF keyword_set(TGSPZ1) THEN tgspz1 = string(tgspz1[0]) ELSE tgspz1 = 'sp_speczbest'                 ;set default value
-  IF keyword_set(TGSPZFLAG1) THEN tgspzflag1 = string(tgspzflag1[0]) ELSE tgspzflag1 = 'sp_speczflag' ;set default value
-  IF keyword_set(TGCLMEM) THEN tgclmem = string(tgclmem[0]) ELSE tgclmem = 'AN_SHIGAP'                 ;set default value
-  IF keyword_set(SPZFLAG1MIN) THEN spzflag1min = string(spzflag1min[0]) ELSE spzflag1min = 0           ;set default value
-  IF keyword_set(SPZFLAG1MAX) THEN spzflag1max = string(spzflag1max[0]) ELSE spzflag1max = 3          ;set default value
-  IF keyword_set(TGSPZ2) THEN tgspz2 = string(tgspz2[0]) ELSE tgspz2 = 'sp_m_z'                       ;set default value
-  IF keyword_set(SPECZMIN) THEN speczmin = float(speczmin[0]) ELSE speczmin = 1.23                    ;set default value
-  IF keyword_set(SPECZMAX) THEN speczmax = float(speczmax[0]) ELSE speczmax = 1.75                    ;set default value
-  IF keyword_set(SPZDIFF) THEN spzdiff = float(spzdiff[0]) ELSE spzdiff = 0.1                         ;set default value 
-  IF keyword_set(TGHAFLUX) THEN tghaflux = tghaflux[0] ELSE tghaflux = 'sp_m_ha_flux'                 ;set default value
-  IF keyword_set(HAFLUXMIN) THEN hafluxmin = float(hafluxmin[0]) ELSE hafluxmin = 0.0                 ;set default value
-  IF keyword_set(HAFLUXMAX) THEN hafluxmax = float(hafluxmax[0]) ELSE hafluxmax = 99999.0             ;set default value 
-  IF keyword_set(TGEHAFLUX) THEN tgehaflux = tgehaflux[0] ELSE tgehaflux = 'SP_M_HA_FLUXERR'          ;set default value
-  IF keyword_set(HASNRMIN) THEN hasnrmin = float(hasnrmin[0]) ELSE hasnrmin = 5.0                     ;set default value
-  IF keyword_set(TGNIIFLUX) THEN tgniiflux = tgniiflux[0] ELSE tgniiflux = 'sp_m_niir_flux'           ;set default value
-  IF keyword_set(NIIFLUXMIN) THEN niifluxmin = float(niifluxmin[0]) ELSE niifluxmin = -99999.0        ;set default value
-  IF keyword_set(NIIFLUXMAX) THEN niifluxmax = float(niifluxmax[0]) ELSE niifluxmax = 99999.0         ;set default value 
-  IF keyword_set(TGNIIFLAG) THEN tgniiflag = tgniiflag[0] ELSE tgniiflag = 'sp_m_niir_flag'           ;set default value
-  IF keyword_set(TGMASS) THEN tgmass = tgmass[0] ELSE tgmass = 'ph_lmass'                             ;set default value
-  IF keyword_set(MASSMIN) THEN massmin = float(massmin[0]) ELSE massmin = 8.0                         ;set default value
-  IF keyword_set(MASSMAX) THEN massmax = float(massmax[0]) ELSE massmax = 14.0                        ;set default value 
+  IF keyword_set(TGRA) THEN tgra = tgra[0] ELSE tgra = 'mra'                                                ;set default value
+  IF keyword_set(TGDEC) THEN tgdec = tgdec[0] ELSE tgdec = 'mdec'                                           ;set default value
+  IF keyword_set(TGMFLAG) THEN tgmflag = string(tgmflag[0]) ELSE tgmflag = 'mflag'                          ;set default value
+  IF keyword_set(MFLAGMIN) THEN mflagmin = string(mflagmin[0]) ELSE mflagmin = -999                         ;set default value
+  IF keyword_set(MFLAGMAX) THEN mflagmax = string(mflagmax[0]) ELSE mflagmax = 999                          ;set default value
+  IF keyword_set(TGSPZ1) THEN tgspz1 = string(tgspz1[0]) ELSE tgspz1 = 'sp_speczbest'                       ;set default value
+  IF keyword_set(TGSPZFLAG1) THEN tgspzflag1 = string(tgspzflag1[0]) ELSE tgspzflag1 = 'sp_speczflag'       ;set default value
+  IF keyword_set(TGCLMEM) THEN tgclmem = string(tgclmem[0]) ELSE tgclmem = 'AN_SHIGAP'                      ;set default value
+  IF keyword_set(SPZFLAG1MIN) THEN spzflag1min = string(spzflag1min[0]) ELSE spzflag1min = 0                ;set default value
+  IF keyword_set(SPZFLAG1MAX) THEN spzflag1max = string(spzflag1max[0]) ELSE spzflag1max = 0                ;set default value
+  IF keyword_set(TGSPZ2) THEN tgspz2 = string(tgspz2[0]) ELSE tgspz2 = 'sp_m_z'                             ;set default value
+  IF keyword_set(SPECZMIN) THEN speczmin = float(speczmin[0]) ELSE speczmin = 1.23                          ;set default value
+  IF keyword_set(SPECZMAX) THEN speczmax = float(speczmax[0]) ELSE speczmax = 1.75                          ;set default value
+  IF keyword_set(SPZDIFF) THEN spzdiff = float(spzdiff[0]) ELSE spzdiff = 0.1                               ;set default value 
+  IF keyword_set(TGHAFLUX) THEN tghaflux = tghaflux[0] ELSE tghaflux = 'sp_m_ha_flux'                       ;set default value
+  IF keyword_set(HAFLUXMIN) THEN hafluxmin = float(hafluxmin[0]) ELSE hafluxmin = 0.0                       ;set default value
+  IF keyword_set(HAFLUXMAX) THEN hafluxmax = float(hafluxmax[0]) ELSE hafluxmax = 99999.0                   ;set default value 
+  IF keyword_set(TGEHAFLUX) THEN tgehaflux = tgehaflux[0] ELSE tgehaflux = 'SP_M_HA_FLUXERR'                ;set default value
+  IF keyword_set(HASNRMIN) THEN hasnrmin = float(hasnrmin[0]) ELSE hasnrmin = 4.0                           ;set default value
+  IF keyword_set(TGNIIFLUX) THEN tgniiflux = tgniiflux[0] ELSE tgniiflux = 'sp_m_niir_flux'                 ;set default value
+  IF keyword_set(NIIFLUXMIN) THEN niifluxmin = float(niifluxmin[0]) ELSE niifluxmin = -99999.0              ;set default value
+  IF keyword_set(NIIFLUXMAX) THEN niifluxmax = float(niifluxmax[0]) ELSE niifluxmax = 99999.0               ;set default value 
+  IF keyword_set(TGNIIFLAG) THEN tgniiflag = tgniiflag[0] ELSE tgniiflag = 'sp_m_niir_flag'                 ;set default value
+  IF keyword_set(TGMASS) THEN tgmass = tgmass[0] ELSE tgmass = 'ph_lmass'                                   ;set default value
+  IF keyword_set(MASSMIN) THEN massmin = float(massmin[0]) ELSE massmin = 8.0                               ;set default value
+  IF keyword_set(MASSMAX) THEN massmax = float(massmax[0]) ELSE massmax = 14.0                              ;set default value 
+  IF keyword_set(TGPOSSIBLE) THEN tgpossible = string(tgpossible[0]) ELSE tgpossible = 'SP_M_QFLAG_MOSFIRE' ;set default value
+  IF keyword_set(POSSMIN) THEN possmin = float(possmin[0]) ELSE possmin = 0                                 ;set default value
+  IF keyword_set(POSSMAX) THEN possmax = float(possmax[0]) ELSE possmax = 3                                 ;set default value 
 
   
   ;;;read in catalog
@@ -104,9 +107,9 @@ PRO degroot2015a::sample, infile, outfile, REMTAGS=remtags, TGRA=tgra, TGDEC=tgd
 
   ;;;remove unnecessary columns of data
   xdata = cleancat.removetags(['ADJUSTRA', 'ADJUSTDEC', $
-                               'SP_ID', 'SP_RABEST', 'SP_DECBEST', 'SP_SPECZDIFF', $                        ;remove unnecessary info
-                               'SP_M_RAH', 'SP_M_RAM', 'SP_M_RAS', 'SP_M_DECD', 'SP_M_DECM', 'SP_M_DECS', $ ;
-                               'SP_M_DZ', 'SP_M_SLIT', 'SP_M_MOBINSLIT', 'SP_M_RA', 'SP_M_DEC', $           ;
+                               'SP_ID', 'SP_RABEST', 'SP_DECBEST', 'SP_SPECZDIFF', $                                                                 ;remove unnecessary info
+                               'SP_M_RAH', 'SP_M_RAM', 'SP_M_RAS', 'SP_M_DECD', 'SP_M_DECM', 'SP_M_DECS', $                                          ;
+                               'SP_M_DZ', 'SP_M_SLIT', 'SP_M_MOBINSLIT', 'SP_M_RA', 'SP_M_DEC', $                                                    ;
                                'SP_M_OIIB_FLUX', 'SP_M_OIIB_FLUXERR', 'SP_M_OIIB_FLAG', 'SP_M_OIIR_FLUX', 'SP_M_OIIR_FLUXERR', 'SP_M_OIIR_FLAG', $   ;
                                'SP_M_HB_FLUX', 'SP_M_HB_FLUXERR', 'SP_M_HB_FLAG', 'SP_M_OIIIB_FLUX', 'SP_M_OIIIB_FLUXERR', 'SP_M_OIIIB_FLAG', $      ;
                                'SP_M_OIIIR_FLUX', 'SP_M_OIIIR_FLUXERR', 'SP_M_OIIIR_FLAG', 'SP_M_OI6300_FLUX', 'SP_M_OI6300_FLUXERR', $              ;
@@ -135,10 +138,22 @@ PRO degroot2015a::sample, infile, outfile, REMTAGS=remtags, TGRA=tgra, TGDEC=tgd
                                'PH_ZPSEC_EAZY', 'PH_L68_ZFAST', 'PH_U68_ZFAST', 'PH_L68_LTAU', 'PH_U68_LTAU', 'PH_L68_METAL', 'PH_U68_METAL', $
                                'PH_L68_LAGE', 'PH_U68_LAGE', 'PH_L68_AV', 'PH_U68_AV', $
                                'PH_L68_LSFR', 'PH_U68_LSFR', 'PH_L68_LSSFR', 'PH_U68_LSSFR', 'PH_L68_LA2T', 'PH_U68_LA2T']) ;
-  xdatatags = tag_names(xdata)                                                                    ;get new list of tag names
-  postntags = n_elements(xdatatags)                                                               ;number tags left
+  xdatatags = tag_names(xdata)                                                                                              ;get new list of tag names
+  postntags = n_elements(xdatatags)                                                                                         ;number tags left
   IF keyword_set(HELP) THEN help, xdata, /STRUC
   
+
+  ;;;only want MOSFIRE observations so use the MOSFIRE quality flag
+  IF keyword_set(TGPOSSIBLE) THEN BEGIN                                   ;check variables set
+     chk = tag_exist(xdata, tgpossible, INDEX=indposs)                    ;find necessary tag
+     IF (indposs NE -1) THEN BEGIN                                        ;if tag is found
+        poss = where((xdata.(indposs) GE possmin) AND $                   ;cont next line
+                     (xdata.(indposs) LE possmax), NCOMPLEMENT=lostposs)  ;find real
+        xdata = xdata[poss]     ;cut the data
+     ENDIF                      ;end tag found
+  ENDIF                         ;end check variables set
+
+
   ;;;cut on spec-z
   IF keyword_set(TGSPZ1) THEN BEGIN                                      ;check variables set
      chk = tag_exist(xdata, tgspz1, INDEX=indspz1)                       ;find necessary tag
@@ -200,7 +215,7 @@ PRO degroot2015a::sample, infile, outfile, REMTAGS=remtags, TGRA=tgra, TGDEC=tgd
   ;;;cut on stellar mass 
   IF keyword_set(TGMASS) THEN BEGIN                                       ;check variables set
      chk = tag_exist(xdata, tgmass, INDEX=indmass)                        ;find necessary tag
-     print, xdata.(indmass) 
+     ;print, xdata.(indmass) 
      IF (indmass NE -1) THEN BEGIN                                        ;if tag is found
         mass1 = where((xdata.(indmass) GE massmin) AND $                  ;cont next line
                       (xdata.(indmass) LT massmax), NCOMPLEMENT=lostmass) ;find real
@@ -260,6 +275,14 @@ PRO degroot2015a::sample, infile, outfile, REMTAGS=remtags, TGRA=tgra, TGDEC=tgd
 
  
 
+  ;;;keep unique values only
+  started = n_elements(xdata)
+  sorted = sort(xdata.sp_m_obj)
+  temp = strcompress(string(xdata[sorted].sp_m_obj) + '_' + string(xdata[sorted].sp_m_z), /REMOVE_ALL)
+  xdata = xdata[uniq(temp)]
+  lostuniq = abs(n_elements(xdata)-started)
+
+
 
   ;;;print user friendly info
   print, ' '                                                                       ;spacer
@@ -272,13 +295,14 @@ PRO degroot2015a::sample, infile, outfile, REMTAGS=remtags, TGRA=tgra, TGDEC=tgd
   print, '  Number of entries in cleaned catalog: ', n_elements(xdata)             ;print info
   print, '    Number of entries lost by spec-z cleaning: ', lostspecz              ;print info
   print, '    Number of entries lost by Halpha SNR cleaning: ', losthasnr          ;print info
-  ;print, '    Number of entries lost by Halpha flux cleaning: ', losthaflux        ;print info
-  ;print, '    Number of entries lost by [NII] flux cleaning: ', lostniiflux        ;print info
+                                ;print, '    Number of entries lost by Halpha flux cleaning: ', losthaflux        ;print info
+                                ;print, '    Number of entries lost by [NII] flux cleaning: ', lostniiflux        ;print info
   print, '    Number of entries lost by matching flag: ', lostmflag                ;print info
   print, '    Number of entries lost by stellar mass cleaning: ', lostmass         ;print info
   print, '    Number of entries lost by spec-z discrepancy: ', lostspzdiff         ;print info
   print, '    Number of entries lost by RA, Dec cleaning: ', lostradec             ;print info
-  ;print, '    Number of entries lost by spec-z quality flag: ', lostspzflag1       ;print info
+  print, '    Number of entries lost by demanding uniqueness: ', lostuniq          ;print info
+                                ;print, '    Number of entries lost by spec-z quality flag: ', lostspzflag1       ;print info
   print, '%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%' ;eye catcher
   print, ' '                                                                       ;spacer
 
@@ -319,12 +343,44 @@ END
 
 
 ;====================================================================================================
+PRO degroot2015a::fitmzrtrend, which
+
+
+  ;;;grab the data
+  thatart = obj_new(which)
+  thatart.boxscore
+  CASE which of
+     'erb2006' :  mzrdata = *thatart.e06mzrdata
+     ELSE : BEGIN
+        print, 'WARNING!!! Input not understood. '
+        print, '  Choices are erb2006, '
+     END
+  ENDCASE
+  obj_destroy, thatart
+
+  ;;;fit the data
+  tr04 = obj_new('tremonti2004')
+  fit = tr04.mymzrfit(mzrdata.xsmod, mzrdata.ys, mzrdata.xserrmod, mzrdata.yserr)
+  obj_destory, tr04
+ 
+
+END
+;====================================================================================================
+
+
+
+;====================================================================================================
 PRO degroot2015a::mzrtrend
 
 
   universeage = 13.8
   data = [{name:'Tr04', xval:0.0, exvalm:0.0001, exvalp:0.001, yval:0.0, eyvalm:0.00, eyvalp:0.00, multiline:1, mzr:'R23'}, $
-          {name:'Erb06', xval:2.26, exvalm:0.17, exvalp:0.17, yval:-0.56, eyvalm:0.1, eyvalp:0.1, multiline:1, mzr:'N2'}, $
+          {name:'Erb06', xval:2.26, exvalm:0.17, exvalp:0.17, yval:-0.56, eyvalm:0.028, eyvalp:0.027, multiline:1, mzr:'N2'}, $
+          {name:'TW', xval:1.62, exvalm:0.3, exvalp:0.1, yval:-0.39, eyvalm:0.016, eyvalp:0.017, multiline:1, mzr:'N2'}, $
+          {name:'TW', xval:1.62, exvalm:0.3, exvalp:0.1, yval:-0.39, eyvalm:0.016, eyvalp:0.017, multiline:1, mzr:'N2'}, $
+          {name:'TW', xval:1.62, exvalm:0.3, exvalp:0.1, yval:-0.39, eyvalm:0.016, eyvalp:0.017, multiline:1, mzr:'N2'}, $
+          {name:'TW', xval:1.62, exvalm:0.3, exvalp:0.1, yval:-0.39, eyvalm:0.016, eyvalp:0.017, multiline:1, mzr:'N2'}, $
+          {name:'TW', xval:1.62, exvalm:0.3, exvalp:0.1, yval:-0.39, eyvalm:0.016, eyvalp:0.017, multiline:1, mzr:'N2'}, $
           {name:'TW', xval:1.62, exvalm:0.3, exvalp:0.1, yval:-0.39, eyvalm:0.016, eyvalp:0.017, multiline:1, mzr:'N2'}]
   print, data
 
@@ -473,7 +529,7 @@ PRO degroot2015a::workingon, subset, CATALOG=catalog, BINSET=binset
           {name:'seven', catalog:'kemclass_pz_specz_v0-8-2.fits', BINSET:'cluster', NINBIN:14, SM:'smcurrent', FITMZR:'tr04', MCMASS:1}, $ 
           {name:'eight', catalog:'kemclass_pz_specz_v0-8-3.fits', BINSET:'field', NINBIN:20, SM:'smcurrent', FITMZR:'tr04', MCMASS:1}, $
           {name:'nine', catalog:'kemclass_pz_specz_v0-8-3.fits', BINSET:'cluster', NINBIN:14, SM:'smcurrent', FITMZR:'tr04', MCMASS:1}, $ 
-          {name:'onezero', catalog:'kemclass_pz_specz_v1-0-3.fits', BINSET:'all', NINBIN:25, SM:'smcurrent', FITMZR:'tr04', MCMASS:1} ] 
+          {name:'onezero', catalog:'kemclass_pz_specz_v1-1-1.fits', BINSET:'all', NINBIN:24, SM:'smcurrent', FITMZR:'tr04', MCMASS:1} ] 
   
 
   chk = where(sets.name EQ strlowcase(string(subset[0])))

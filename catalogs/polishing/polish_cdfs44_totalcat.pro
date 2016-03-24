@@ -131,7 +131,7 @@ PRO polish_cdfs44_totalcat, FILE1=file1, FILE2=file2, $
 
   ;;;and now the second file
   IF file2 NE '' THEN BEGIN     ;if file2 exists 
-     close_match_radec, data2.ra, data2.dec, outstruc.sp_rabest, outstruc.sp_decbest, match2, matchout, (3.0/3600.0), 1, miss2
+     close_match_radec, data2.ra, data2.dec, outstruc.sp_rabest, outstruc.sp_decbest, match2, matchout, (1.0/3600.0), 1, miss2
      FOR xx=0, n_elements(tags2)-1, 1 DO BEGIN
         FOR yy=0, n_elements(match2)-1, 1 DO BEGIN
            chk = tag_exist(outstruc, tags2[xx], INDEX=ind)

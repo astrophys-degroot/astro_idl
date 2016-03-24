@@ -90,16 +90,16 @@ PRO xmm113::analyze1d, xmask, xobj, MCITERS=mciters, NOMCWRITE=nomcwrite ;, CATA
   
   CASE xmask OF
      
-     1 : BEGIN                                                                                                     ;choice of first mask
-        indir = '/Users/adegroot/research/dataredux/mosfire/XMM113_mask1_1.0/2012nov25/H/Offset_1.25/'             ;directory with spectra
-        outdir = '/Users/adegroot/research/dataredux/mosfire/XMM113_mask1_1.0/2012nov25/H/Offset_1.25/'            ;directory to output spectra
-        IF strlowcase(strcompress(xobj, /REMOVE_ALL)) EQ 'all' THEN $                                              ;batchmode
-           xobj = ['bsbs46', 'cl10', 'cl5', 'cl6', 'cl8', 'cl9', 'fore1', 'fsbs7', 'msbs22', 'msbs28', $           ;
+     1 : BEGIN                                                                                           ;choice of first mask
+        indir = '/Users/adegroot/research/dataredux/mosfire/XMM113_mask1_1.0/2012nov25/H/Offset_1.25/'   ;directory with spectra
+        outdir = '/Users/adegroot/research/dataredux/mosfire/XMM113_mask1_1.0/2012nov25/H/Offset_1.25/'  ;directory to output spectra
+        IF strlowcase(strcompress(xobj, /REMOVE_ALL)) EQ 'all' THEN $                                    ;batchmode
+           xobj = ['bsbs46', 'cl10', 'cl5', 'cl6', 'cl8', 'cl9', 'fore1', 'fsbs7', 'msbs22', 'msbs28', $ ;
                    'msbs341', 'pzbsbs10', 'pzbsbs11', 'pzbsbs12', 'pzbsbs13', 'pzbsbs14', 'pzbsbs15', $
-                   'pzbsbs16', 'pzbsbs18', 'pzbsbs2', 'pzbsbs4', 'pzbsbs6', 'pzbsbs7', 'pzbsbs8', $                ;
-                   'pzfsbs30', 'pzmsbs100', 'pzmsbs28', 'pzmsbs45', 'pzmsbs48', 'pzmsbs50', 'new1', $              ;
-                   'pzmsbs54', 'pzmsbs67', 'pzmsbs70', 'pzmsbs83', 'pzmsbs87', 'pzmsbs94', 'pzmsbs95' ,'scist2' ]  ;set to all possibles
-     END                                                                                                           ;end first mask
+                   'pzbsbs16', 'pzbsbs18', 'pzbsbs2', 'pzbsbs4', 'pzbsbs6', 'pzbsbs7', 'pzbsbs8', $               ;
+                   'pzfsbs30', 'pzmsbs100', 'pzmsbs28', 'pzmsbs45', 'pzmsbs48', 'pzmsbs50', 'new1', $             ;
+                   'pzmsbs54', 'pzmsbs67', 'pzmsbs70', 'pzmsbs83', 'pzmsbs87', 'pzmsbs94', 'pzmsbs95' ,'scist2' ] ;set to all possibles
+     END                                                                                                          ;end first mask
 
      2: BEGIN                                                                                             ;choice of second mask
         indir = '/Users/adegroot/research/dataredux/mosfire/XMM113_mask2_1.0/2012nov25/H/'                ;directory with spectra
@@ -155,8 +155,8 @@ PRO xmm113::analyze1d, xmask, xobj, MCITERS=mciters, NOMCWRITE=nomcwrite ;, CATA
                    'pzmed692', 'pzmed757', 'pzmed775', 'pzmed782', 'pzmed802', 'pzmed808', 'spzo27', $    ;
                    'spzo35', 'st24']                                                                      ;set to all possibles
                                 ;'pzmed746', 
-     END                                                                                                  ;end eight mask
- 
+     END                        ;end eight mask
+     
 
      10 : BEGIN                                                                              ;choice of eight mask
         indir = '/Users/adegroot/research/dataredux/mosfire/J0224_mask10_v1-3/2015nov17/Y/'  ;directory with spectra
@@ -253,7 +253,7 @@ PRO xmm113::analyze1d, xmask, xobj, MCITERS=mciters, NOMCWRITE=nomcwrite ;, CATA
      print, 'TIME FOR ONE SPECTRUM: ', abs(tick-tock)                                          ;display
      myanyl.getprop, FMCRUNS=filemcruns                                                        ;store
      IF ~(keyword_set(NOMCWRITE)) THEN mwrfits, mytotfit, filemcruns, /CREATE
-     ;mytotfit = mrdfits(strcompress('CDFS44_mask2_1.0_H_' + xobj[xx] + '_eps_1d_v10_mcruns250.fits'), 1, hdr)
+                                ;mytotfit = mrdfits(strcompress('CDFS44_mask2_1.0_H_' + xobj[xx] + '_eps_1d_v10_mcruns250.fits'), 1, hdr)
 
      
      myz = myanyl.zbrkdwn(mytotfit, RESID=mywvres)                                           ;digest redshift values and error
@@ -305,7 +305,7 @@ PRO xmm113::collate, which, DOOBJ=doobj, SPECVER=specver, NEWSPECVER=newspecver
                   outdir:'/Users/adegroot/research/dataredux/mosfire/XMM113_mask2_1.0/2012nov25/H/', $
                   radecdeg:1}
      
-      6 : cstuf = {maskname:'XMM113_mask6_H', $
+     6 : cstuf = {maskname:'XMM113_mask6_H', $
                   mask:'XMM113_mask6_orig.coords', $
                   maskdir:'/Users/adegroot/research/clusters/xmm/xmm113/spectroscopy/masks/XMM113_mask6/', $
                   chkradecdeg:'XMM_113_Ks_v4_ima.fits', $
@@ -314,7 +314,7 @@ PRO xmm113::collate, which, DOOBJ=doobj, SPECVER=specver, NEWSPECVER=newspecver
                   outdir:'/Users/adegroot/research/dataredux/mosfire/XMM113_mask6/2014aug16/H/', $
                   radecdeg:1}
      
-      7 : cstuf = {maskname:'XMM113_mask7_H', $
+     7 : cstuf = {maskname:'XMM113_mask7_H', $
                   mask:'XMM113_mask7_orig.coords', $
                   maskdir:'/Users/adegroot/research/clusters/xmm/xmm113/spectroscopy/masks/XMM113_mask7/', $
                   chkradecdeg:'XMM_113_Ks_v4_ima.fits', $
@@ -323,23 +323,23 @@ PRO xmm113::collate, which, DOOBJ=doobj, SPECVER=specver, NEWSPECVER=newspecver
                   outdir:'/Users/adegroot/research/dataredux/mosfire/XMM113_mask7/2014nov16/H/', $
                   radecdeg:1}
      
-      8 : cstuf = {maskname:'xmm113_mask8_v1_H', $
-                   mask:'xmm113_mask8_v1_orig.coords', $
-                   maskdir:'/Users/adegroot/research/clusters/xmm/xmm113/spectroscopy/masks/xmm113_mask8_v1/', $
-                   chkradecdeg:'xmm_113_Ks_v4_ima.fits', $
-                   dirchkradecdeg:'/Users/adegroot/research/clusters/xmm/xmm113/images_safe/', $
-                   outfile:strcompress('xmm113_mask8_1dspeccat_'+ newspecver +'.fits', /REMOVE_ALL), $
-                   outdir:'/Users/adegroot/research/dataredux/mosfire/xmm113_mask8/2014nov16/H/', $
-                   radecdeg:1}
-      
-      9 : cstuf = {maskname:'xmm113_mask9_v1_H', $
-                   mask:'xmm113_mask9_v1_orig.coords', $
-                   maskdir:'/Users/adegroot/research/clusters/xmm/xmm113/spectroscopy/masks/xmm113_mask9_v1/', $
-                   chkradecdeg:'xmm_113_Ks_v4_ima.fits', $
-                   dirchkradecdeg:'/Users/adegroot/research/clusters/xmm/xmm113/images_safe/', $
-                   outfile:strcompress('xmm113_mask9_1dspeccat_'+ newspecver +'.fits', /REMOVE_ALL), $
-                   outdir:'/Users/adegroot/research/dataredux/mosfire/xmm113_mask9_v1/2015feb23/H/', $
-                   radecdeg:1}
+     8 : cstuf = {maskname:'xmm113_mask8_v1_H', $
+                  mask:'xmm113_mask8_v1_orig.coords', $
+                  maskdir:'/Users/adegroot/research/clusters/xmm/xmm113/spectroscopy/masks/xmm113_mask8_v1/', $
+                  chkradecdeg:'xmm_113_Ks_v4_ima.fits', $
+                  dirchkradecdeg:'/Users/adegroot/research/clusters/xmm/xmm113/images_safe/', $
+                  outfile:strcompress('xmm113_mask8_1dspeccat_'+ newspecver +'.fits', /REMOVE_ALL), $
+                  outdir:'/Users/adegroot/research/dataredux/mosfire/xmm113_mask8/2014nov16/H/', $
+                  radecdeg:1}
+     
+     9 : cstuf = {maskname:'xmm113_mask9_v1_H', $
+                  mask:'xmm113_mask9_v1_orig.coords', $
+                  maskdir:'/Users/adegroot/research/clusters/xmm/xmm113/spectroscopy/masks/xmm113_mask9_v1/', $
+                  chkradecdeg:'xmm_113_Ks_v4_ima.fits', $
+                  dirchkradecdeg:'/Users/adegroot/research/clusters/xmm/xmm113/images_safe/', $
+                  outfile:strcompress('xmm113_mask9_1dspeccat_'+ newspecver +'.fits', /REMOVE_ALL), $
+                  outdir:'/Users/adegroot/research/dataredux/mosfire/xmm113_mask9_v1/2015feb23/H/', $
+                  radecdeg:1}
      ELSE : BEGIN
         print, 'Mask choice not recognized!'
         print, '  Please try again. Valid Choices are nothing yet'
@@ -364,7 +364,9 @@ END
 
 
 ;====================================================================================================
-PRO xmm113::mergeMOSFIRE, OUTFILE=outfile, OUTDIR=outdir
+PRO xmm113::mergeMOSFIRE, OUTFILE=outfile, OUTDIR=outdir, $
+                          APPLYOFF=applyoff, APPLYBASE=applybase, WHICHAPPLY=whichapply
+  
 
 
   files = ['/Users/adegroot/research/dataredux/mosfire/XMM113_mask1_1.0/2012nov25/H/Offset_1.25/xmm113_mask1_1dspeccat_v6-3.fits', $
@@ -399,6 +401,220 @@ PRO xmm113::mergeMOSFIRE, OUTFILE=outfile, OUTDIR=outdir
         nrun++
      ENDFOR
   ENDFOR
+
+
+
+  ;;;if we want to check WCS offsets
+  IF keyword_set(APPLYOFF) THEN BEGIN                                                                ;
+     IF keyword_set(APPLYBASE) THEN applybase = int(applybase[0]) ELSE applybase = 4                 ;set default
+     IF keyword_set(WHICHAPPLY) THEN whichapply = string(whichapply[0]) ELSE whichapply = 'rotation' ;set default
+     print, '    Finding and apply offset to WCS solution...'                                        ;
+     
+     ;;;reorder the list to put the base at first
+     ;;;;known issues here if the applybase value is not the last
+     ;;;;element of the list
+     files = [files[applybase], files[0:applybase-1]] ;
+     
+     ;;;loop over the catalogs
+     FOR ii=0, n_elements(files)-1, 1 DO BEGIN            ;
+        curfull = files[ii]                               ;
+        split_curfull = strsplit(curfull, '/', EXTRACT=1) ;
+        curfile = split_curfull[-1]                       ;
+
+        ;;;the lookup case for MAGMA input
+        magmadir = '/Users/adegroot/research/clusters/xmm/xmm113/spectroscopy/masks/'                     ;
+        CASE curfile OF                                                                                   ; 
+           'xmm113_mask1_1dspeccat_v6-3.fits' : magmafile = 'xmm113_mask1/xmm113_mask1_orig.coords'       ;                                             
+           'xmm113_mask2_1dspeccat_v6-3.fits' : magmafile = 'xmm113_mask2/xmm113_mask2_orig.coords'       ;   
+           'xmm113_mask6_1dspeccat_v6-3.fits' : magmafile = 'xmm113_mask6/XMM113_mask6_orig.coords'       ;   
+           'xmm113_mask7_1dspeccat_v6-3.fits' : magmafile = 'xmm113_mask7/XMM113_mask7_orig.coords'       ;   
+           'xmm113_mask8_1dspeccat_v6-3.fits' : magmafile = 'xmm113_mask8_v1/xmm113_mask8_v1_orig.coords' ;   
+           'xmm113_mask9_1dspeccat_v6-3.fits' : magmafile = 'xmm113_mask9_v1/xmm113_mask9_v1_orig.coords' ;   
+           ELSE : BEGIN                                                   ;
+              print, 'Mask not found to look up MAGMA input catalog!!'    ;
+              print, '  Can not proceed with WCS comparison and offset!!' ;
+           ENDELSE                                                        ;
+        ENDCASE                                                           ;
+        IF ii EQ 0 THEN magmamaster = magmadir + magmafile                ;
+        
+        ;;;read in magma files, convert sexigesimal to degrees
+        IF ii EQ 0 THEN BEGIN
+           readcol, magmamaster, mmid, mmpriority, mmmag, mmrah, mmram, mmras, mmdech, mmdecm, mmdecs, $                            ;
+                    mmeqoch, mmequi, mmthing1, mmthing2, FORMAT=('A,F,F,I,I,F,I,I,F,F,F,F,F')                                       ;
+        ENDIF ELSE BEGIN                                                                                                            ;
+           readcol, magmadir + magmafile, mnewid, mnewpriority, mnewmag, mnewrah, mnewram, mnewras, mnewdech, mnewdecm, mnewdecs, $ ;
+                    mneweqoch, mnewequi, mnewthing1, mnewthing2, FORMAT=('A,F,F,I,I,F,I,I,F,F,F,F,F')                               ;
+           mmra = 15.0*(double(mmrah) + mmram/60.0 + mmras/3600.0)                                                                  ;
+           mmdec = tenv(mmdech, mmdecm, mmdecs)                                                                                     ;
+           mnewra = 15.0*(double(mnewrah) + mnewram/60.0 + mnewras/3600.0)                                                          ;
+           mnewdec = tenv(mnewdech, mnewdecm, mnewdecs)                                                                             ;
+
+           ;;;double checking code
+                                ;print, magmamaster
+                                ;print, magmafile
+                                ;openw, lun, 'wtfwcs1.txt', /get_lun
+                                ;FOR ii=0, n_elements(mmra)-1, 1 DO BEGIN
+                                ;   printf, lun, mmra[ii], mmdec[ii]
+                                ;ENDFOR
+                                ;free_lun, lun
+                                ;openw, lun, 'wtfwcs2.txt', /get_lun
+                                ;FOR ii=0, n_elements(mnewra)-1, 1 DO BEGIN
+                                ;   printf, lun, mnewra[ii], mnewdec[ii]
+                                ;ENDFOR
+                                ;free_lun, lun
+                                ;stop
+
+
+           ;;;define a set of "matches" to correct
+           matches = []
+           radii = []
+           radius = 0.2
+           dradius = 0.4
+           maxradii = 10.0
+           cnt = 0
+           perfectmatch = 'false'
+           WHILE radius LT maxradii and cnt LT 100 DO BEGIN
+              close_match, mnewra, mnewdec, mmra, mmdec, match1, match2, float(radius)/3600.0, 1, miss1, SILENT=1
+              radii = [radii, radius]
+              matches = [matches, n_elements(match1)]              
+              radius = radius + dradius
+              IF n_elements(match1) EQ n_elements(mmra) THEN BEGIN
+                 cnt = 100
+                 perfectmatch = 'true'
+              ENDIF
+              cnt = cnt + 1
+           ENDWHILE
+
+           IF perfectmatch NE 'true' THEN BEGIN
+              ;;;basically an ROC to find best matching radius
+              radii = radii / maxradii
+              matches = matches/float(n_elements(mnewra))
+              closest = ((radii)^2+(1.0-matches)^2)^0.5
+              minclosest = min(closest, minind)
+              print, '  Optimal matching radius [arcsec]', radii[minind]*maxradii
+              myplot = plot(radii, matches, 'bo', $
+                            TITLE = curfile)
+              myplot = plot(radii, closest, 'r+', /CURRENT, /OVERPLOT)
+
+           ;;;redo the match with the best radii
+              close_match, mnewra, mnewdec, mmra, mmdec, match1, match2, float(radii[minind]*maxradii)/3600.0, 1, miss1, SILENT=1
+              submnewra = mnewra[match1]
+              submnewdec = mnewdec[match1]
+              submmra = mmra[match2]
+              submmdec = mmdec[match2]
+              
+              diffras = (submnewra-submmra)
+              meddiffra = median(diffras)
+              diffdecs = (submnewdec-submmdec)
+                                ;print, diffdecs
+              meddiffdec = median(diffdecs)
+
+              IF (meddiffra GT 0.00001) OR (meddiffdec GT 0.00001) THEN BEGIN
+                 print, meddiffra
+                 print, meddiffdec
+                 print, meddiffra*3600.0
+                 print, meddiffdec*3600.0
+
+
+                 mywin = window(LOCATION=[100,100], DIMENSIONS=[800,400])            ;window
+                 pdfra = histogram(diffras*3600.0, LOCATIONS=rabins, BINSIZE=0.1)    ;bin it up
+                 myplot1 = plot(rabins, pdfra, COLOR='black', /STAIRSTEP, $          ;plot dec hist
+                                XTITLE='RA Offset [arcsec]', $                       ;plot options
+                                YTITLE='Frequency', $                                ;plot options
+                                /CURRENT, LAYOUT=[1,2,1])                            ;plot options
+                 pdfdec = histogram(diffdecs*3600.0, LOCATIONS=decbins, BINSIZE=0.1) ;bin it up
+                 myplot1 = plot(decbins, pdfdec, COLOR='black', /STAIRSTEP, $        ;plot dec hist
+                                XTITLE='DEC Offset [arcsec]', $                      ;plot options
+                                YTITLE='Frequency', $                                ;plot options
+                                /CURRENT, LAYOUT=[1,2,2])                            ;plot options
+
+
+
+                                ;submmra = submmra[0:5]
+                                ;print, submmra
+                                ;submmdec = submmdec[0:5]
+                                ;print, submmdec
+                                ;submnewra = submnewra[0:5]
+                                ;print, submnewra
+                                ;submnewdec = submnewdec[0:5]
+                                ;print, submnewdec
+
+                 fullnew = [[submnewra],[submnewdec]]
+                 fullmm = [[submmra],[submmdec]]
+                 SVDC, fullnew, W, U, V
+                 help, W
+                                ;print, W
+                 wdiag = diag_matrix(W)
+                 help, wdiag
+                                ;print, wdiag
+                 winvert = invert(wdiag)
+                 help, winvert
+                                ;print, winvert
+                 help, U
+                                ;print, U
+                 help, V
+                                ;print, V
+
+                                ;print, '************'
+                                ;print, fullnew
+                                ;print, '************'
+                                ;print, U ## wdiag ## transpose(V)
+                 this = V ## winvert ## transpose(U)
+                                ;print, this
+
+                                ;print, ''
+                                ;print, fullmm ## this
+                                ;stop
+                                ;print, ''
+                                ;print, this ## fullmm
+                 
+              ENDIF ELSE BEGIN
+                 print, 'THERE IS NO DIFFERENCE'
+              ENDELSE
+              
+
+                                ;stop       
+
+           ENDIF ELSE BEGIN
+              print, 'SAME DAMN CATALOG'
+              ;;just copy columns
+
+           ENDELSE
+
+
+
+        ENDELSE
+     ENDFOR                     ;
+  ENDIF                         ;
+
+  stop
+
+  help, transpose(U)
+                                ;print, matrix_multiply(fullmm, transpose(U))
+  help, matrix_multiply(transpose(fullmm), U)
+  stop
+  print, matrix_multiply(transpose(fullmm), U)
+  stop
+
+  if ii eq 2 THEN BEGIN
+     openw, lun, 'text2.txt', /get_lun
+     FOR ii=0, n_elements(mnewra)-1, 1 DO BEGIN
+        printf, lun, mnewra[ii], mnewdec[ii]
+     ENDFOR
+     free_lun, lun
+  ENDIF
+        ;;;find the offset to determine
+  CASE whichapply OF
+     'simple' : BEGIN
+        print, 'still working on this'
+     END
+     'rotation' : BEGIN
+        print, 'now here'
+        
+     END
+  ENDCASE
+
+  
   
   ;;;write the file
   mwrfits, out, outfile, /CREATE
@@ -453,7 +669,7 @@ PRO xmm113::mergespecphoto, USEOLD=useold, OUTFILE=outfile, OUTDIR=outdir
   IF keyword_set(OUTDIR) THEN outdir = outdir[0] ELSE outdir = '/Users/adegroot/research/clusters/xmm/xmm113/catalogs/'
 
 
- 
+  
   IF keyword_set(USEOLD) THEN BEGIN
      polish_xmm113_totalcat, FILE1=file1, FILE2=file2, $
                              PRE1=pre1, PRE2=pre2, $
@@ -502,7 +718,7 @@ PRO xmm113::add_agn_k06, CATALOG=catalog, OUTFILE=outfile, $
 
   ;;;read in catalog, find data in it
   data = mrdfits(catalog, 1, hdr)                    ;read in data
-  chk = tag_exist(data, tghaflux, INDEX=indhaflux) ;find tag index
+  chk = tag_exist(data, tghaflux, INDEX=indhaflux)   ;find tag index
   chk = tag_exist(data, tgniiflux, INDEX=indniiflux) ;find tag index
 
   ;;;add the tag
@@ -529,7 +745,7 @@ PRO xmm113::add_agn_d12, CATALOG=catalog, OUTFILE=outfile, $
   IF keyword_set(OUTFILE) THEN outfile = outfile[0] ELSE outfile = self.outfile
 
   ;;;read in catalog, find data in it
-  data = mrdfits(catalog, 1, hdr)                   ;read in data
+  data = mrdfits(catalog, 1, hdr)                         ;read in data
   chk = tag_exist(data, self.tgch1flux, INDEX=indch1flux) ;find tag index
   chk = tag_exist(data, self.tgch2flux, INDEX=indch2flux) ;find tag index
   chk = tag_exist(data, self.tgch3flux, INDEX=indch3flux) ;find tag index
@@ -626,22 +842,22 @@ PRO xmm113::add_clmem, WHICH=which, $
         
         
         ;;;grab the tag indices
-        chk = tag_exist(data, tgra, INDEX=raind)            ;find necessary tag
-        text = '   This routine cant find the RA tag: '     ;text to pass
-        IF chk EQ 0 THEN raind = tagprompt(data, text)      ;find necessary tag
-        chk = tag_exist(data, tgdec, INDEX=decind)          ;find necessary tag
-        text = '   This routine cant find the DEC tag: '    ;text to pass
-        IF chk EQ 0 THEN decind = tagprompt(data, text)     ;find necessary tag
-        chk = tag_exist(data, tgspecz, INDEX=speczind)      ;find necessary tag
-        text = '   This routine cant find the SPECZ tag: '  ;text to pass
-        IF chk EQ 0 THEN speczind = tagprompt(data, text)   ;find necessary tag
-        chk = tag_exist(data, tgclmem, INDEX=clmemind)      ;find necessary tag
-        text = '   This routine cant find the CLMEM tag: '  ;text to pass
-        IF chk EQ 0 THEN clmemind = tagprompt(data, text)   ;find necessary tag
-        chk = tag_exist(data, tgclmem, INDEX=clmemind)      ;find necessary tag
-        text = '   This routine cant find the CLMEM tag: '  ;text to pass
-        IF chk EQ 0 THEN clmemind = tagprompt(data, text)   ;find necessary tag
-  
+        chk = tag_exist(data, tgra, INDEX=raind)           ;find necessary tag
+        text = '   This routine cant find the RA tag: '    ;text to pass
+        IF chk EQ 0 THEN raind = tagprompt(data, text)     ;find necessary tag
+        chk = tag_exist(data, tgdec, INDEX=decind)         ;find necessary tag
+        text = '   This routine cant find the DEC tag: '   ;text to pass
+        IF chk EQ 0 THEN decind = tagprompt(data, text)    ;find necessary tag
+        chk = tag_exist(data, tgspecz, INDEX=speczind)     ;find necessary tag
+        text = '   This routine cant find the SPECZ tag: ' ;text to pass
+        IF chk EQ 0 THEN speczind = tagprompt(data, text)  ;find necessary tag
+        chk = tag_exist(data, tgclmem, INDEX=clmemind)     ;find necessary tag
+        text = '   This routine cant find the CLMEM tag: ' ;text to pass
+        IF chk EQ 0 THEN clmemind = tagprompt(data, text)  ;find necessary tag
+        chk = tag_exist(data, tgclmem, INDEX=clmemind)     ;find necessary tag
+        text = '   This routine cant find the CLMEM tag: ' ;text to pass
+        IF chk EQ 0 THEN clmemind = tagprompt(data, text)  ;find necessary tag
+        
 
         ;;;make cuts to get just structure members
         clmems = intarr(n_elements(data.(0)))                                              ;make array
@@ -761,7 +977,7 @@ END
 ;====================================================================================================
 PRO xmm113::cleanup
 
-  ;ptr_free, self.data
+                                ;ptr_free, self.data
 
   RETURN
 END
@@ -772,7 +988,7 @@ END
 FUNCTION xmm113::init, CATALOG=catalog, OUTFILE=outfile, $
                        Z=z, ZLOW=zlow, ZHIGH=zhigh
 
-  ;self.data = ptr_new(data)
+                                ;self.data = ptr_new(data)
   self.objver = 'v1-4-1'
   self.propname = 'SpARCS 022427+032354'
   self.rah = 2
@@ -794,6 +1010,8 @@ FUNCTION xmm113::init, CATALOG=catalog, OUTFILE=outfile, $
   IF keyword_set(ZSEC) THEN self.zsec = zsec[0] ELSE self.zsec = 1.570
   IF keyword_set(ZSECLOW) THEN self.zseclow = zseclow[0] ELSE self.zseclow = 1.565
   IF keyword_set(ZSECHIGH) THEN self.zsechigh = zsechigh[0] ELSE self.zsechigh = 1.575
+  ;ZGAPPPER self.zgapper = 1.63182 
+  ;DZGAPPER self.dzgapper =0.00199
 
   IF keyword_set(CATALOG) THEN self.catalog = catalog[0] ELSE self.catalog = 'xmm113_pz_specz_full_v3-2-3_all.fits'
   IF keyword_set(OUTFILE) THEN self.outfile = outfile[0] ELSE self.outfile = 'xmm113_pz_specz_full_v3-2-4_all.fits'
