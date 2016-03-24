@@ -351,6 +351,7 @@ PRO degroot2015a::fitmzrtrend, which
   thatart.boxscore
   CASE which of
      'erb2006' :  mzrdata = *thatart.e06mzrdata
+     'sanders2014' :  mzrdata = *thatart.sa14mzrdata
      ELSE : BEGIN
         print, 'WARNING!!! Input not understood. '
         print, '  Choices are erb2006, '
@@ -361,7 +362,7 @@ PRO degroot2015a::fitmzrtrend, which
   ;;;fit the data
   tr04 = obj_new('tremonti2004')
   fit = tr04.mymzrfit(mzrdata.xsmod, mzrdata.ys, mzrdata.xserrmod, mzrdata.yserr)
-  obj_destory, tr04
+  obj_destroy, tr04
  
 
 END
@@ -374,15 +375,16 @@ PRO degroot2015a::mzrtrend
 
 
   universeage = 13.8
-  data = [{name:'Tr04', xval:0.0, exvalm:0.0001, exvalp:0.001, yval:0.0, eyvalm:0.00, eyvalp:0.00, multiline:1, mzr:'R23'}, $
+  data = [{name:'TW', xval:1.62, exvalm:0.3, exvalp:0.1, yval:-0.39, eyvalm:0.016, eyvalp:0.017, multiline:1, mzr:'N2'}, $
+          {name:'Tr04', xval:0.0, exvalm:0.0001, exvalp:0.001, yval:0.0, eyvalm:0.00, eyvalp:0.00, multiline:1, mzr:'R23'}, $
           {name:'Erb06', xval:2.26, exvalm:0.17, exvalp:0.17, yval:-0.56, eyvalm:0.028, eyvalp:0.027, multiline:1, mzr:'N2'}, $
-          {name:'TW', xval:1.62, exvalm:0.3, exvalp:0.1, yval:-0.39, eyvalm:0.016, eyvalp:0.017, multiline:1, mzr:'N2'}, $
-          {name:'TW', xval:1.62, exvalm:0.3, exvalp:0.1, yval:-0.39, eyvalm:0.016, eyvalp:0.017, multiline:1, mzr:'N2'}, $
+          {name:'Sa14', xval:2.3, exvalm:0.21, exvalp:0.31, yval:-0.56, eyvalm:0.026, eyvalp:0.028, multiline:1, mzr:'N2'}, $
+          
           {name:'TW', xval:1.62, exvalm:0.3, exvalp:0.1, yval:-0.39, eyvalm:0.016, eyvalp:0.017, multiline:1, mzr:'N2'}, $
           {name:'TW', xval:1.62, exvalm:0.3, exvalp:0.1, yval:-0.39, eyvalm:0.016, eyvalp:0.017, multiline:1, mzr:'N2'}, $
           {name:'TW', xval:1.62, exvalm:0.3, exvalp:0.1, yval:-0.39, eyvalm:0.016, eyvalp:0.017, multiline:1, mzr:'N2'}, $
           {name:'TW', xval:1.62, exvalm:0.3, exvalp:0.1, yval:-0.39, eyvalm:0.016, eyvalp:0.017, multiline:1, mzr:'N2'}]
-  print, data
+  ;print, data
 
   ;;;plot attributes
   ageuniv = 13.6
