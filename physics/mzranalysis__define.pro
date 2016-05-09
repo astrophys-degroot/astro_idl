@@ -270,14 +270,14 @@ PRO mzranalysis::findtags
 
 
   xdata = *self.compdata        ;grab data
-  help, xdata, /STRUC
+  ;help, xdata, /STRUC
 
   ;;;find the necessary tags
   tags = {tgra:['blurb','MRA', 'RA', 'RAJ2000'], $         ;possible tags
           tgdec:['blast','MDEC', 'DEC', 'DEJ2000'], $      ;possible tags
           tgmass:['ph_lmass'], $                           ;possible tags
-          ;tgemassi:['ph_l68_lmass'], $                     ;possible tags
-          ;tgemassa:['ph_u68_lmass'], $                     ;possible tags
+                                ;tgemassi:['ph_l68_lmass'], $                     ;possible tags
+                                ;tgemassa:['ph_u68_lmass'], $                     ;possible tags
           tgspz1:['SP_SPECZBEST','SP_M_Z'], $              ;possible tags
           tghaflux:['SP_M_HA_FLUX'], $                     ;possible tags
           tgniiflux:['SP_M_NIIR_FLUX'], $                  ;possible tags
@@ -285,7 +285,14 @@ PRO mzranalysis::findtags
           tgniiflag:['SP_M_NIIR_FLAG'], $                  ;possible tags
           tgclmem:['AN_SHIGAP','AN_ADAPKER','AN_CLMEM'], $ ;possible tags
           tglab1:['SP_M_OBJ'], $                           ;possible tags
-          tglab2:['SP_M_MASK'] }                           ;possible tags
+          tglab2:['SP_M_MASK'], $                          ;possible tags
+          tgch1flux:['PH_IRAC1FLUX'], $                    ;possible tags
+          tgch2flux:['PH_IRAC2FLUX'], $                    ;possible tags
+          tgch3flux:['PH_IRAC3FLUX'], $                    ;possible tags
+          tgch4flux:['PH_IRAC4FLUX'], $                    ;possible tags
+          tgiragn:['AN_AGND12']}                           ;possible tags
+
+
 
 
   nametags = tag_names(tags)                               ;get key names
@@ -443,11 +450,21 @@ PRO mzranalysis::plotbpt, NOIRAGN=noiragn, $
 
   ;;;find plausible metallicity measurements
   N2 = xdata.(self.indniiflux)                                                                                           ;create array
-  N2[niiul] = alog10((xdata[niiul].(self.indniiflux)+0.0*xdata[niiul].(self.indeniiflux))/xdata[niiul].(self.indhaflux)) ;find ratio
+  N2[niiul] = alog10((xdata[niiul].(self.indniiflux)+0.1*xdata[niiul].(self.indeniiflux))/xdata[niiul].(self.indhaflux)) ;find ratio
   N2[niisnr] = alog10((xdata[niisnr].(self.indniiflux))/xdata[niisnr].(self.indhaflux))                                  ;find ratio
   N2chk = where((N2 NE N2) OR (N2 NE 0.0))                                                                               ;find any NaNs or zeros
                                 ;IF chk[0] NE -1 THEN N2 = N2[N2chk]                         ;if present, remove
   N2 = N2[N2chk]                ;if present, remove
+
+  ;;;separate by region on BPT
+  N2agnul = where(N2 GT 0.2 AND (xdata.(self.indniiflag) GE self.niiflagul))
+  N2compul = where((N2 GT -0.2) AND (N2 LT 0.2) AND (xdata.(self.indniiflag) GE self.niiflagul))
+  N2sful = where((N2 LT -0.2) AND (xdata.(self.indniiflag) GE self.niiflagul))
+  N2agndd = where(N2 GT 0.2 AND (xdata.(self.indniiflag) LT self.niiflagul))
+  N2compdd = where((N2 GT -0.2) AND (N2 LT 0.2) AND (xdata.(self.indniiflag) LT self.niiflagul))
+  N2sfdd = where((N2 LT -0.2) AND (xdata.(self.indniiflag) LT self.niiflagul))
+  
+
   fakeys = fltarr(n_elements(N2))   ;create array for fake y values
   fakeysul = fltarr(n_elements(N2)) ;create array for fake y values
   fakeys[*] = -0.92                 ;set fake y values
@@ -476,35 +493,214 @@ PRO mzranalysis::plotbpt, NOIRAGN=noiragn, $
                  YRANGE=[self.bptymin,self.bptymax], $             ;plot options
                  FONT_SIZE=14, FONT_STYLE=0)                       ;plot options
 
-  bptplot1 = plot(model.lmixxs, model.lmixys, '-', /OVERPLOT, $          ;plot model
-                  THICK=2, color='green')                                ;plot options
-  bptplot1 = plot(model.umixxs, model.umixys, '-', /OVERPLOT, $          ;plot model
-                  THICK=2, color='green')                                ;plot options
-  bptplot1 = plot(model.lsfxs, model.lsfys, '-', /OVERPLOT, $            ;plot model
-                  THICK=2, color='green')                                ;plot options
-  bptplot1 = plot(model.usfxs, model.usfys, '-', /OVERPLOT, $            ;plot model
-                  THICK=2, color='green', NAME='Kewley 2013 Scenario 1') ;plot model
-  bptplot2 = plot(model2.xs, model2.ys, '--', /OVERPLOT, $               ;plot options
-                  THICK=2, color='black', NAME='Kewley 2006 SF')         ;plot model
-  bptplot3 = plot(model3.xs, model3.ys, '-', /OVERPLOT, $                ;plot options
-                  THICK=2, color='black', NAME='Kewley 2006 Comp')       ;plot model
+  bptplot1 = plot(model.lmixxs, model.lmixys, '-', /OVERPLOT, $            ;plot model
+                  THICK=2, color='green')                                  ;plot options
+  bptplot1 = plot(model.umixxs, model.umixys, '-', /OVERPLOT, $            ;plot model
+                  THICK=2, color='green')                                  ;plot options
+  bptplot1 = plot(model.lsfxs, model.lsfys, '-', /OVERPLOT, $              ;plot model
+                  THICK=2, color='green')                                  ;plot options
+  bptplot1 = plot(model.usfxs, model.usfys, '-', /OVERPLOT, $              ;plot model
+                  THICK=2, color='green', NAME='Kewley 2013 Scenario 1')   ;plot model
+  bptplot2 = plot(model2.xs, model2.ys, '--', /OVERPLOT, $                 ;plot options
+                  THICK=2, color='black', NAME='Kewley 2006 Star Forming') ;plot model
+  bptplot3 = plot(model3.xs, model3.ys, '-', /OVERPLOT, $                  ;plot options
+                  THICK=2, color='black', NAME='Kewley 2006 Composite')    ;plot model
 
-  IF (niiul[0] NE -1) THEN mydata = plot(N2[niiul], fakeysul[niiul], '<', /OVERPLOT, SYM_SIZE=2.0, SYM_FILLED=1) ;plot upper limits
-  IF (niisnr[0] NE -1) THEN mydata = plot(N2[niisnr], fakeys[niisnr], '|', /OVERPLOT, SYM_SIZE=2.0, SYM_FILLED=1) ;plot real ratios
-
+  IF (N2agnul[0] NE -1) THEN mydata = plot(N2[N2agnul], fakeysul[N2agnul], 'r<', $                           ;plot options
+                                           /OVERPLOT, SYM_SIZE=2.0, SYM_THICK=2.0, SYM_FILLED=0, $           ;plot options
+                                           NAME='  Up lim; AGN')                                             ;plot upper limits
+  target2 = [mydata]                                                                                         ;
+  IF (N2compul[0] NE -1) THEN mydata = plot(N2[N2compul], fakeysul[N2compul], '<', /OVERPLOT, $              ;plot options
+                                            SYM_COLOR='orange', SYM_THICK=2.0, SYM_SIZE=2.0, SYM_FILLED=0, $ ;plot options
+                                            NAME='  Up lim; composite')                                      ;plot upper limits
+  target2 = [target2, mydata]                                                                                ;
+  IF (N2sful[0] NE -1) THEN mydata = plot(N2[N2sful], fakeysul[N2sful], 'g<', $                              ;plot options
+                                          /OVERPLOT, SYM_SIZE=2.0, SYM_THICK=2.0, SYM_FILLED=0, $            ;plot options
+                                          NAME='  Up lim; Star forming')                                     ;plot upper limits
+  target2 = [target2, mydata]                                                                                ;
+  IF (N2agndd[0] NE -1) THEN mydata = plot(N2[N2agndd], fakeys[N2agndd], 'r|', $                             ;plot options
+                                           /OVERPLOT, SYM_SIZE=2.0, SYM_THICK=2.0, SYM_FILLED=0, $           ;plot options
+                                           NAME='  Direct; AGN')                                             ;plot upper limits
+  target2 = [target2, mydata]                                                                                ;
+  IF (N2compdd[0] NE -1) THEN mydata = plot(N2[N2compdd], fakeys[N2compdd], '|', /OVERPLOT, $                ;plot options
+                                            SYM_COLOR='orange', SYM_THICK=2.0, SYM_SIZE=2.0, SYM_FILLED=0, $ ;plot options
+                                            NAME='  Direct; composite')                                      ;plot upper limits
+  target2 = [target2, mydata]                                                                                ;
+  IF (N2sfdd[0] NE -1) THEN mydata = plot(N2[N2sfdd], fakeys[N2sfdd], 'g|', $                                ;plot options
+                                          /OVERPLOT, SYM_SIZE=2.0, SYM_THICK=2.0, SYM_FILLED=0, $            ;plot options
+                                          NAME='  Direct; Star forming')                                     ;plot upper limits
+  target2 = [target2, mydata]                                                                                ;
+  
   IF ~keyword_set(NOIRAGN) THEN $                                                        ;cont next line
      IF (iragn[0] NE -1) THEN mydata = plot(N2[iragn], fakeys[iragn], 'tl', /OVERPLOT, $ ;over plot IR AGN
                                             SYM_SIZE=7, SYM_THICK=3, COLOR='green')      ;plot options
 
   mylegend = legend(TARGET=[bptplot1, bptplot2, bptplot3], $               ;legend
-                    POSITION=[self.bptxmax-1.3,self.bptymax-0.1], /DATA, $ ;legend options
-                    SHADOW=0, LINESTYLE=6, FONT_SIZE=11)                   ;legend options
+                    POSITION=[self.bptxmax-1.4,self.bptymax-0.1], /DATA, $ ;legend options
+                    SHADOW=0, LINESTYLE=6, FONT_SIZE=10)                   ;legend options
+  mylegend = legend(TARGET=target2, $                                      ;legend
+                    POSITION=[self.bptxmin+0.1,self.bptymax-1.2], /DATA, $ ;legend options
+                    SHADOW=0, LINESTYLE=6, FONT_SIZE=10, SAMPLE_WIDTH=0.1) ;legend options
 
   
   ;bptplot.save, fnbptplot, RESOLUTION=600 ;save plot
   ;self.bptmade = 1                        ;set as plot made this call
   ;self.nwin = self.nwin + 1               ;up window number
 
+
+END
+;====================================================================================================
+
+
+;====================================================================================================
+PRO mzranalysis::plotiragn, FNIRAGNPLOT=fniragnplot
+
+
+  ;;;set default values
+  print, '  IRAC AGN diagnostic plot...'       ;print info
+  IF keyword_set(FNIRAGNPLOT) THEN BEGIN       ;if new plot name given
+     fniragnplot = string(fniragnplot[0])      ;take new name
+     self.fniragnplot = string(fniragnplot[0]) ;store new name
+  ENDIF ELSE fniragnplot = self.fniragnplot    ;set default value
+
+
+  ;;;read catalog and fine appropriate data
+                                ;self.readcat                  ;read in file
+                                ;self.sample                   ;get sample
+  xdata = *self.compdata        ;grab data
+                                ;xdata = xdata[*self.sample]   ;grab subset
+  ;help, xdata
+  ;chk = tag_exist(xdata, self.tgch1flux, INDEX=ch1find)    ;find necessary tag
+  ;text = '   This plot requires a IRAC CH1 flux keyword: ' ;text to pass
+  ;IF chk EQ 0 THEN ch1find = tagprompt(xdata, text)        ;find necessary tag
+  ;chk = tag_exist(xdata, self.tgch2flux, INDEX=ch2find)    ;find necessary tag
+  ;text = '   This plot requires a IRAC CH2 flux keyword: ' ;text to pass
+  ;IF chk EQ 0 THEN ch2find = tagprompt(xdata, text)        ;find necessary tag
+  ;chk = tag_exist(xdata, self.tgch3flux, INDEX=ch3find)    ;find necessary tag
+  ;text = '   This plot requires a IRAC CH3 flux keyword: ' ;text to pass
+  ;IF chk EQ 0 THEN ch3find = tagprompt(xdata, text)        ;find necessary tag
+  ;chk = tag_exist(xdata, self.tgch4flux, INDEX=ch4find)    ;find necessary tag
+  ;text = '   This plot requires a IRAC CH4 flux keyword: ' ;text to pass
+  ;IF chk EQ 0 THEN ch4find = tagprompt(xdata, text)        ;find necessary tag
+
+  print, self.indch1flux
+  print, self.indch2flux
+  print, self.indch3flux
+  print, self.indch4flux
+
+  ;chk = tag_exist(xdata, self.tgagn, INDEX=agnind)                       ;find necessary tag
+  ;text = '   This plot options a IR AGN diagnostic keyword: '            ;text to pass
+  ;IF chk EQ 0 THEN agnind = tagprompt(xdata, text)                       ;find necessary tag
+  ;chk = tag_exist(xdata, self.tgelagn, INDEX=elagnind)                   ;find necessary tag
+  ;text = '   This plot options a emission line AGN diagnostic keyword: ' ;text to pass
+  ;IF chk EQ 0 THEN elagnind = tagprompt(xdata, text)                     ;find necessary tag
+  ;chk = tag_exist(xdata, 'SP_SPECZBEST', INDEX=spzfind)                  ;find necessary tag
+  ;text = '   This plot options a redshift keyword: '                     ;text to pass
+  ;IF chk EQ 0 THEN spzfind = tagprompt(xdata, text)                      ;find necessary tag
+  ;chk = tag_exist(xdata, 'SP_SPECZFLAG', INDEX=qspzind)                  ;find necessary tag
+  ;text = '   This plot options a spec-z quality keyword: '               ;text to pass
+  ;IF chk EQ 0 THEN qspzind = tagprompt(xdata, text)                      ;find necessary tag  
+  ;chk = tag_exist(xdata, self.tgclmem, INDEX=clmemind)                   ;find necessary tag
+  ;text = '   This plot options a cluster member keyword: '               ;text to pass
+  ;IF chk EQ 0 THEN clmemind = tagprompt(xdata, text)                     ;find necessary tag
+
+  print, self.indiragn
+
+  ;;;create flag arrays for subset
+  clyes = intarr(n_elements(xdata.(0)))  ;create array
+  fiyes = intarr(n_elements(xdata.(0)))  ;create array
+  hqyes = intarr(n_elements(xdata.(0)))  ;create array
+  mqyes = intarr(n_elements(xdata.(0)))  ;create array
+  lqyes = intarr(n_elements(xdata.(0)))  ;create array
+  agnyes = intarr(n_elements(xdata.(0))) ;create array
+
+
+  ;;;find subsets and fill subset arrarys
+  IF (self.indspz1 NE 0) THEN BEGIN                                                                     ;
+     specz = where((xdata.(self.indspz1) GE 0.0) AND (xdata.(self.indspz1) LE 5.0), COMPLEMENT=nospecz) ;has real redshift
+     cl = where(xdata.(self.indclmem) EQ 1, COMPLEMENT=field)                                           ;has cluster redshift
+     IF cl[0] NE -1 THEN clyes[specz[cl]] = 1                                                           ;
+     IF field[0] NE -1 THEN fiyes[specz[field]] = 1                                                     ; 
+  ENDIF
+
+  help, specz
+  help, nospecz
+  help, cl
+  help, field
+
+  ;IF (qspzind NE -1) THEN BEGIN
+  ;   chk = where((xdata.(qspzind) EQ 0) OR (xdata.(qspzind) EQ 1)) ;good quality 
+  ;   IF (chk[0] NE -1) THEN hqyes[chk] = 1                         ;flag it
+  ;   chk = where((xdata.(qspzind) EQ 2))                           ;good quality 
+  ;   IF (chk[0] NE -1) THEN mqyes[chk] = 1                         ;flag it
+  ;   chk = where((xdata.(qspzind) EQ 3))                           ;good quality 
+  ;   IF (chk[0] NE -1) THEN lqyes[chk] = 1                         ;flag it
+  ;ENDIF 
+
+  ;agnyes = where(xdata.(agnind) EQ 1)     ;find agn
+                                ;elagnyes = where(xdata.(elagnind) EQ 2) ;find agn
+  
+  ;;;find plausible flux ratio measurements
+  xs = alog10(xdata.(self.indch3flux)/xdata.(self.indch1flux)) ;find ratio
+  xschk = where((xs NE xs))                                    ;find any NaNs
+  IF (xschk[0] NE -1) THEN xs[xschk] = -99.0                   ;if present, remove
+  ys = alog10(xdata.(self.indch4flux)/xdata.(self.indch2flux)) ;find ratio
+  yschk = where((ys NE ys))                                    ;find any NaNs
+  IF (yschk[0] NE -1) THEN ys[xschk] = -99.0                   ;if present, remove
+
+
+  ;;;plot it all
+  model1 = donley_2012(1)                                                ;get region populated by AGNs
+  w = window(LOCATION=[100+50*self.nwin,-25+25*self.nwin])               ;window
+  iragnplot = plot([1.0], [1.0], '.', /CURRENT, /NODATA, $               ;plot data
+                   XTITLE='log($f_{5.8 \mu m}/f_{3.6 \mu m}$)', $        ;plot options
+                   XRANGE=[self.iragnxmin,self.iragnxmax], $             ;plot options
+                   YTITLE='log($f_{8.0 \mu m}/f_{4.5 \mu m}$)', $        ;plot options
+                   YRANGE=[self.iragnymin,self.iragnymax], FONT_SIZE=16) ;plot options
+  limit1 = plot(model1.xs, model1.ys, '-', /OVERPLOT, THICK=2)           ;plot model
+  IF (self.indspz1 NE -1) THEN BEGIN
+     nozpoints = plot(xs[nospecz], ys[nospecz], 'o', /OVERPLOT, $
+                      COLOR='gray', /SYM_FILLED, SYM_SIZE=0.3) 
+     IF (qspzind NE -1) THEN BEGIN
+        fihq = where((fiyes EQ 1) AND (hqyes EQ 1))
+        IF (fihq[0] NE -1) THEN prsfullfov = plot(xs[fihq], ys[fihq], /OVERPLOT, $
+                                                  SYMBOL='o', LINESTYLE='', COLOR = 'blue', /SYM_FILLED, SYM_SIZE=1.5)
+        fimq = where((fiyes EQ 1) AND (mqyes EQ 1))
+        IF (fimq[0] NE -1) THEN prsfullfov = plot(xs[fimq], ys[fimq], /OVERPLOT, $
+                                                  SYMBOL='o', LINESTYLE='', COLOR = 'blue', /SYM_FILLED, SYM_SIZE=1.25)
+        filq = where((fiyes EQ 1) AND (lqyes EQ 1))
+        IF (filq[0] NE -1) THEN prsfullfov = plot(xs[filq], ys[filq], /OVERPLOT, $
+                                                  SYMBOL='o', LINESTYLE='', COLOR = 'blue', /SYM_FILLED, SYM_SIZE=1.0)
+        clhq = where((clyes EQ 1) AND (hqyes EQ 1))
+        IF (clhq[0] NE -1) THEN prsfullfov = plot([xs[clhq]], [ys[clhq]], /OVERPLOT, $
+                                                  SYMBOL='o', LINESTYLE='', COLOR = 'red', /SYM_FILLED, SYM_SIZE=1.5)
+        clmq = where((clyes EQ 1) AND (mqyes EQ 1))
+        IF (clmq[0] NE -1) THEN prsfullfov = plot([xs[clmq]], [ys[clmq]], /OVERPLOT, $
+                                                  SYMBOL='o', LINESTYLE='', COLOR = 'red', /SYM_FILLED, SYM_SIZE=1.25)
+        cllq = where((clyes EQ 1) AND (lqyes EQ 1))
+        IF (cllq[0] NE -1) THEN prsfullfov = plot([xs[cllq]], [ys[cllq]], /OVERPLOT, $
+                                                  SYMBOL='o', LINESTYLE='', COLOR = 'red', /SYM_FILLED, SYM_SIZE=1.0)
+     ENDIF ELSE BEGIN
+        
+        fimem = where(fiyes EQ 1)
+        zpoints = plot(xs[fimem], ys[fimem], 'o', /OVERPLOT, $
+                       COLOR='blue', /SYM_FILLED, SYM_SIZE=1.0) 
+        clmem = where(clyes EQ 1)
+        zpoints = plot(xs[clmem], ys[clmem], 'o', /OVERPLOT, $
+                       COLOR='red', /SYM_FILLED, SYM_SIZE=1.0) 
+     ENDELSE
+  ENDIF ELSE points = plot(xs, ys, 'o', /OVERPLOT, /SYM_FILLED, SYM_SIZE=0.60)
+
+  IF (agnind NE -1) THEN BEGIN
+     agn = plot(xs[agnyes], ys[agnyes], 'td', /OVERPLOT, COLOR = 'green', /SYM_FILLED, SYM_SIZE=1.25)
+  ENDIF
+  IF (elagnind NE -1) AND (elagnyes[0] NE -1) THEN BEGIN
+     agn = plot(xs[elagnyes], ys[elagnyes], 'tu', /OVERPLOT, COLOR = 'green', /SYM_FILLED, SYM_SIZE=1.25)
+  ENDIF
+
+  iragnplot.save, fniragnplot, RESOLUTION=600 ;save plot
+  self.iragnmade = 1                          ;set as plot made this call
+  self.nwin = self.nwin + 1                   ;up window number
 
 END
 ;====================================================================================================
@@ -1115,147 +1311,6 @@ END
 
 
 
-;====================================================================================================
-PRO mzranalysis::plotiragn, FNIRAGNPLOT=fniragnplot
-
-
-  ;;;set default values
-  print, '  IRAC AGN diagnostic plot...'       ;print info
-  IF keyword_set(FNIRAGNPLOT) THEN BEGIN       ;if new plot name given
-     fniragnplot = string(fniragnplot[0])      ;take new name
-     self.fniragnplot = string(fniragnplot[0]) ;store new name
-  ENDIF ELSE fniragnplot = self.fniragnplot    ;set default value
-
-
-  ;;;read catalog and fine appropriate data
-  self.readcat                  ;read in file
-                                ;self.sample                   ;get sample
-  xdata = *self.curdata         ;copy data
-                                ;xdata = xdata[*self.sample]   ;grab subset
-  help, xdata
-  chk = tag_exist(xdata, self.tgch1flux, INDEX=ch1find)    ;find necessary tag
-  text = '   This plot requires a IRAC CH1 flux keyword: ' ;text to pass
-  IF chk EQ 0 THEN ch1find = tagprompt(xdata, text)        ;find necessary tag
-  chk = tag_exist(xdata, self.tgch2flux, INDEX=ch2find)    ;find necessary tag
-  text = '   This plot requires a IRAC CH2 flux keyword: ' ;text to pass
-  IF chk EQ 0 THEN ch2find = tagprompt(xdata, text)        ;find necessary tag
-  chk = tag_exist(xdata, self.tgch3flux, INDEX=ch3find)    ;find necessary tag
-  text = '   This plot requires a IRAC CH3 flux keyword: ' ;text to pass
-  IF chk EQ 0 THEN ch3find = tagprompt(xdata, text)        ;find necessary tag
-  chk = tag_exist(xdata, self.tgch4flux, INDEX=ch4find)    ;find necessary tag
-  text = '   This plot requires a IRAC CH4 flux keyword: ' ;text to pass
-  IF chk EQ 0 THEN ch4find = tagprompt(xdata, text)        ;find necessary tag
-
-  chk = tag_exist(xdata, self.tgagn, INDEX=agnind)                       ;find necessary tag
-  text = '   This plot options a IR AGN diagnostic keyword: '            ;text to pass
-  IF chk EQ 0 THEN agnind = tagprompt(xdata, text)                       ;find necessary tag
-  chk = tag_exist(xdata, self.tgelagn, INDEX=elagnind)                   ;find necessary tag
-  text = '   This plot options a emission line AGN diagnostic keyword: ' ;text to pass
-  IF chk EQ 0 THEN elagnind = tagprompt(xdata, text)                     ;find necessary tag
-  chk = tag_exist(xdata, 'SP_SPECZBEST', INDEX=spzfind)                  ;find necessary tag
-  text = '   This plot options a redshift keyword: '                     ;text to pass
-  IF chk EQ 0 THEN spzfind = tagprompt(xdata, text)                      ;find necessary tag
-  chk = tag_exist(xdata, 'SP_SPECZFLAG', INDEX=qspzind)                  ;find necessary tag
-  text = '   This plot options a spec-z quality keyword: '               ;text to pass
-  IF chk EQ 0 THEN qspzind = tagprompt(xdata, text)                      ;find necessary tag  
-  chk = tag_exist(xdata, self.tgclmem, INDEX=clmemind)                   ;find necessary tag
-  text = '   This plot options a cluster member keyword: '               ;text to pass
-  IF chk EQ 0 THEN clmemind = tagprompt(xdata, text)                     ;find necessary tag
-
-
-  ;;;create flag arrays for subset
-  clyes = intarr(n_elements(xdata.(0)))  ;create array
-  fiyes = intarr(n_elements(xdata.(0)))  ;create array
-  hqyes = intarr(n_elements(xdata.(0)))  ;create array
-  mqyes = intarr(n_elements(xdata.(0)))  ;create array
-  lqyes = intarr(n_elements(xdata.(0)))  ;create array
-  agnyes = intarr(n_elements(xdata.(0))) ;create array
-
-
-  ;;;find subsets and fill subset arrarys
-  IF (spzfind NE -1) THEN BEGIN                                                               ;
-     specz = where((xdata.(spzfind) GE 0.0) AND (xdata.(spzfind) LE 5.0), COMPLEMENT=nospecz) ;has real redshift
-     cl = where(xdata.(clmemind) EQ 1, COMPLEMENT=field)                                      ;has cluster redshift
-     IF cl[0] NE -1 THEN clyes[specz[cl]] = 1                                                 ;
-     IF field[0] NE -1 THEN fiyes[specz[field]] = 1                                           ; 
-  ENDIF
-
-  IF (qspzind NE -1) THEN BEGIN
-     chk = where((xdata.(qspzind) EQ 0) OR (xdata.(qspzind) EQ 1)) ;good quality 
-     IF (chk[0] NE -1) THEN hqyes[chk] = 1                         ;flag it
-     chk = where((xdata.(qspzind) EQ 2))                           ;good quality 
-     IF (chk[0] NE -1) THEN mqyes[chk] = 1                         ;flag it
-     chk = where((xdata.(qspzind) EQ 3))                           ;good quality 
-     IF (chk[0] NE -1) THEN lqyes[chk] = 1                         ;flag it
-  ENDIF 
-
-  agnyes = where(xdata.(agnind) EQ 1)     ;find agn
-  elagnyes = where(xdata.(elagnind) EQ 2) ;find agn
-  
-  ;;;find plausible metallicity measurements
-  xs = alog10(xdata.(ch3find)/xdata.(ch1find)) ;find ratio
-  xschk = where((xs NE xs))                    ;find any NaNs
-  IF (xschk[0] NE -1) THEN xs[xschk] = -99.0   ;if present, remove
-  ys = alog10(xdata.(ch4find)/xdata.(ch2find)) ;find ratio
-  yschk = where((ys NE ys))                    ;find any NaNs
-  IF (yschk[0] NE -1) THEN ys[xschk] = -99.0   ;if present, remove
-
-
-  ;;;plot it all
-  model1 = donley_2012(1)                                                ;get region populated by AGNs
-  w = window(LOCATION=[100+50*self.nwin,-25+25*self.nwin])               ;window
-  iragnplot = plot([1.0], [1.0], '.', /CURRENT, /NODATA, $               ;plot data
-                   XTITLE='log($f_{5.8\mu m}/f_{3.6\mu m}$)', $          ;plot options
-                   XRANGE=[self.iragnxmin,self.iragnxmax], $             ;plot options
-                   YTITLE='log($f_{8.0\mu m}/f_{4.5\mu m}$)', $          ;plot options
-                   YRANGE=[self.iragnymin,self.iragnymax], FONT_SIZE=14) ;plot options
-  limit1 = plot(model1.xs, model1.ys, '-', /OVERPLOT, THICK=2)           ;plot model
-  IF (spzfind NE -1) THEN BEGIN
-     nozpoints = plot(xs[nospecz], ys[nospecz], 'o', /OVERPLOT, $
-                      COLOR='gray', /SYM_FILLED, SYM_SIZE=0.3) 
-     IF (qspzind NE -1) THEN BEGIN
-        fihq = where((fiyes EQ 1) AND (hqyes EQ 1))
-        IF (fihq[0] NE -1) THEN prsfullfov = plot(xs[fihq], ys[fihq], /OVERPLOT, $
-                                                  SYMBOL='o', LINESTYLE='', COLOR = 'blue', /SYM_FILLED, SYM_SIZE=1.5)
-        fimq = where((fiyes EQ 1) AND (mqyes EQ 1))
-        IF (fimq[0] NE -1) THEN prsfullfov = plot(xs[fimq], ys[fimq], /OVERPLOT, $
-                                                  SYMBOL='o', LINESTYLE='', COLOR = 'blue', /SYM_FILLED, SYM_SIZE=1.25)
-        filq = where((fiyes EQ 1) AND (lqyes EQ 1))
-        IF (filq[0] NE -1) THEN prsfullfov = plot(xs[filq], ys[filq], /OVERPLOT, $
-                                                  SYMBOL='o', LINESTYLE='', COLOR = 'blue', /SYM_FILLED, SYM_SIZE=1.0)
-        clhq = where((clyes EQ 1) AND (hqyes EQ 1))
-        IF (clhq[0] NE -1) THEN prsfullfov = plot([xs[clhq]], [ys[clhq]], /OVERPLOT, $
-                                                  SYMBOL='o', LINESTYLE='', COLOR = 'red', /SYM_FILLED, SYM_SIZE=1.5)
-        clmq = where((clyes EQ 1) AND (mqyes EQ 1))
-        IF (clmq[0] NE -1) THEN prsfullfov = plot([xs[clmq]], [ys[clmq]], /OVERPLOT, $
-                                                  SYMBOL='o', LINESTYLE='', COLOR = 'red', /SYM_FILLED, SYM_SIZE=1.25)
-        cllq = where((clyes EQ 1) AND (lqyes EQ 1))
-        IF (cllq[0] NE -1) THEN prsfullfov = plot([xs[cllq]], [ys[cllq]], /OVERPLOT, $
-                                                  SYMBOL='o', LINESTYLE='', COLOR = 'red', /SYM_FILLED, SYM_SIZE=1.0)
-     ENDIF ELSE BEGIN
-        
-        fimem = where(fiyes EQ 1)
-        zpoints = plot(xs[fimem], ys[fimem], 'o', /OVERPLOT, $
-                       COLOR='blue', /SYM_FILLED, SYM_SIZE=1.0) 
-        clmem = where(clyes EQ 1)
-        zpoints = plot(xs[clmem], ys[clmem], 'o', /OVERPLOT, $
-                       COLOR='red', /SYM_FILLED, SYM_SIZE=1.0) 
-     ENDELSE
-  ENDIF ELSE points = plot(xs, ys, 'o', /OVERPLOT, /SYM_FILLED, SYM_SIZE=0.60)
-
-  IF (agnind NE -1) THEN BEGIN
-     agn = plot(xs[agnyes], ys[agnyes], 'td', /OVERPLOT, COLOR = 'green', /SYM_FILLED, SYM_SIZE=1.25)
-  ENDIF
-  IF (elagnind NE -1) AND (elagnyes[0] NE -1) THEN BEGIN
-     agn = plot(xs[elagnyes], ys[elagnyes], 'tu', /OVERPLOT, COLOR = 'green', /SYM_FILLED, SYM_SIZE=1.25)
-  ENDIF
-
-  iragnplot.save, fniragnplot, RESOLUTION=600 ;save plot
-  self.iragnmade = 1                          ;set as plot made this call
-  self.nwin = self.nwin + 1                   ;up window number
-
-END
-;====================================================================================================
 
 
 ;====================================================================================================
@@ -1474,6 +1529,10 @@ PRO mzranalysis__define
           
           BINMEDMASS:ptr_new(), BINMEANMASS:ptr_new(), BINMEDN2:ptr_new(), BINMEANN2:ptr_new(), $
 
+          TGCH1FLUX:0, INDCH1FLUX:0, TGCH2FLUX:0, INDCH2FLUX:0, $
+          TGCH3FLUX:0, INDCH3FLUX:0, TGCH4FLUX:0, INDCH4FLUX:0, $
+          TGIRAGN:0, INDIRAGN:0, $
+
           curcat:'A', dircurcat:'A', curdata:ptr_new(), curhdr:ptr_new(), ncurdata:0, $
           dirplot:'A', dirart:'A', sample:ptr_new(), cleansample:ptr_new(), GROUP:'A', $
           SORTCAT:'A', DIRSORT:'A', $
@@ -1481,7 +1540,6 @@ PRO mzranalysis__define
           TGMFLAG:0, $
           TGSPZFLAG1:0, TGSPZ2:0, TGHAFLAG:0, $
           TGAGN:0, TGELAGN:0, $
-          TGCH1FLUX:0, TGCH2FLUX:0, TGCH3FLUX:0, TGCH4FLUX:0, $
           BPTMADE:0, FNBPTPLOT:'A', BPTXMIN:0.0, BPTXMAX:0.0, BPTYMIN:0.0, BPTYMAX:0.0, $
           IRAGNMADE:0, FNIRAGNPLOT:'A', IRAGNXMIN:0.0, IRAGNXMAX:0.0, IRAGNYMIN:0.0, IRAGNYMAX:0.0, $
           MZRMADE:0, FNDMZRPLOT:'A'}

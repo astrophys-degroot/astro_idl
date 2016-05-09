@@ -701,9 +701,9 @@ PRO degroot2015a::runmzranalysis, xsubset
   run.readcat, xsubset.catalog, INDIR='/Users/adegroot/research/clusters/combination/catalogs/' ;read in data 
   run.findtags                                                                                  ;find all the tags we need
   IF xsubset.mcmass GT 1 THEN newmass = run.mcmass(xsubset.mcmass, WHICH=2)                     ;get perturbed masses
-  ;run.plotmzrindiv, ALLTOG=alltog, LABEL=0                                                      ;plot individual points
-  run.plotbpt, /NOIRAGN                                                                         ;plot sudo-BPT points
-
+                                ;run.plotmzrindiv, ALLTOG=alltog, LABEL=0                                                      ;plot individual points
+                                ;run.plotbpt, /NOIRAGN                                                                         ;plot sudo-BPT points
+  run.plotiragn
   stop
   run.makebins, BINSET=xsubset.binset, NINBIN=xsubset.ninbin                                    ;find mass bin sizes
   run.specsort                                                                                  ;sort data into bins
