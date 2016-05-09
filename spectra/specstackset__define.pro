@@ -79,7 +79,7 @@ FUNCTION specstackset::getpresets, xpreset
   CASE xpreset OF               ;which stack settings to use
 
      'smcurrent' : xpreset = {wavegrid:3, commongrid:2, normalize:99, convolve:99, $ ;cont next line
-                              rejection:1, combination:4}                            ;present
+                              rejection:1, combination:4, perturb:0}                 ;present
 
      'kulas13' : BEGIN          ;do as Kulas did
      END                        ;end as Kulas did
@@ -137,20 +137,22 @@ FUNCTION specstackset::makestack, xmyspecs, xpre, ENV=env, SUBSET=subset, TEMPNA
                                 ;ENDCASE                                              ;end ENV set to?
   ENDIF ELSE envi = 0 ;defaults to field
   
-  newout = tempname                                                          ;copy temporary name
-  strreplace, newout, '***', subset                                          ;fill in subset
-  newout = strcompress(newout, /REMOVE_ALL)                                  ;remove any whitespace
+  newout = tempname                         ;copy temporary name
+  strreplace, newout, '***', subset         ;fill in subset
+  newout = strcompress(newout, /REMOVE_ALL) ;remove any whitespace
 
   IF chk[0] NE -1 THEN BEGIN                                                                                           ;if subset exists
-     data = xmyspecs[chk]                                                                                              ;get subset if possible 
+     data = xmyspecs[chk]                                                                                              ;get subset if possible
      mystack = obj_new('specstack', TWAVEGRID=xpre.wavegrid, TCOMMONGRID=xpre.commongrid, TNORMALIZE=xpre.normalize, $ ;cont next line
                        TCONVOLVE=xpre.convolve, TREJECTION=xpre.rejection, TCOMBINATION=xpre.combination, $            ;cont next line
+                       TPERTURB=xpre.perturb, $                                                                        ;cont next line
                        MASSES=data.ph_lmass, OUTFILE=newout)                                                           ;create the object
      
      mystack.getprop, SSOBJVER=mystackver                                                      ;get version of code
      print, 'Using spectra_stack object: ', mystackver                                         ;print info
      mystack.findfiles, data.file, XDIR=data.directory                                         ;find files
      myfiles = mystack.readfiles(data.file, XDIR=data.directory)                               ;read those files
+     myfiles = mystack.perturb(myfiles)                                                        ;perturb the spectra
      mygrid = mystack.wavegrid(TWAVEGRID=wavegrid, MINLAMB=5400, MAXLAMB=7100, DELTALAMB=0.62) ;create wavelength grid
      myout = mystack.prepout(mygrid)                                                           ;get output sample to fill
      myout = mystack.commongrid(mygrid, myfiles, myout, /LSQUADRATIC)                          ;everything on common wavelength grid

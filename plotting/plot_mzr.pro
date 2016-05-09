@@ -10,13 +10,13 @@ FUNCTION ERBCOMP, erbwhich, fakexs
   ;;;add the trend as desired
   CASE erbwhich OF                                                                   ;how to add
      1 : mzrtrend = errorplot(mymzr.xsmod, mymzr.ys, mymzr.xserrmod, mymzr.yserr, $  ;plot points
-                              'D', SYM_COLOR='teal', SYM_FILLED=0, SYM_SIZE='2.0', $ ;plot values
+                              'D', SYM_COLOR='teal', SYM_FILLED=0, SYM_SIZE='1.5', $ ;plot values
                               ERRORBAR_COLOR='teal', $                               ;plot values
-                              THICK=2, /OVERPLOT, NAME='Erb 2006')                   ;plot options
+                              SYM_THICK=2, /OVERPLOT, NAME='Erb 2006')                   ;plot options
      
      2 : BEGIN                                                                    ;plot trend
         mzrys = pubmzr.mzrfit(fakexs)                                             ;find trend values
-        mzrtrend = plot(fakexs, mzrys, '-.', THICK=2, /OVERPLOT, NAME='Erb 2006') ;plot options
+        mzrtrend = plot(fakexs, mzrys, '-.', SYM_THICK=3, /OVERPLOT, NAME='Erb 2006') ;plot options
      END                                                                          ;plot the trend
 
      3 : BEGIN                        ;plot trend
@@ -52,12 +52,12 @@ FUNCTION STEIDELCOMP, steidelwhich, fakexs
         mzrtrend = errorplot(mymzr.xsmod, mymzr.ys, xerrors, yerrors, $               ;plot points
                              'S', SYM_COLOR='orange', SYM_FILLED=0, SYM_SIZE='2.0', $ ;plot values
                              ERRORBAR_COLOR='orange', $                               ;plot values
-                             THICK=2, /OVERPLOT, NAME='Steidel 2014')                 ;plot options
+                             SYM_THICK=2, /OVERPLOT, NAME='Steidel 2014')                 ;plot options
      END
      
      2 : BEGIN                                                                        ;plot trend
         mzrys = pubmzr.mzrfit('N2', fakexs)                                           ;find trend values
-        mzrtrend = plot(fakexs, mzrys, '..', THICK=2, /OVERPLOT, NAME='Steidel 2014') ;plot options
+        mzrtrend = plot(fakexs, mzrys, '..', SYM_THICK=2, /OVERPLOT, NAME='Steidel 2014') ;plot options
      END                                                                              ;plot the trend
 
      ELSE : BEGIN
@@ -87,13 +87,13 @@ FUNCTION SANDERSCOMP, sanderswhich, fakexs
         mzrtrend = errorplot(mymzr.xs, mymzr.ys, xerrors, yerrors, $                 ;plot points
                              'td', SYM_COLOR='purple', SYM_FILLED=0, SYM_SIZE=2.0, $ ;plot values
                              ERRORBAR_COLOR='purple', $                              ;plot values
-                             THICK=2, /OVERPLOT, NAME='Sanders 2014')                ;plot options
+                             SYM_THICK=2, /OVERPLOT, NAME='Sanders 2014')                ;plot options
      END
      
      2 : BEGIN                  ;plot trend
                                 ;mzrys = pubmzr.mzrfit('N2', fakexs)                                           ;find trend values
-        ;mzrtrend = plot(fakexs, mzrys, '..', THICK=2, /OVERPLOT, NAME='Sanders 2014') ;plot options
-     END                                                                              ;plot the trend
+                                ;mzrtrend = plot(fakexs, mzrys, '..', THICK=2, /OVERPLOT, NAME='Sanders 2014') ;plot options
+     END                        ;plot the trend
 
      ELSE : BEGIN
         print, 'WTF!!'
@@ -183,7 +183,7 @@ function PLOT_MZR, mass, metalrule, CLMEM=clmem, NS=ns, $ ;, DEMETALLICITY=dmeta
   IF keyword_set(XMIN) THEN xmin = float(xmin[0]) ELSE xmin = 8.3          ;set default 
   IF keyword_set(XMAX) THEN xmax = float(xmax[0]) ELSE xmax = 11.5         ;set default 
   IF keyword_set(YMIN) THEN ymin = float(ymin[0]) ELSE ymin = 7.7          ;set default 
-  IF keyword_set(YMAX) THEN ymax = float(ymax[0]) ELSE ymax = 9.8         ;set default
+  IF keyword_set(YMAX) THEN ymax = float(ymax[0]) ELSE ymax = 9.8          ;set default
   IF keyword_set(CLCOLOR) THEN clcolor = clcolor[0] ELSE clcolor = 'red'   ;set default 
   IF keyword_set(GRCOLOR) THEN grcolor = grcolor[0] ELSE grcolor = 'green' ;set default 
   IF keyword_set(FICOLOR) THEN ficolor = ficolor[0] ELSE ficolor = 'blue'  ;set default 
@@ -192,6 +192,7 @@ function PLOT_MZR, mass, metalrule, CLMEM=clmem, NS=ns, $ ;, DEMETALLICITY=dmeta
   IF keyword_set(NULLVAL) THEN nullval = nullval[0] ELSE nullval = -99.0   ;set default 
   IF keyword_set(VERBOSE) THEN verbose = verbose[0] ELSE verbose = 3       ;set default 
   
+
 
   ;;;general usage
   fakexs = ((xmax-xmin)/ 101.0) * indgen(101.0) + xmin ;fakexs
@@ -254,17 +255,26 @@ function PLOT_MZR, mass, metalrule, CLMEM=clmem, NS=ns, $ ;, DEMETALLICITY=dmeta
      ENDELSE                                                                    ;end metallicity not found
   ENDCASE                                                                       ;end which metallicity
 
+  print, mass[100:110]
+  print, metals[100:110]
 
   ;;;cut sample to window limits
-  chk = where((mass LT xmin) OR (mass GT xmax), COMPLEMENT=keep) ;find outside limits
-  IF chk[0] NE -1 THEN BEGIN                                     ;if something outside limits
+  ;chk = where((mass LT xmin) OR (mass GT xmax), COMPLEMENT=keep) ;find outside limits
+  chk = where((mass LT xmin) OR (mass GT xmax) OR $                        ;cont next line
+              (metals LT ymin+0.125) OR (metals GT ymax), COMPLEMENT=keep) ;find outside limits
+  IF chk[0] NE -1 THEN BEGIN                                               ;if something outside limits
      mass = mass[keep]
+     metals = metals[keep]
      IF keyword_set(CLMEM) THEN clmem = clmem[keep] 
                                 ;dmass = dmass[keep]
                                 ;dmetallitcity =  dmetallitcity[keep]
      haflux = haflux[keep]
      niiflux = niiflux[keep]
   ENDIF                         ;end something outside limits
+  help, mass
+  help, metals
+  print, mass[100:110]
+  print, metals[100:110]
 
 
   ;;;Find environment(s) subset if possible
@@ -273,11 +283,11 @@ function PLOT_MZR, mass, metalrule, CLMEM=clmem, NS=ns, $ ;, DEMETALLICITY=dmeta
      group = where((clmem EQ 2), ngrall)    ;find group members
      field = where((clmem EQ 0), nfieldall) ;find field members
   ENDIF ELSE BEGIN                          ;end cluster member keyword set
-     cl = indgen(n_elements(mass))          ;get all entries
-     nclall = n_elements(cl)                ;total cluster numbers
+     field = indgen(n_elements(mass))       ;get all entries
+     nfieldall = n_elements(field)          ;total cluster numbers
      group = [-1]                           ;null entry
-     field = [-1]                           ;null entry
-     nfieldall = 0                          ;
+     cl = [-1]                              ;null entry
+     nclall = 0                             ;
   ENDELSE                                   ;end if cluster member keyword not set
 
   ;;;Find upper limit subset if possible 
@@ -307,24 +317,24 @@ function PLOT_MZR, mass, metalrule, CLMEM=clmem, NS=ns, $ ;, DEMETALLICITY=dmeta
      fieldul = [-1]             ;null array
   ENDELSE                       ;end if upper limits keyword not set
 
-  ;;;plot data for cluster
-  myplot1 = SCATTERPLOT(mass[cl], metals[cl], SYMBOL='o', $                                                               ;plot values
-                        TITLE=title, $                                                                                    ;plot options
-                        XTITLE='log(M/Msolar)', $                                                                         ;plot options
-                        XRANGE=[xmin,xmax], $                                                                             ;plot options
-                        YTITLE='12 +  log(O/H)', $                                                                        ;plot options
-                        YRANGE=[ymin,ymax], $                                                                             ;plot options
-                        SYM_SIZE=1.0, /SYM_FILLED, SYM_COLOR=clcolor, $                                                  ;plot options
-                        NAME=strcompress(' Our Cluster Sample:N=' + string(nclall) + '(' + string(n_elements(cl)) + ')')) ;plot options
+  ;;;plot data for field
+  myplot1 = SCATTERPLOT(mass[field], metals[field], SYMBOL='o', $                                                             ;plot values
+                        TITLE=title, $                                                                                        ;plot options
+                        XTITLE='log(M/Msolar)', $                                                                             ;plot options
+                        XRANGE=[xmin,xmax], $                                                                                 ;plot options
+                        YTITLE='12 +  log(O/H)', $                                                                            ;plot options
+                        YRANGE=[ymin,ymax], $                                                                                 ;plot options
+                        SYM_SIZE=1.0, /SYM_FILLED, SYM_COLOR=ficolor, $                                                       ;plot options
+                        NAME=strcompress(' Our Field Sample:N=' + string(nfieldall) + '(' + string(n_elements(field)) + ')')) ;plot options
 
-  IF (clul[0] NE -1) THEN BEGIN                                                                        ;if cluster membership given
-     FOR xx=0, n_elements(clul)-1, 1 DO BEGIN                                                          ;loop over upper lims
-        myarrow = arrow([mass[clul[xx]], mass[clul[xx]]], [metals[clul[xx]], metals[clul[xx]]-0.18], $ ;plot upper limits
-                        COLOR=clcolor, /DATA, /CURRENT, $                                              ;plot options
-                        HEAD_SIZE=0.6, HEAD_INDENT=0.0, LINE_THICK=2)                                  ;plot options
-     ENDFOR                                                                                            ;end loop 
+  IF (fieldul[0] NE -1) THEN BEGIN                                                                                 ;if field membership given
+     FOR xx=0, n_elements(fieldul)-1, 1 DO BEGIN                                                                   ;loop over upper lims
+        myarrow = arrow([mass[fieldul[xx]], mass[fieldul[xx]]], [metals[fieldul[xx]], metals[fieldul[xx]]-0.125], $ ;plot upper limits
+                        COLOR=ficolor, /DATA, /CURRENT, $                                                          ;plot options
+                        HEAD_SIZE=0.4, HEAD_INDENT=0.0, LINE_THICK=1.5)                                              ;plot options
+     ENDFOR                                                                                                        ;end loop 
   ENDIF 
-
+  
 
   ;;;plot data for group
   IF (group[0] NE -1) THEN BEGIN                                                                                              ;if cluster membership given
@@ -334,9 +344,9 @@ function PLOT_MZR, mass, metalrule, CLMEM=clmem, NS=ns, $ ;, DEMETALLICITY=dmeta
 
      IF (groupul[0] NE -1) THEN BEGIN                                                                                 ;if groupuster membership given
         FOR xx=0, n_elements(groupul)-1, 1 DO BEGIN                                                                   ;loop over upper lims
-           myarrow = arrow([mass[groupul[xx]], mass[groupul[xx]]], [metals[groupul[xx]], metals[groupul[xx]]-0.18], $ ;plot upper limits
+           myarrow = arrow([mass[groupul[xx]], mass[groupul[xx]]], [metals[groupul[xx]], metals[groupul[xx]]-0.125], $ ;plot upper limits
                            COLOR=grcolor, /DATA, /CURRENT, $                                                          ;plot options
-                           HEAD_SIZE=0.6, HEAD_INDENT=0.0, LINE_THICK=2)                                              ;plot options
+                           HEAD_SIZE=0.4, HEAD_INDENT=0.0, LINE_THICK=1.5)                                              ;plot options
         ENDFOR                                                                                                        ;end loop 
      ENDIF                                                                                                            ;end if group upper lims
 
@@ -345,26 +355,27 @@ function PLOT_MZR, mass, metalrule, CLMEM=clmem, NS=ns, $ ;, DEMETALLICITY=dmeta
      IF ~keyword_set(STACK) THEN targets = [myplot1] ELSE targets = []          ;target list for legend
   ENDELSE                                                                       ;end cluster membership not given
   
+  
+  ;;;plot data for cl
+  IF (cl[0] NE -1) THEN BEGIN                                                                                           ;if cluster membership given
+     myplot3 = SCATTERPLOT(mass[cl], metals[cl], /OVERPLOT, SYMBOL='o', $                                               ;plot values
+                           SYM_SIZE=1.0, /SYM_FILLED, SYM_COLOR=clcolor, $                                              ;plot options
+                           NAME=strcompress(' Our Cluster Sample:N=' + string(nclall) + '(' + string(n_elements(cl)) + ')')) ;plot options
 
-  ;;;plot data for field
-  IF (field[0] NE -1) THEN BEGIN                                                                                                 ;if cluster membership given
-     myplot3 = SCATTERPLOT(mass[field], metals[field], /OVERPLOT, SYMBOL='o', $                                                  ;plot values
-                           SYM_SIZE=1.0, /SYM_FILLED, SYM_COLOR=ficolor, $                                                       ;plot options
-                           NAME=strcompress(' Our Field Sample:N=' + string(nfieldall) + '(' + string(n_elements(field)) + ')')) ;plot options
-
-     IF (fieldul[0] NE -1) THEN BEGIN                                                                                 ;if fielduster membership given
-        FOR xx=0, n_elements(fieldul)-1, 1 DO BEGIN                                                                   ;loop over upper lims
-           myarrow = arrow([mass[fieldul[xx]], mass[fieldul[xx]]], [metals[fieldul[xx]], metals[fieldul[xx]]-0.18], $ ;plot upper limits
-                           COLOR=ficolor, /DATA, /CURRENT, $                                                          ;plot options
-                           HEAD_SIZE=0.6, HEAD_INDENT=0.0, LINE_THICK=2)                                              ;plot options
-        ENDFOR                                                                                                        ;end loop 
-     ENDIF                                                                                                            ;end if field upper lims
+     IF (clul[0] NE -1) THEN BEGIN                                                                        ;if cluster membership given
+        FOR xx=0, n_elements(clul)-1, 1 DO BEGIN                                                          ;loop over upper lims
+           myarrow = arrow([mass[clul[xx]], mass[clul[xx]]], [metals[clul[xx]], metals[clul[xx]]-0.125], $ ;plot upper limits
+                           COLOR=clcolor, /DATA, /CURRENT, $                                              ;plot options
+                           HEAD_SIZE=0.4, HEAD_INDENT=0.0, LINE_THICK=1.5)                                  ;plot options
+        ENDFOR                                                                                            ;end loop 
+     ENDIF                                                                                                ;end if cl upper lims
 
      IF ~keyword_set(STACK) THEN targets = [targets, myplot3] ELSE targets = [] ;target list for legend
-  ENDIF ELSE BEGIN                                                                       ;end cluster membership given
-     IF ~keyword_set(STACK) THEN targets = [myplot1] ELSE targets = []                   ;target list for legend
-  ENDELSE                                                                                ;end cluster membership not given
-  
+  ENDIF ELSE BEGIN                                                              ;end cluster membership given
+     IF ~keyword_set(STACK) THEN targets = [myplot1] ELSE targets = []          ;target list for legend
+  ENDELSE                                                                       ;end cluster membership not given
+
+
   ;;;plot labels
   If keyword_set(LABEL) THEN BEGIN              ;if label keyword is set
      mylabel = text(mass, metals, label, /DATA) ;label things
@@ -374,15 +385,14 @@ function PLOT_MZR, mass, metalrule, CLMEM=clmem, NS=ns, $ ;, DEMETALLICITY=dmeta
   ;;;plot mean, median data if desired
   IF keyword_set(SHOWMEAN) THEN BEGIN                                                    ;show the mean points
      myplot3 = SCATTERPLOT(meanmass, (8.9+0.57*alog10(meann2)), /OVERPLOT, SYMBOL='o', $ ;plot values
-                           SYM_SIZE=1.0, /SYM_FILLED, SYM_COLOR='green', $               ;plot options
+                           SYM_SIZE=1.0, /SYM_FILLED, SYM_COLOR='orange', $              ;plot options
                            NAME='mean_bins')                                             ;plot options
   ENDIF                                                                                  ;end show the mean points
   IF keyword_set(SHOWMED) THEN BEGIN                                                     ;show the med points
      myplot3 = SCATTERPLOT(medmass, (8.9+0.57*alog10(medn2)), /OVERPLOT, SYMBOL='o', $   ;plot values
-                           SYM_SIZE=1.0, /SYM_FILLED, SYM_COLOR='red', $                 ;plot options
+                           SYM_SIZE=1.0, /SYM_FILLED, SYM_COLOR='magenta', $             ;plot options
                            NAME='med_bins')                                              ;plot options
   ENDIF                                                                                  ;end show the med points
-
 
   ;;;plot published data
   If keyword_set(saturate) THEN  BEGIN
@@ -405,7 +415,7 @@ function PLOT_MZR, mass, metalrule, CLMEM=clmem, NS=ns, $ ;, DEMETALLICITY=dmeta
   targets2 = []
   IF keyword_set(SHOWERB06PTS) THEN BEGIN ;show Erb 2006 points 
      mzrpoints = erbcomp(1)               ;add points
-     targets2 = [targets2, mzrpoints]       ;add to legend targets
+     targets2 = [targets2, mzrpoints]     ;add to legend targets
   ENDIF                                   ;end show Erb work
   
   IF keyword_set(SHOWERB06TREND) THEN BEGIN ;show Erb work
@@ -429,9 +439,9 @@ function PLOT_MZR, mass, metalrule, CLMEM=clmem, NS=ns, $ ;, DEMETALLICITY=dmeta
      targets2 = [targets2, mzrpoints]   ;add to legend targets
   ENDIF                                 ;end show Sanders work
 
-  IF keyword_set(STACK) THEN BEGIN                                                            ;if error are put on each point
-     myerror = errorplot(mass, metals, emass, replicate([0.18],nspec)/ns^0.5, '.', /OVERPLOT) ;plot errors
-  ENDIF ELSE myerror = errorplot([xmax-0.2], [ymin+0.25], [0.1], [0.18], '.', /OVERPLOT)      ;sample error bar
+  IF keyword_set(STACK) THEN BEGIN                                                                              ;if error are put on each point
+     myerror = errorplot(mass, metals, emass, replicate([0.18],nspec)/ns^0.5, '.', THICK=2, /OVERPLOT) ;plot errors
+  ENDIF ELSE myerror = errorplot([xmax-0.2], [ymax-0.25], [0.1], [0.18], '.', THICK=2, /OVERPLOT)      ;sample error bar
   
 
   
@@ -448,20 +458,20 @@ function PLOT_MZR, mass, metalrule, CLMEM=clmem, NS=ns, $ ;, DEMETALLICITY=dmeta
                          COLOR='gray', TRANSPARENCY=100, $                                ;plot options
                          FILL_COLOR='gray', FILL_BACKGROUND=1, FILL_TRANSPARENCY=70, $    ;plot options
                          NAME='This work', /OVERPLOT)                                     ;plot options
-       END                                                                               ;end tremonti
+        END                                                                               ;end tremonti
      ENDCASE                                                                              ;end which fit performed
-     targets = [targets, myplot]                                                        ;add to legend targets   
-  ENDIF                         ;end fit info provided
- 
-
-  ;;;legend stuff
-  mylegend = legend(TARGET=targets, POSITION=[xmin+0.1,ymax-0.1], /DATA, $ ;legend
-                    SHADOW=0, LINESTYLE=0, SAMPLE_WIDTH=0.1, FONT_SIZE=9)  ;legend options
-  mylegend = legend(TARGET=targets2, POSITION=[xmax-1.0,ymin+0.5], /DATA, $ ;legend
-                    SHADOW=0, LINESTYLE=0, SAMPLE_WIDTH=0.1, FONT_SIZE=9)  ;legend options
+     targets = [targets, myplot]                                                          ;add to legend targets   
+  ENDIF                                                                                   ;end fit info provided
   
 
- 
+  ;;;legend stuff
+  mylegend = legend(TARGET=targets, POSITION=[xmin+0.1,ymax-0.15], /DATA, $  ;legend
+                    SHADOW=0, LINESTYLE=0, SAMPLE_WIDTH=0.1, FONT_SIZE=9)    ;legend options
+  mylegend = legend(TARGET=targets2, POSITION=[xmax-1.3,ymax-0.15], /DATA, $ ;legend
+                    SHADOW=0, LINESTYLE=0, SAMPLE_WIDTH=0.1, FONT_SIZE=9)    ;legend options
+  
+
+
   IF keyword_set(OUTFILE) THEN myplot1.save, outfile, RESOLUTION=1200 ;save plot
 
 
@@ -486,11 +496,11 @@ function PLOT_MZR, mass, metalrule, CLMEM=clmem, NS=ns, $ ;, DEMETALLICITY=dmeta
      pdf = float(pdf) / float(n_elements(diffs))
 
      myplot2 = plot(xbin, pdf, COLOR=clcolor, $
-                   FILL_BACKGROUND=1, FILL_COLOR=clcolor, FILL_TRANSPARENCY=60, /STAIRSTEP, $
-                   TITLE='CLTHREE Metallicity Differences (All Masses)', $
-                   XTITLE='$\Delta$ 12 + log(O/H)', $
-                   YTITLE='Normalized Frequency', $
-                   /CURRENT)
+                    FILL_BACKGROUND=1, FILL_COLOR=clcolor, FILL_TRANSPARENCY=60, /STAIRSTEP, $
+                    TITLE='CLTHREE Metallicity Differences (All Masses)', $
+                    XTITLE='$\Delta$ 12 + log(O/H)', $
+                    YTITLE='Normalized Frequency', $
+                    /CURRENT)
      
      IF (group[0] NE -1) THEN BEGIN ;if group membership exists
         groupmasses = [mass[group], mass[groupul]]
@@ -507,8 +517,8 @@ function PLOT_MZR, mass, metalrule, CLMEM=clmem, NS=ns, $ ;, DEMETALLICITY=dmeta
         pdf = histogram(diffs, BINSIZE=0.1, MIN=-0.5, LOCATIONS=xbin)
         pdf = float(pdf) / float(n_elements(diffs))
         myplot2 = plot(xbin, pdf, COLOR=grcolor, $
-                      FILL_BACKGROUND=1, FILL_COLOR=grcolor, FILL_TRANSPARENCY=60, /STAIRSTEP, $
-                      /CURRENT, /OVERPLOT)
+                       FILL_BACKGROUND=1, FILL_COLOR=grcolor, FILL_TRANSPARENCY=60, /STAIRSTEP, $
+                       /CURRENT, /OVERPLOT)
      ENDIF                      ;if group exists
 
 
@@ -527,8 +537,8 @@ function PLOT_MZR, mass, metalrule, CLMEM=clmem, NS=ns, $ ;, DEMETALLICITY=dmeta
         pdf = histogram(diffs, BINSIZE=0.1, MIN=-0.5, LOCATIONS=xbin)
         pdf = float(pdf) / float(n_elements(diffs))
         myplot2 = plot(xbin, pdf, COLOR=fieldcolor, $
-                      FILL_BACKGROUND=1, FILL_COLOR=ficolor, FILL_TRANSPARENCY=60, /STAIRSTEP, $
-                      /CURRENT, /OVERPLOT)
+                       FILL_BACKGROUND=1, FILL_COLOR=ficolor, FILL_TRANSPARENCY=60, /STAIRSTEP, $
+                       /CURRENT, /OVERPLOT)
      ENDIF                      ;if field exist
      returning = ksstuff
      IF keyword_set(DOUTFILE) THEN myplot2.save, doutfile, RESOLUTION=600 ;save plot

@@ -84,8 +84,8 @@ FUNCTION tremonti2004::MYMZRFIT, xs, ys, dxs, dys, $
  
 
   ;;;set defaults
-  IF keyword_set(CMIN) THEN cmin = float(cmin[0]) ELSE cmin = -1.0        ;set default value
-  IF keyword_set(CMAX) THEN cmax = float(cmax[0]) ELSE cmax = 0.0         ;set default value
+  IF keyword_set(CMIN) THEN cmin = float(cmin[0]) ELSE cmin = -2.0        ;set default value
+  IF keyword_set(CMAX) THEN cmax = float(cmax[0]) ELSE cmax = 0.5         ;set default value
   IF keyword_set(CPTS) THEN cpts = ulong(cpts[0]) ELSE cpts = 1000        ;set default value
   IF keyword_set(TXMIN) THEN txmin = txmin[0] ELSE txmin = 7.0            ;sets new value
   IF keyword_set(TXMAX) THEN txmax = txmax[0] ELSE txmax = 12.0           ;sets new value

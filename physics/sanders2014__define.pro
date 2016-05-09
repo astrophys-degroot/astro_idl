@@ -99,21 +99,37 @@ END
 PRO sanders2014::boxscore
 
 
-  self.sa14sampsize = 87                                     ;sample size
-  self.sa14IMF = 'chabrier2003'                              ;IMF choice
-  self.sa14mzrtype = ['N2']                                  ;MZR conversion type
-  self.sa14selection = 'Hband'                               ;sample selection
-  self.sa14zmin = 2.08                                       ;minimum redshift
-  self.sa14zmax = 2.61                                       ;maximum redshift
-  self.sa14N2data = ptr_new({xs:[9.45,9.84,10.11,10.56], $   ; 
-                             xserrn:[0.30,0.16,0.12,0.27], $ ;
-                             xserrp:[0.23,0.10,0.16,0.55], $ ;
-                             xsmod:[0.0,0.0,0.0,0.0], $      ;
-                             ys:[8.18,8.30,8.44,8.52], $     ;
-                             yserrn:[0.10,0.05,0.04,0.02], $ ;
-                             yserrp:[0.07,0.04,0.04,0.02], $ ;
-                             ul:[0,0,0,0], $
-                             ngal:[22,22,22,21]})                ;
+  self.sa14sampsize = 87                                       ;sample size
+  self.sa14IMF = 'chabrier2003'                                ;IMF choice
+  self.sa14mzrtype = ['N2']                                    ;MZR conversion type
+  self.sa14selection = 'Hband'                                 ;sample selection
+  self.sa14zmin = 2.08                                         ;minimum redshift
+  self.sa14zmax = 2.61                                         ;maximum redshift
+  self.sa14N2data = ptr_new({xs:[9.45,9.84,10.11,10.56], $     ; 
+                             xserrn:[0.30,0.16,0.12,0.27], $   ;
+                             xserrp:[0.23,0.10,0.16,0.55], $   ;
+                             xsmod:[9.45,9.84,10.11,10.56], $  ;
+                             xserrmod:[0.30,0.16,0.12,0.27], $ ;
+                             ys:[8.18,8.30,8.44,8.52], $       ;
+                             yserrn:[0.10,0.05,0.04,0.02], $   ;
+                             yserrp:[0.07,0.04,0.04,0.02], $   ;
+                             yserr:[0.10,0.05,0.04,0.02], $    ;
+                             ul:[0,0,0,0], $                   ;
+                             ngal:[22,22,22,21]})              ;
+
+  self.sa14O3N2data = ptr_new({xs:[9.45,9.84,10.11,10.56], $     ; 
+                             xserrn:[0.30,0.16,0.12,0.27], $   ;
+                             xserrp:[0.23,0.10,0.16,0.55], $   ;
+                             xsmod:[9.45,9.84,10.11,10.56], $  ;
+                             xserrmod:[0.30,0.16,0.12,0.27], $ ;
+                             ys:[8.11,8.20,8.31,8.42], $       ;
+                             yserrn:[0.06,0.03,0.03,0.02], $   ;
+                             yserrp:[0.04,0.02,0.02,0.02], $   ;
+                             yserr:[0.06,0.03,0.03,0.02], $    ;
+                             ul:[0,0,0,0], $                   ;
+                             ngal:[22,22,22,21]})              ;
+
+ 
   self.sa14mzrdata = ptr_new( {xs:[0.28, 0.69, 1.29, 3.63], $    ; 
                                xserrn:[0.30,0.16,0.12,0.27], $   ;
                                xserrp:[0.23,0.10,0.16,0.55], $   ;
@@ -155,7 +171,8 @@ PRO sanders2014__define
 
   void = {sanders2014, sa14objver:'A', $
           sa14sampsize:0, sa14zmin:0.0, sa14zmax:0.0, $
-          sa14IMF:'A', sa14mzrtype:'A', sa14selection:'A', sa14N2data:ptr_new(), sa14mzrdata:ptr_new()}
+          sa14IMF:'A', sa14mzrtype:'A', sa14selection:'A', $
+          sa14N2data:ptr_new(), sa14O3N2data:ptr_new(), sa14mzrdata:ptr_new()}
 
   RETURN
 END

@@ -167,16 +167,17 @@ PRO cdfs44::analyze1d, xmask, xobj, MCITERS=mciters, NOMCWRITE=nomcwrite ;, CATA
                    'spzg76', 'st20']                                                                           ;set to all possibles
      END                                                                                                       ;end seventh mask ;
 
-     8 : BEGIN                                                                                                 ;choice of eighth mask
-        indir = '/Users/adegroot/research/dataredux/mosfire/cdfs44_mask8_v2/2014nov17/H/'                      ;directory with spectra
-        outdir = '/Users/adegroot/research/dataredux/mosfire/cdfs44_mask8_v2/2014nov17/H/'                     ;directory to output spectra
-        IF strlowcase(strcompress(xobj, /REMOVE_ALL)) EQ 'all' THEN $                                          ;batchmode
-           xobj = ['pzhi26', 'pzhi33', 'pzhi34', 'pzhi37', 'pzhi44', 'pzhi47', 'pzhi51', 'pzhi55', $           ;
-                   'pzhi61', 'pzmed1273', 'pzmed300', 'pzmed395', 'pzmed417', 'pzmed483', 'pzmed515', $        ;
-                   'pzmed517', 'pzmed547', 'pzmed557', 'pzmed616', 'pzmed620','pzmed622', 'pzmed626', $        ;
-                   'pzmed651', 'pzmed671', 'pzmed687', 'pzmed698', 'pzmed699', 'pzmed706', 'pzmed727', $       ;
-                   'pzmed733', 'pzmed761', 'pzmed819', 'pzmed876', 'pzmed933', 'pzmed935', 'pzmed955', 'st18'] ;
-     END                                                                                                       ;end eighth mask ;
+     8 : BEGIN                                                                             ;choice of eighth mask
+        indir = '/Users/adegroot/research/dataredux/mosfire/cdfs44_mask8_v2/2014nov17/H/'  ;directory with spectra
+        outdir = '/Users/adegroot/research/dataredux/mosfire/cdfs44_mask8_v2/2014nov17/H/' ;directory to output spectra
+        IF strlowcase(strcompress(xobj, /REMOVE_ALL)) EQ 'all' THEN $                      ;batchmode
+                                ;xobj = ['pzhi26', 'pzhi33', 'pzhi34', 'pzhi37', 'pzhi44', 'pzhi47', 'pzhi51', 'pzhi55', $           ;
+                                ;        'pzhi61', 'pzmed1273', 'pzmed300', 'pzmed395', 'pzmed417', 'pzmed483', 'pzmed515', $        ;
+                                ;        'pzmed517', 'pzmed547', 'pzmed557', 'pzmed616', 'pzmed620','pzmed622', 'pzmed626', $        ;
+                                ;        'pzmed651', 'pzmed671', 'pzmed687', 'pzmed698', 'pzmed699', 'pzmed706', 'pzmed727', $       ;
+                                ;        'pzmed733', 'pzmed761', 'pzmed819', 'pzmed876', 'pzmed933', 'pzmed935', 'pzmed955', 'st18'] ;
+                                        xobj = ['pzmed417'] ;
+     END                                                    ;end eighth mask ;
 
      ELSE : BEGIN                                              ;begin no match found
         print, 'Warning!! Mask choice not found!'              ;print info

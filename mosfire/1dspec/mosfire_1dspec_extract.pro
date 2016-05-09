@@ -232,11 +232,15 @@ pro plotstdsnr, xstdsnr, xcall, OPTSNR=optsnr, OUTFILE=outfile
             COLOR='00FF00'XL, $
             SYMSIZE=0.5
   ENDIF
-;  legend, ['Standard Extraction', 'Optimal Extraction'], LINESTYLE=[0,0],  $ ;create legend
-;          COLOR=['000000'XL, '00FF00'XL], $                                  ;legend options
-;          TEXTCOLOR='000000'XL, $                                            ;legend options
- ;         CHARSIZE=1.3, THICK=2.0, BOX=0, /RIGHT                             ;legend options
+                                ;  legend, ['Standard Extraction', 'Optimal Extraction'], LINESTYLE=[0,0],  $ ;create legend
+                                ;          COLOR=['000000'XL, '00FF00'XL], $                                  ;legend options
+                                ;          TEXTCOLOR='000000'XL, $                                            ;legend options
+                                ;         CHARSIZE=1.3, THICK=2.0, BOX=0, /RIGHT                             ;legend options
   
+
+  randomout = {xs:xs, ysstd:xstdsnr, ysopt:optsnr}
+  mwrfits, randomout, 'mosfire_stdvsopt.fits', /CREATE
+
         
   IF keyword_set(OUTFILE) THEN BEGIN
      set_plot, 'ps'                   ;sets plot type
@@ -606,7 +610,7 @@ function fitspatprof, xdata, xweight, xskyprof, xstdspec, xspatprof, xspatprofer
         CHARSIZE=1.5, $
         CHARTHICK=1.75
  
-
+  output_chk = 0
   ;;;fit the spatial profile
   coeffs[*].shrink = shrink     ;store shrink factor
   coefferrs[*].shrink = shrink  ;store shrink factor
@@ -705,6 +709,10 @@ function fitspatprof, xdata, xweight, xskyprof, xstdspec, xspatprof, xspatprofer
               stopsmoiter = 'Y'                         ;we can stop iterating
            ENDELSE                                      ;end if nothing to toss
 
+           sample_output = {xs:xs, ys:ys, ysfit:yfit, dxs:dxs}
+           help, sample_output
+           mwrfits, sample_output, strcompress('sample_fullspatialfit' + string(ii) + '.fits', /REMOVE_ALL), /CREATE
+
            ;;;plot data and fit
            window, 2, XPOS=225, YPOS=50, XSIZE=600, YSIZE=800                                            ;window info
            plot, fakexs, yfit, PSYM=1, /NODATA, $                                                        ;no plot data
@@ -720,8 +728,7 @@ function fitspatprof, xdata, xweight, xskyprof, xstdspec, xspatprof, xspatprofer
            oploterror, xs[good1], ys[good1], yserr[good1], PSYM=1, COLOR='000000'XL, ERRCOLOR='000000'XL ;overplot points
            oplot, xs, yfit, LINESTYLE=0, THICK=2.0, COLOR='00FF00'XL                                     ;overplot fit
            IF dxs[0] NE -1 THEN oplot, dxs, dys, PSYM=7, COLOR='0000FF'XL                                ;over plot x's on bad 
-           
-           
+              
            jj = jj + 1                                                                          ;up counter
         ENDWHILE                                                                                ;end iterating fails/ends
      ENDIF ELSE BEGIN                                                                           ;if not enough points

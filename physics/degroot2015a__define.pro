@@ -343,15 +343,63 @@ END
 
 
 ;====================================================================================================
-PRO degroot2015a::fitmzrtrend, which
+PRO degroot2015a::fitmzrtrend, which, OPTION=option
 
+  If keyword_set(OPTION) THEN option = fix(option[0]) ELSE option = 1 ;set default
 
   ;;;grab the data
   thatart = obj_new(which)
   thatart.boxscore
   CASE which of
      'erb2006' :  mzrdata = *thatart.e06mzrdata
-     'sanders2014' :  mzrdata = *thatart.sa14mzrdata
+     'sanders2014' : BEGIN
+        CASE OPTION OF
+           1 : mzrdata = *thatart.sa14N2data
+           2 : mzrdata = *thatart.sa14O3N2data
+           ELSE : mzrdata = *thatart.sa14mzrdata
+        ENDCASE
+     END
+     'steidel2014' : BEGIN
+        CASE OPTION OF
+           1 : mzrdata = *thatart.st14N2data
+           2 : mzrdata = *thatart.st14O3N2data
+           ELSE : mzrdata = *thatart.st14mzrdata
+        ENDCASE
+     END
+     'cullen2015' : BEGIN
+        CASE OPTION OF
+           1 : mzrdata = *thatart.cu15R23data
+           ELSE : mzrdata = *thatart.cu15mzrdata
+        ENDCASE
+     END
+     'maiolino2008' : BEGIN
+        CASE OPTION OF
+           1 : mzrdata = *thatart.ma08R23data
+           ELSE : mzrdata = *thatart.ma08mzrdata
+        ENDCASE
+     END
+     'zahid2014' : BEGIN
+        CASE OPTION OF
+           1 : mzrdata = *thatart.za14N2data
+           ELSE : mzrdata = *thatart.za14mzrdata
+        ENDCASE
+     END
+     'yabe2012' : BEGIN
+        CASE OPTION OF
+           1 : mzrdata = *thatart.ya12N2data
+           2 : mzrdata = *thatart.ya12O3N2data
+           ELSE : mzrdata = *thatart.ya12mzrdata
+        ENDCASE
+     END
+     'zahid2012' : BEGIN
+        CASE OPTION OF
+           1 : mzrdata = *thatart.za12R23data
+           ELSE : mzrdata = *thatart.za12mzrdata
+        ENDCASE
+     END
+
+
+
      ELSE : BEGIN
         print, 'WARNING!!! Input not understood. '
         print, '  Choices are erb2006, '
@@ -361,9 +409,10 @@ PRO degroot2015a::fitmzrtrend, which
 
   ;;;fit the data
   tr04 = obj_new('tremonti2004')
-  fit = tr04.mymzrfit(mzrdata.xsmod, mzrdata.ys, mzrdata.xserrmod, mzrdata.yserr)
+  fit = tr04.mymzrfit(mzrdata.xsmod, mzrdata.ys, mzrdata.xserrmod, mzrdata.yserr, $
+                      /PLOTDATA, /PLOTPOST)
   obj_destroy, tr04
- 
+  
 
 END
 ;====================================================================================================
@@ -371,28 +420,52 @@ END
 
 
 ;====================================================================================================
-PRO degroot2015a::mzrtrend
+PRO degroot2015a::mzrtrend, INCLUDEFIT=includefit
 
 
   universeage = 13.8
-  data = [{name:'TW', xval:1.62, exvalm:0.3, exvalp:0.1, yval:-0.39, eyvalm:0.016, eyvalp:0.017, multiline:1, mzr:'N2'}, $
-          {name:'Tr04', xval:0.0, exvalm:0.0001, exvalp:0.001, yval:0.0, eyvalm:0.00, eyvalp:0.00, multiline:1, mzr:'R23'}, $
-          {name:'Erb06', xval:2.26, exvalm:0.17, exvalp:0.17, yval:-0.56, eyvalm:0.028, eyvalp:0.027, multiline:1, mzr:'N2'}, $
-          {name:'Sa14', xval:2.3, exvalm:0.21, exvalp:0.31, yval:-0.56, eyvalm:0.026, eyvalp:0.028, multiline:1, mzr:'N2'}, $
-          
-          {name:'TW', xval:1.62, exvalm:0.3, exvalp:0.1, yval:-0.39, eyvalm:0.016, eyvalp:0.017, multiline:1, mzr:'N2'}, $
-          {name:'TW', xval:1.62, exvalm:0.3, exvalp:0.1, yval:-0.39, eyvalm:0.016, eyvalp:0.017, multiline:1, mzr:'N2'}, $
-          {name:'TW', xval:1.62, exvalm:0.3, exvalp:0.1, yval:-0.39, eyvalm:0.016, eyvalp:0.017, multiline:1, mzr:'N2'}, $
-          {name:'TW', xval:1.62, exvalm:0.3, exvalp:0.1, yval:-0.39, eyvalm:0.016, eyvalp:0.017, multiline:1, mzr:'N2'}]
-  ;print, data
+  data = [{name:'This Work', xval:1.62, exvalm:0.3, exvalp:0.1, yval:-0.39, eyvalm:0.016, eyvalp:0.017, multiline:0, mzr:'N2', cl:0, symcolor:'green'}, $
+          {name:'Tremonti 04', xval:0.00001, exvalm:0.00001, exvalp:0.00001, yval:0.0, eyvalm:0.01, eyvalp:0.01, multiline:1, mzr:'R23', cl:0, symcolor:'black'}, $
+          {name:'Erb 06', xval:2.26, exvalm:0.17, exvalp:0.17, yval:-0.56, eyvalm:0.028, eyvalp:0.027, multiline:0, mzr:'N2', cl:0, symcolor:'teal'}, $
+          {name:'Maiolino 08', xval:3.35, exvalm:0.35, exvalp:0.35, yval:-0.76, eyvalm:0.25, eyvalp:0.30, multiline:1, mzr:'R23', cl:0, symcolor:'blue'}, $
+          {name:'Yabe 12', xval:1.4, exvalm:0.2, exvalp:0.2, yval:-0.518, eyvalm:0.025, eyvalp:0.030, multiline:0, mzr:'N2', cl:0, symcolor:'tan'}, $
+          {name:'Zahid 12', xval:0.78, exvalm:0.03, exvalp:0.04, yval:-0.475, eyvalm:0.05, eyvalp:0.05, multiline:1, mzr:'R23', cl:0, symcolor:'olive'}, $
+          {name:'Zahid 12', xval:0.07, exvalm:0.03, exvalp:0.03, yval:0.05, eyvalm:0.05, eyvalp:0.05, multiline:1, mzr:'R23', cl:0, symcolor:'olive'}, $
+          {name:'Sanders 14', xval:2.3, exvalm:0.21, exvalp:0.31, yval:-0.56, eyvalm:0.026, eyvalp:0.028, multiline:1, mzr:'N2', cl:0, symcolor:'magenta'}, $
+          {name:'Sanders 14', xval:2.3, exvalm:0.21, exvalp:0.31, yval:-0.67, eyvalm:0.023, eyvalp:0.025, multiline:1, mzr:'O3N2', cl:0, symcolor:'magenta'}, $
+          {name:'Steidel 14', xval:2.3, exvalm:0.35, exvalp:0.35, yval:-0.55, eyvalm:0.017, eyvalp:0.017, multiline:1, mzr:'N2', cl:0, symcolor:'orange'}, $
+          {name:'Steidel 14', xval:2.3, exvalm:0.35, exvalp:0.35, yval:-0.68, eyvalm:0.011, eyvalp:0.011, multiline:1, mzr:'O3N2', cl:0, symcolor:'orange'}, $
+          {name:'Zahid 14', xval:1.55, exvalm:0.15, exvalp:0.15, yval:-0.45, eyvalm:0.008, eyvalp:0.01, multiline:1, mzr:'N2', cl:0, symcolor:'pink'}, $
+          {name:'Cullen 15', xval:2.16, exvalm:0.16, exvalp:0.14, yval:-0.63, eyvalm:0.04, eyvalp:0.04, multiline:0, mzr:'R23', cl:0, symcolor:'red'}, $
+          {name:'This Work', xval:1.62, exvalm:0.3, exvalp:0.1, yval:-0.39, eyvalm:0.016, eyvalp:0.017, multiline:0, mzr:'N2', cl:0, symcolor:'green'}]
+                                ;print, data
 
   ;;;plot attributes
   ageuniv = 13.6
-  ymin = -0.7
-  ymax = 0.1
   ages = [14,12,10,8,6,4,2]
-  offsets = [-0.7,-0.5,-0.3,-0.1,0.1]
+  offsets = [-0.9,-0.7,-0.5,-0.3,-0.1,0.1]
+  ymin = min(offsets)
+  ymax = max(offsets)
   
+
+  ;;;fit the data
+  IF keyword_set(INCLUDEFIT) THEN BEGIN
+     xval = alog10(1.0+data.xval)
+     exval = []
+     eyval = []
+     FOR ii=0, n_elements(data.exvalm)-1, 1 DO BEGIN
+        exval = [exval, mean([data[ii].exvalm, data[ii].exvalp])]
+        eyval = [eyval, mean([data[ii].eyvalm, data[ii].eyvalp])]
+     ENDFOR
+     exval = alog10(1.0 + data.xval+exval) - xval
+     bayesian_linear_xyerr, xval, data.yval, exval, eyval, $
+                            INTMIN=-0.05, INTMAX=0.05, INTBIN=0.001, $
+                            SLPMIN=-1.4, SLPMAX=-0.8, SLPBIN=0.005, $
+                            TXMIN=-1.0, TXMAX=1.0, TXBIN=0.05, $
+                            /PLOTFIT, /PLOTDATA, /PLOTFULL, OUTPUT=myoutput
+  ENDIF
+
+
   ;;;plot calculations
   
   zs = (ageuniv / ages) - 1.0 
@@ -411,31 +484,95 @@ PRO degroot2015a::mzrtrend
   xerrs[1,*] = xerrs[1,*] - xs
   yerrs = transpose([[data.eyvalm],[data.eyvalp]])
   
+  target = []
+  xmin = 15
+  xmax = ages[-1]
+  notmove = 0
   ;;;create the plot
   FOR xx=0, n_elements(data)-1, 1 DO BEGIN
      CASE data[xx].mzr OF
-        'N2' : symcolor = 'black'
-        'R23' : symcolor = 'black'
+        'N2' : symbol = 'S' 
+        'R23' : symbol='s'
+        'O3N2' : symbol='o'
      ENDCASE
-     IF data[xx].name EQ 'TW' THEN symbol = 'S' ELSE symbol='s'
+     CASE data[xx].cl OF
+        0 : symcolor = 'black' 
+        ELSE : symcolor = 'red' 
+     ENDCASE
      IF xx NE 0 THEN overplot = 1 ELSE overplot = 0
      myplot = errorplot([xs[xx]], [data[xx].yval], xerrs[*,xx], yerrs[*,xx], $
                         XTITLE='Age of Universe [Gyr]', $
-                        XRANGE=[15,ages[-1]], $
+                        XRANGE=[xmin,xmax], $
                         XSTYLE=1, $
                         YTITLE='Metallicity Trend Offset', $
                         YRANGE=[ymin,ymax], $
                         YSTYLE=1, $
-                        FONT_SIZE=14.0, $
+                        FONT_SIZE=12.0, $
                         FONT_STYLE=1, $
                         SYM_SIZE=1.5, $
                         SYMBOL=symbol, $
-                        SYM_FILL_COLOR=symcolor, $
+                        SYM_COLOR= data[xx].symcolor, $
+                        SYM_FILL_COLOR= data[xx].symcolor, $
                         SYM_FILLED=data[xx].multiline, $
+                        ERRORBAR_COLOR = data[xx].symcolor, $
+                        NAME = data[xx].name, $
                         OVERPLOT=overplot)
-     mylabel = text(xs[xx]-0.1, data[xx].yval+0.02, data[xx].name, /DATA)
+
+     IF keyword_set(INCLUDEFIT) AND (xx EQ 0) THEN BEGIN
+        print, myoutput
+        help, myoutput, /STRUC
+
+        xval = alog10(1.0+[0.0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0,1.2,1.4,1.6,1.8,2.0,2.3,2.6,2.9,3.3,3.7,4.1,4.5,5.0])
+        help, xval
+        help, fitys
+                                ;fitys = (myoutput.slpmp-myoutput.eslpmpp)*xval + (myoutput.intmp-myoutput.eintmpn)
+        tmpfitys1 = (myoutput.slpmp-2.0*myoutput.eslpmpn)*xval + (myoutput.intmp-2.0*myoutput.eintmpn)
+        tmpfitys2 = (myoutput.slpmp+2.0*myoutput.eslpmpp)*xval + (myoutput.intmp+2.0*myoutput.eintmpp)
+        fitys = [tmpfitys1,reverse(tmpfitys2),tmpfitys1[0]]
+        tmpxs = 13.6*(1.0/(10^xval))
+        myfitplot = plot([tmpxs,reverse(tmpxs),tmpxs[0]], fitys, ' ', $
+                         FILL_BACKGROUND=1, $
+                         FILL_COLOR='light grey', $
+                         /OVERPLOT)
+        tmpfitys1 = (myoutput.slpmp-1.0*myoutput.eslpmpn)*xval + (myoutput.intmp-1.0*myoutput.eintmpn)
+        tmpfitys2 = (myoutput.slpmp+1.0*myoutput.eslpmpp)*xval + (myoutput.intmp+1.0*myoutput.eintmpp)
+        fitys = [tmpfitys1,reverse(tmpfitys2),tmpfitys1[0]]
+        myfitplot = plot([tmpxs,reverse(tmpxs),tmpxs[0]], fitys, ' ', $
+                         FILL_BACKGROUND=1, $
+                         FILL_COLOR='grey', $
+                         /OVERPLOT)
+        fitys = myoutput.slpmp*xval + myoutput.intmp
+        myfitplot = plot(tmpxs, fitys, '--', $
+                         THICK=2.0, $
+                         /OVERPLOT)
+        
+        
+     ENDIF
+     IF xx LE 12 THEN BEGIN
+        xval = 0.75 
+     ENDIF ELSE BEGIN 
+        xval = 0.20
+     ENDELSE
+     IF xx EQ 0 THEN BEGIN
+        lastname = data[xx].name 
+        doit = 1
+     ENDIF ELSE BEGIN
+        IF data[xx].name EQ lastname THEN BEGIN
+           doit = 0 
+           notmove = notmove + 1
+        ENDIF ELSE doit = 1
+        lastname =  data[xx].name
+     ENDELSE
+     IF xx EQ n_elements(data)-1 THEN doit = 0
+
+     IF doit EQ 1 THEN t = TEXT(xval, 0.82-0.030*(xx-notmove), data[xx].name, $
+                                FONT_SIZE=10, $
+                                FONT_COLOR=data[xx].symcolor)
+
   ENDFOR
   
+
+
   ;;;now redo the x-axes to make sense
   ax = myplot.axes
   ax[0].HIDE = 1 
@@ -471,12 +608,87 @@ PRO degroot2015a::mzrtrend
                      TICKDIR=1, $
                      STYLE=1)
 
-  myplot.save, 'mzrtrend_v0-1.jpeg', RESOLUTION=600 ;save plot
+
+
+
+  ;myplot.save, 'mzrtrend_v0-1.jpeg', RESOLUTION=600 ;save plot
 
  
 
 END
 ;====================================================================================================
+
+
+;====================================================================================================
+PRO degroot2015a::masserrors, CATFILE=catfile, CATDIR=catdir, $
+                              MINMASS=minmass, MAXMASS=maxmass, DMASS=dmass, $
+                              LOGCENTER=logcenter
+
+
+  IF keyword_set(MINMASS) THEN minmass = float(minmass[0]) ELSE minmass = 7.0
+  IF keyword_set(MAXMASS) THEN maxmass = float(maxmass[0]) ELSE maxmass = 12.0
+  IF keyword_set(DMASS) THEN dmass = float(dmass[0]) ELSE dmass = 0.2
+  IF keyword_set(LOGCENTER) THEN logcenter = float(logcenter[0]) ELSE logcenter = 3.0
+  IF keyword_set(CATFILE) THEN catfile = string(catfile) ELSE catfile = 'kemclass_pz_specz_v1-0-0.fits'
+  IF keyword_set(CATDIR) THEN catdir = string(catdir) ELSE catdir = '/Users/adegroot/research/clusters/combination/catalogs/'
+  catdata = mrdfits(strcompress(catdir + catfile, /REMOVE_ALL), 1, hdr)
+  
+
+  ;;;collect the errors and masses
+  ys1 = (catdata.ph_l68_lmass - catdata.ph_lmass)
+  ys2 = (catdata.ph_u68_lmass - catdata.ph_lmass)
+  ys = [ys1,ys2]
+  xs = [catdata.ph_lmass,catdata.ph_lmass]
+  myplot = plot([catdata.ph_lmass,catdata.ph_lmass], [ys1,ys2], 'b+', $
+                XRANGE=[minmass,maxmass])
+  
+  output = []
+  FOR xx=maxmass-dmass, minmass+2*dmass, -2.0*dmass DO BEGIN
+     print, 'Masses (middle, lower, upper)', xx, xx-dmass, xx+dmass
+                                ;help, ys
+     inbin = where((xs GE (xx-dmass)) AND (xs LT (xx+dmass)))
+     thisbinxs = xs[inbin]
+     thisbinys = ys[inbin]
+                                ;help, thisbinxs
+                                ;help, thisbinys
+
+     goodbin = where((abs(thisbinys)-0.1) GT 0.0001)
+      thisbinys = thisbinys[goodbin]
+
+     ;;;bin and fit a lognormal function
+     pdf = HISTOGRAM(thisbinys, LOCATIONS=ysbin, MIN=-4.25, MAX=4.25, BINSIZE=0.2)
+     pdf = pdf / total(pdf)
+     help, sample
+
+     ysbin = reverse(ysbin+logcenter)
+
+     fitysbin = where(ysbin GT 0.0)
+     IF fitysbin[0] NE -1 THEN BEGIN
+        ysbin = ysbin[fitysbin]
+        pdf = pdf[fitysbin]
+                                ;print, ysbin
+                                ;print, pdf
+        weights = fltarr(n_elements(ysbin))+1.0
+        params = [1.0,0.1,max(pdf)]
+        lognormal, ysbin, [1.0,0.1,max(pdf)], result
+        result = curvefit(ysbin, pdf, weights, params, errparamsk, FUNCTION_NAME='LOGNORMAL', /NODERIVATIVE)
+                                ;print, result
+                                ;print, params
+        lognormal, ysbin, params, resultcdf, /CDF
+
+        sample = {massbin:xx, dmass:(-1.0*ysbin+logcenter), dmasspdf:result, dmasscdf:resultcdf}
+        output = [output, sample]
+        myplot = plot(ysbin, pdf, 'X', HISTOGRAM=0)
+        myplot = plot(ysbin, result, 'b-', /OVERPLOT)
+        myplot = plot(ysbin, resultcdf, 'r-', /OVERPLOT)
+     ENDIF
+  ENDFOR
+
+                                ;help, output, /STRUC
+  mwrfits, output, 'stellarmass_errorpdfs_v1-0.fits', /CREATE
+END
+;====================================================================================================
+
 
 
 ;====================================================================================================
@@ -488,32 +700,39 @@ PRO degroot2015a::runmzranalysis, xsubset
   run = obj_new('mzranalysis', CURCAT=xsubset.catalog, WORKING=xsubset.name)                    ;make analysis object
   run.readcat, xsubset.catalog, INDIR='/Users/adegroot/research/clusters/combination/catalogs/' ;read in data 
   run.findtags                                                                                  ;find all the tags we need
-  IF xsubset.mcmass GT 1 THEN newmass = run.mcmass(xsubset.mcmass)                              ;get perturbed masses
-  run.plotmzrindiv, ALLTOG=alltog                                                               ;plot individual points
+  IF xsubset.mcmass GT 1 THEN newmass = run.mcmass(xsubset.mcmass, WHICH=2)                     ;get perturbed masses
+  ;run.plotmzrindiv, ALLTOG=alltog, LABEL=0                                                      ;plot individual points
   run.plotbpt, /NOIRAGN                                                                         ;plot sudo-BPT points
+
+  stop
   run.makebins, BINSET=xsubset.binset, NINBIN=xsubset.ninbin                                    ;find mass bin sizes
   run.specsort                                                                                  ;sort data into bins
   run.findstats                                                                                 ;find stats for bins
   run.specstack, SM=xsubset.sm                                                                  ;stack spectra
-  run.collatespecstack                                                                          ;stack spectra
+  run.collatespecstack, /STACKSPEC                                                              ;stack spectra
   run.readstack                                                                                 ;read in the mzr stack data
   run.findstacktags                                                                             ;find all the tags we need
   run.plotspecstack                                                                             ;plot the stacked spectra
   run.fitmzrstack, WHICH=xsubset.fitmzr, /SAVE, /STARTOVER                                      ;fit the stack measured MZR
-  run.plotmzrstack                                                                              ;plot the stacked MZR
-  FOR ww=1, xsubset.mcmass-1, 1 DO BEGIN                                                        ;loop over monte carlo mass errors
-     run.storenew, MASSES=newmass[*,ww]                                                         ;set in new masses
-     run.makebins, BINSET=xsubset.binset, NINBIN=xsubset.ninbin                                 ;find mass bin sizes
-     run.specsort                                                                               ;sort data into bins
-     run.specstack, SM=xsubset.sm                                                               ;stack spectra
-     run.collatespecstack                                                                       ;stack spectra
-     run.readstack                                                                              ;read in the mzr stack data
-     run.findstacktags                                                                          ;find all the tags we need
-     run.fitmzrstack, WHICH=xsubset.fitmzr, /SAVE                                               ;fit the stack measured MZR
-  ENDFOR                                                                                        ;end monte carlo mass errors
-  obj_destroy, run                                                                              ;destory analysis object
+                                ;run.plotmzrstack                                                                              ;plot the stacked MZR
 
+  FOR ww=1, xsubset.mcmass-1, 1 DO BEGIN                       ;loop over monte carlo mass errors
+                                ;help, newmass
+                                ;print, newmass[*,ww]
+                                ;print, newmass[*,ww]-newmass[*,ww-1]
+     run.storenew, MASSES=newmass[*,ww]                        ;set in new masses
+     run.specsort                                              ;sort data into bins
+     run.binbootstrap, xsubset.ninbin                          ;bootstrap resample each mass bin
+     run.specstack, SM=xsubset.sm, /BOOTSTRAP, /PERTURB        ;stack spectra
+     run.collatespecstack, /ACTUALSPEC, /STACKSPEC, /SUMMATION ;stack spectra
+     ;stop
 
+                                ;run.readstack                                              ;read in the mzr stack data
+                                ;run.findstacktags                                          ;find all the tags we need
+                                ;run.fitmzrstack, WHICH=xsubset.fitmzr, /SAVE               ;fit the stack measured MZR
+  ENDFOR                        ;end monte carlo mass errors
+  obj_destroy, run              ;destory analysis object
+  
 END
 ;====================================================================================================
 
@@ -531,7 +750,9 @@ PRO degroot2015a::workingon, subset, CATALOG=catalog, BINSET=binset
           {name:'seven', catalog:'kemclass_pz_specz_v0-8-2.fits', BINSET:'cluster', NINBIN:14, SM:'smcurrent', FITMZR:'tr04', MCMASS:1}, $ 
           {name:'eight', catalog:'kemclass_pz_specz_v0-8-3.fits', BINSET:'field', NINBIN:20, SM:'smcurrent', FITMZR:'tr04', MCMASS:1}, $
           {name:'nine', catalog:'kemclass_pz_specz_v0-8-3.fits', BINSET:'cluster', NINBIN:14, SM:'smcurrent', FITMZR:'tr04', MCMASS:1}, $ 
-          {name:'onezero', catalog:'kemclass_pz_specz_v1-1-1.fits', BINSET:'all', NINBIN:24, SM:'smcurrent', FITMZR:'tr04', MCMASS:1} ] 
+          {name:'onezero', catalog:'kemclass_pz_specz_v1-0-1.fits', BINSET:'all', NINBIN:24, SM:'smcurrent', FITMZR:'tr04', MCMASS:5}, $ 
+          {name:'oneone', catalog:'kemclass_pz_specz_v1-1-1.fits', BINSET:'cluster', NINBIN:21, SM:'smcurrent', FITMZR:'tr04', MCMASS:1}, $ 
+          {name:'onetwo', catalog:'kemclass_pz_specz_v1-1-1.fits', BINSET:'field', NINBIN:19, SM:'smcurrent', FITMZR:'tr04', MCMASS:1} ] 
   
 
   chk = where(sets.name EQ strlowcase(string(subset[0])))

@@ -245,6 +245,66 @@ END
 ;====================================================================================================
 
 
+;====================================================================================================
+FUNCTION specstack::perturb, xmyout, TPERTURB=tperturb, SIGMA=sigma, NPTS=npts
+
+  IF keyword_set(TPERTURB) THEN tperturb = tperturb[0] ELSE tperturb = self.tperturb ;set default
+  IF keyword_set(SIGMA) THEN sigma = float(sigma[0]) ELSE sigma = 4.0                ;set default
+  IF keyword_set(NPTS) THEN npts = float(npts[0]) ELSE npts = 1000.0                 ;set default
+
+  print, 'perturbation time'
+
+  CASE tperturb OF 
+     1 : BEGIN
+        bump = 1928
+        ;help, xmyout, /STRUC
+        ;print, n_elements(xmyout)
+        unifdevs = uniformran(n_elements(xmyout[0].spec1d), n_elements(xmyout))
+        ;help, unifdevs
+        FOR ii=0, n_elements(xmyout)-1, 1 DO BEGIN
+           ;print, ii
+           ;help, xmyout[ii].(1)
+           ;print, xmyout[ii].spec1d
+           perthere = where(abs(xmyout[ii].spec1d) GT 0.0001 AND abs(xmyout[ii].spec1dwei) GT 0.0001)
+           IF perthere[0] NE -1 THEN BEGIN
+              ;print, 'something to do '
+              ;myplot = plot(xmyout[ii].lambdas, xmyout[ii].spec1d, 'b')
+              
+              FOR jj=0, n_elements(perthere)-1, 1 DO BEGIN
+                 ;print, xmyout[ii].spec1d[perthere[jj]], xmyout[ii].spec1dwei[perthere[jj]]
+                 low =  xmyout[ii].spec1d[perthere[jj]] - sigma*xmyout[ii].spec1dwei[perthere[jj]]
+                 high =  xmyout[ii].spec1d[perthere[jj]] + sigma*xmyout[ii].spec1dwei[perthere[jj]]
+                 ;print,  low, xmyout[ii].spec1d[perthere[jj]], high
+                 xs = (high-low)/npts * indgen(npts+1) + low
+                 cdf = 0.5 + 0.5 * erf((xs-xmyout[ii].spec1d[perthere[jj]]) / (1.414214*xmyout[ii].spec1dwei[perthere[jj]]))
+                 ;print, abs(unifdevs[jj,ii]-cdf)
+                 ;print, min(abs(unifdevs[jj,ii]-cdf))
+                 themin = min(abs(unifdevs[jj,ii]-cdf), minind)
+                 ;print, minind, xs[minind]
+ 
+                 xmyout[ii].spec1d[perthere[jj]] = xs[minind]
+
+                 ;stop
+              ENDFOR
+ 
+
+              ;myplot = plot(xmyout[ii].lambdas, xmyout[ii].spec1d, 'g', /OVERPLOT)
+           ENDIF
+           ;stop
+        ENDFOR
+
+        ;stop
+     END
+     ELSE : BEGIN
+        print, 'Perturbation type not understood'
+     ENDELSE
+  ENDCASE
+
+
+  RETURN, xmyout
+END
+;====================================================================================================
+
 
 ;====================================================================================================
 FUNCTION specstack::commongrid, xwavegrid, xmyfiles, xmyout, TCOMMONGRID=tcommongrid, KEYZ=keyz, $
@@ -863,27 +923,30 @@ PRO specstack::massanalysis, NOMLE=nomle
   mymass = *self.masses         ;grab them just because
 
   self.massave = mean(mymass)        ;average mass
+  print, '$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$'
+  print, mymass
+  print, mean(mymass)
   self.massmin = min(mymass, minind) ;minmass
   self.massmax = max(mymass, maxind) ;maxmass
   
-  IF ~keyword_set(NOMLE) THEN BEGIN                             ;if keyword not set
+  IF ~keyword_set(NOMLE) THEN BEGIN                              ;if keyword not set
      sprdm = (mymass[maxind]-mymass[minind]) + 0.4               ;find padded range of vals
      trys = (sprdm/150.0) * indgen(150.0) + mymass[minind] - 0.2 ;find values to try
-     FOR xx=0, n_elements(mymass)-1, 1 DO BEGIN                 ;loop over spectra
-        mu = mymass[xx]                                         ;grab central value
-        sig = 0.1                                               ;grab spread value
-        IF (xx NE 0) THEN BEGIN                                 ;if not first pass
-           jlike = jlike - ((mu-trys)^2 / (2.0*sig^2))          ;add to joint likelihood
-        ENDIF ELSE BEGIN                                        ;end not first pass
-           jlike = ((mu-trys)^2 / (-2.0*sig^2))                 ;start joint likelihood
-        ENDELSE                                                 ;end if first pass
-     ENDFOR                                                     ;end loop over spectra
-     jlike = exp(jlike - max(jlike))                            ;normalize peak value
-     maxjlike = max(jlike, maxind)                              ;find peak location
-     self.massmle = trys[maxind]                                ;find peak flux value
-     sigs = sigmas(trys, jlike, LEVELS=1)                       ;find errors
-     self.masssig = mean(sigs)                                  ;add sigma
-  ENDIF                                                         ;end keyword not set
+     FOR xx=0, n_elements(mymass)-1, 1 DO BEGIN                  ;loop over spectra
+        mu = mymass[xx]                                          ;grab central value
+        sig = 0.1                                                ;grab spread value
+        IF (xx NE 0) THEN BEGIN                                  ;if not first pass
+           jlike = jlike - ((mu-trys)^2 / (2.0*sig^2))           ;add to joint likelihood
+        ENDIF ELSE BEGIN                                         ;end not first pass
+           jlike = ((mu-trys)^2 / (-2.0*sig^2))                  ;start joint likelihood
+        ENDELSE                                                  ;end if first pass
+     ENDFOR                                                      ;end loop over spectra
+     jlike = exp(jlike - max(jlike))                             ;normalize peak value
+     maxjlike = max(jlike, maxind)                               ;find peak location
+     self.massmle = trys[maxind]                                 ;find peak flux value
+     sigs = sigmas(trys, jlike, LEVELS=1)                        ;find errors
+     self.masssig = mean(sigs)                                   ;add sigma
+  ENDIF                                                          ;end keyword not set
   
 
 END
@@ -966,6 +1029,7 @@ END
 ;====================================================================================================
 FUNCTION specstack::init, TWAVEGRID=twavegrid, TCOMMONGRID=tcommongrid, TNORMALIZE=tnormalize, $
                           TCONVOLVE=tconvolve, TREJECTION=trejection, TCOMBINATION=tcombination, $
+                          TPERTURB=tperturb, $
                           ERRFLOOR=errfloor, $
                           KEYZ=keyz, KEYMASS=keymass, MASSES=masses, $
                           OUTFILE=outfile
@@ -979,6 +1043,7 @@ FUNCTION specstack::init, TWAVEGRID=twavegrid, TCOMMONGRID=tcommongrid, TNORMALI
   IF keyword_set(TCONVOLVE) THEN self.tconvolve = tconvolve[0] ELSE self.tconvolve = 99              ;set default
   IF keyword_set(TREJECTION) THEN self.trejection = trejection[0] ELSE self.trejection = 1           ;set default 
   IF keyword_set(TCOMBINATION) THEN self.tcombination = tcombination[0] ELSE self.tcombination = 1   ;set default 
+  IF keyword_set(TPERTURB) THEN self.tperturb = tperturb[0] ELSE self.tperturb = 1                   ;set default 
   IF keyword_set(ERRFLOOR) THEN self.errfloor = errfloor[0] ELSE self.errfloor = 0.5                 ;set default 
   IF keyword_set(KEYZ) THEN self.keyz = keyz[0] ELSE self.keyz = 'z'                                 ;set default
   IF keyword_set(KEYMASS) THEN self.keymass = keymass[0] ELSE self.keymass = 'mass'                  ;set default
@@ -1002,7 +1067,8 @@ PRO specstack__define
           tnormalize:0, normalize:'A', $
           tconvolve:0, convolve:'A', convolveval:0.0, $
           trejection:0, rejection:'A', $
-          tcombination:0, combination:'A', errfloor:0.0, $
+          tcombination:0, combination:'A', $
+          tperturb:0, errfloor:0.0, $
           outfile:'A'}
 
   RETURN
