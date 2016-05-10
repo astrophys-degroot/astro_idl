@@ -583,10 +583,10 @@ PRO mzranalysis::plotiragn, FNIRAGNPLOT=fniragnplot
   ;text = '   This plot requires a IRAC CH4 flux keyword: ' ;text to pass
   ;IF chk EQ 0 THEN ch4find = tagprompt(xdata, text)        ;find necessary tag
 
-  print, self.indch1flux
-  print, self.indch2flux
-  print, self.indch3flux
-  print, self.indch4flux
+  ;print, self.indch1flux
+  ;print, self.indch2flux
+  ;print, self.indch3flux
+  ;print, self.indch4flux
 
   ;chk = tag_exist(xdata, self.tgagn, INDEX=agnind)                       ;find necessary tag
   ;text = '   This plot options a IR AGN diagnostic keyword: '            ;text to pass
@@ -604,103 +604,182 @@ PRO mzranalysis::plotiragn, FNIRAGNPLOT=fniragnplot
   ;text = '   This plot options a cluster member keyword: '               ;text to pass
   ;IF chk EQ 0 THEN clmemind = tagprompt(xdata, text)                     ;find necessary tag
 
-  print, self.indiragn
+  ;print, self.indiragn
 
   ;;;create flag arrays for subset
-  clyes = intarr(n_elements(xdata.(0)))  ;create array
-  fiyes = intarr(n_elements(xdata.(0)))  ;create array
-  hqyes = intarr(n_elements(xdata.(0)))  ;create array
-  mqyes = intarr(n_elements(xdata.(0)))  ;create array
-  lqyes = intarr(n_elements(xdata.(0)))  ;create array
-  agnyes = intarr(n_elements(xdata.(0))) ;create array
+                                ;clyes = intarr(n_elements(xdata.(0)))  ;create array
+                                ;fiyes = intarr(n_elements(xdata.(0)))  ;create array
+                                ;hqyes = intarr(n_elements(xdata.(0)))  ;create array
+                                ;mqyes = intarr(n_elements(xdata.(0)))  ;create array
+                                ;lqyes = intarr(n_elements(xdata.(0)))  ;create array
+                                ;agnyes = intarr(n_elements(xdata.(0))) ;create array
 
 
   ;;;find subsets and fill subset arrarys
   IF (self.indspz1 NE 0) THEN BEGIN                                                                     ;
+     allz = xdata.(self.indspz1)                                                                        ;
      specz = where((xdata.(self.indspz1) GE 0.0) AND (xdata.(self.indspz1) LE 5.0), COMPLEMENT=nospecz) ;has real redshift
-     cl = where(xdata.(self.indclmem) EQ 1, COMPLEMENT=field)                                           ;has cluster redshift
-     IF cl[0] NE -1 THEN clyes[specz[cl]] = 1                                                           ;
-     IF field[0] NE -1 THEN fiyes[specz[field]] = 1                                                     ; 
+                                ;cl = where(xdata.(self.indclmem) EQ 1, COMPLEMENT=field)                                           ;has cluster redshift
+                                ;IF cl[0] NE -1 THEN clyes[specz[cl]] = 1                                                           ;
+                                ;IF field[0] NE -1 THEN fiyes[specz[field]] = 1                                                     ; 
   ENDIF
 
-  help, specz
-  help, nospecz
-  help, cl
-  help, field
+  ;help, specz
+  ;help, nospecz
+  ;help, cl
+  ;help, field
 
-  ;IF (qspzind NE -1) THEN BEGIN
-  ;   chk = where((xdata.(qspzind) EQ 0) OR (xdata.(qspzind) EQ 1)) ;good quality 
-  ;   IF (chk[0] NE -1) THEN hqyes[chk] = 1                         ;flag it
-  ;   chk = where((xdata.(qspzind) EQ 2))                           ;good quality 
-  ;   IF (chk[0] NE -1) THEN mqyes[chk] = 1                         ;flag it
-  ;   chk = where((xdata.(qspzind) EQ 3))                           ;good quality 
-  ;   IF (chk[0] NE -1) THEN lqyes[chk] = 1                         ;flag it
-  ;ENDIF 
+                                ;IF (qspzind NE -1) THEN BEGIN
+                                ;chk = where((xdata.(qspzind) EQ 0) OR (xdata.(qspzind) EQ 1)) ;good quality 
+                                ;IF (chk[0] NE -1) THEN hqyes[chk] = 1                         ;flag it
+                                ;chk = where((xdata.(qspzind) EQ 2))                           ;good quality 
+                                ;IF (chk[0] NE -1) THEN mqyes[chk] = 1                         ;flag it
+                                ;chk = where((xdata.(qspzind) EQ 3))                           ;good quality 
+                                ;IF (chk[0] NE -1) THEN lqyes[chk] = 1                         ;flag it
+                                ;ENDIF 
 
-  ;agnyes = where(xdata.(agnind) EQ 1)     ;find agn
+                                ;agnyes = where(xdata.(agnind) EQ 1)     ;find agn
                                 ;elagnyes = where(xdata.(elagnind) EQ 2) ;find agn
   
+
+
   ;;;find plausible flux ratio measurements
   xs = alog10(xdata.(self.indch3flux)/xdata.(self.indch1flux)) ;find ratio
-  xschk = where((xs NE xs))                                    ;find any NaNs
-  IF (xschk[0] NE -1) THEN xs[xschk] = -99.0                   ;if present, remove
   ys = alog10(xdata.(self.indch4flux)/xdata.(self.indch2flux)) ;find ratio
-  yschk = where((ys NE ys))                                    ;find any NaNs
-  IF (yschk[0] NE -1) THEN ys[xschk] = -99.0                   ;if present, remove
+  agn = intarr(n_elements(xs))
+  help, agn
+  yesagn = where( (xdata.(self.indch1flux) LT xdata.(self.indch2flux)) AND $
+                  (xdata.(self.indch2flux) LT xdata.(self.indch3flux)) AND $
+                  (xdata.(self.indch3flux) LT xdata.(self.indch4flux)) AND $
+                  (xs GE 0.08) AND (ys GE 0.15) AND $
+                  (ys GE ((1.21*xs)-0.27)) AND $
+                  (ys LE ((1.21*xs)+0.27))) 
+           
+  IF yesagn[0] NE -1 THEN agn[yesagn] = 1
+  
 
+  xschk = where((xs NE xs) OR (xs EQ 0.0), COMPLEMENT = keepxs) ;find any NaNs
+  IF (xschk[0] NE -1) THEN BEGIN
+     xs = xs[keepxs]            ;if present, remove
+     ys = ys[keepxs]            ;if present, remove
+     allz = allz[keepxs]        ;if present, remove
+     agn = agn[keepxs]          ;if present, remove
+  ENDIF
+  yschk = where((ys NE ys) OR (ys EQ 0.0), COMPLEMENT = keepys) ;find any NaNs
+  IF (yschk[0] NE -1) THEN BEGIN
+     xs = xs[keepys]            ;if present, remove
+     ys = ys[keepys]            ;if present, remove
+     allz = allz[keepys]        ;if present, remove
+     agn = agn[keepys]          ;if present, remove
+  ENDIF
+  specz = where((allz GE 0.0) AND (allz LE 5.0), COMPLEMENT=nospecz) ;has real redshift
+  yesagn = where(agn EQ 1)
+  
+  minx = -2.5
+  binx = 0.5
+  maxx = 2.5
+  miny = -2.5
+  biny = 0.5
+  maxx = 2.5
+                                ;hist2d = hist_2d(xs[nospecz], ys[nospecz], MIN1=minx, BIN1=binx, MIN2=biny, BIN2=biny)
+                                ;hist2d = hist_2d(xs[nospecz], ys[nospecz], MIN1=minx, MAX1=maxx, MIN2=maxy, MAX2=maxy)
+  hist2d = hist_2d(xs[nospecz], ys[nospecz], MIN1=minx, BIN1=binx, MAX1=maxx, MIN2=maxy, BIN2=biny, MAX2=maxy)
+                                ;help, hist2d
+                                ;print, hist2d
+                                ;print, ''
+                                ;hist2d = congrid(hist2d, MAX(xs[nospecz]), MAX(ys[nospecz]))
+  ;hist2d = (ALOG10(hist2d > 1))
+                                ;stop
+                                ;help, xs[nospecz]
+                                ;help, ys[nospecz]
+                                ;stop
+  hist2dsize = size(hist2d)
+                                ;print, hist2dsize
+  tmpxs = binx*indgen(hist2dsize(1)) + minx
+                                ;print, tmpxs
+  tmpys = biny*indgen(hist2dsize(2)) + miny
+                                ;print, tmpys
 
+  targets = []
   ;;;plot it all
   model1 = donley_2012(1)                                                ;get region populated by AGNs
   w = window(LOCATION=[100+50*self.nwin,-25+25*self.nwin])               ;window
-  iragnplot = plot([1.0], [1.0], '.', /CURRENT, /NODATA, $               ;plot data
+
+
+  ct = COLORTABLE(0, /REVERSE)
+  myimage = contour(hist2d, tmpxs, tmpys, RGB_TABLE=ct, CURRENT=1, $
+                    FILL=1, TRANSPARENCY=50, $
+                    SHADING=0, $
+                    AXIS_STYLE=2, MARGIN=0.14)
+
+
+
+  iragnplot = plot([1.0], [1.0], '.', /CURRENT, /OVERPLOT, /NODATA, $    ;plot data
                    XTITLE='log($f_{5.8 \mu m}/f_{3.6 \mu m}$)', $        ;plot options
                    XRANGE=[self.iragnxmin,self.iragnxmax], $             ;plot options
                    YTITLE='log($f_{8.0 \mu m}/f_{4.5 \mu m}$)', $        ;plot options
                    YRANGE=[self.iragnymin,self.iragnymax], FONT_SIZE=16) ;plot options
-  limit1 = plot(model1.xs, model1.ys, '-', /OVERPLOT, THICK=2)           ;plot model
-  IF (self.indspz1 NE -1) THEN BEGIN
-     nozpoints = plot(xs[nospecz], ys[nospecz], 'o', /OVERPLOT, $
-                      COLOR='gray', /SYM_FILLED, SYM_SIZE=0.3) 
-     IF (qspzind NE -1) THEN BEGIN
-        fihq = where((fiyes EQ 1) AND (hqyes EQ 1))
-        IF (fihq[0] NE -1) THEN prsfullfov = plot(xs[fihq], ys[fihq], /OVERPLOT, $
-                                                  SYMBOL='o', LINESTYLE='', COLOR = 'blue', /SYM_FILLED, SYM_SIZE=1.5)
-        fimq = where((fiyes EQ 1) AND (mqyes EQ 1))
-        IF (fimq[0] NE -1) THEN prsfullfov = plot(xs[fimq], ys[fimq], /OVERPLOT, $
-                                                  SYMBOL='o', LINESTYLE='', COLOR = 'blue', /SYM_FILLED, SYM_SIZE=1.25)
-        filq = where((fiyes EQ 1) AND (lqyes EQ 1))
-        IF (filq[0] NE -1) THEN prsfullfov = plot(xs[filq], ys[filq], /OVERPLOT, $
-                                                  SYMBOL='o', LINESTYLE='', COLOR = 'blue', /SYM_FILLED, SYM_SIZE=1.0)
-        clhq = where((clyes EQ 1) AND (hqyes EQ 1))
-        IF (clhq[0] NE -1) THEN prsfullfov = plot([xs[clhq]], [ys[clhq]], /OVERPLOT, $
-                                                  SYMBOL='o', LINESTYLE='', COLOR = 'red', /SYM_FILLED, SYM_SIZE=1.5)
-        clmq = where((clyes EQ 1) AND (mqyes EQ 1))
-        IF (clmq[0] NE -1) THEN prsfullfov = plot([xs[clmq]], [ys[clmq]], /OVERPLOT, $
-                                                  SYMBOL='o', LINESTYLE='', COLOR = 'red', /SYM_FILLED, SYM_SIZE=1.25)
-        cllq = where((clyes EQ 1) AND (lqyes EQ 1))
-        IF (cllq[0] NE -1) THEN prsfullfov = plot([xs[cllq]], [ys[cllq]], /OVERPLOT, $
-                                                  SYMBOL='o', LINESTYLE='', COLOR = 'red', /SYM_FILLED, SYM_SIZE=1.0)
-     ENDIF ELSE BEGIN
-        
-        fimem = where(fiyes EQ 1)
-        zpoints = plot(xs[fimem], ys[fimem], 'o', /OVERPLOT, $
-                       COLOR='blue', /SYM_FILLED, SYM_SIZE=1.0) 
-        clmem = where(clyes EQ 1)
-        zpoints = plot(xs[clmem], ys[clmem], 'o', /OVERPLOT, $
-                       COLOR='red', /SYM_FILLED, SYM_SIZE=1.0) 
-     ENDELSE
-  ENDIF ELSE points = plot(xs, ys, 'o', /OVERPLOT, /SYM_FILLED, SYM_SIZE=0.60)
+  limit1 = plot(model1.xs, model1.ys, '-', /OVERPLOT, THICK=2, $         ;plot options
+                NAME = 'Donley 2012')                                    ;plot model
+  targets = [targets, limit1]
+ 
+  points = plot(xs[specz], ys[specz], 'go', /OVERPLOT, /SYM_FILLED, SYM_SIZE=0.6, $
+                NAME = 'IR non-AGN')
+  targets = [targets, points]
+  points = plot(xs[yesagn], ys[yesagn], 'ro', /OVERPLOT, /SYM_FILLED, SYM_SIZE=0.6, $
+                NAME = 'IR AGN')
+  targets = [targets, points]
 
-  IF (agnind NE -1) THEN BEGIN
-     agn = plot(xs[agnyes], ys[agnyes], 'td', /OVERPLOT, COLOR = 'green', /SYM_FILLED, SYM_SIZE=1.25)
-  ENDIF
-  IF (elagnind NE -1) AND (elagnyes[0] NE -1) THEN BEGIN
-     agn = plot(xs[elagnyes], ys[elagnyes], 'tu', /OVERPLOT, COLOR = 'green', /SYM_FILLED, SYM_SIZE=1.25)
-  ENDIF
+  ;IF (self.indspz1 NE -1) THEN BEGIN
+                                ;     IF nospecz[0] NE -1 THEN nozpoints = plot(xs[nospecz], ys[nospecz], 'o', /OVERPLOT, $
+                                ;                                               COLOR='gray', /SYM_FILLED, SYM_SIZE=0.3) 
+                                ;     IF (qspzind NE -1) THEN BEGIN
+                                ;        fihq = where((fiyes EQ 1) AND (hqyes EQ 1))
+                                ;        IF (fihq[0] NE -1) THEN prsfullfov = plot(xs[fihq], ys[fihq], /OVERPLOT, $
+                                ;                                                  SYMBOL='o', LINESTYLE='', COLOR = 'blue', /SYM_FILLED, SYM_SIZE=1.5)
+                                ;        fimq = where((fiyes EQ 1) AND (mqyes EQ 1))
+                                ;        IF (fimq[0] NE -1) THEN prsfullfov = plot(xs[fimq], ys[fimq], /OVERPLOT, $
+                                ;                                                  SYMBOL='o', LINESTYLE='', COLOR = 'blue', /SYM_FILLED, SYM_SIZE=1.25)
+                                ;        filq = where((fiyes EQ 1) AND (lqyes EQ 1))
+                                ;        IF (filq[0] NE -1) THEN prsfullfov = plot(xs[filq], ys[filq], /OVERPLOT, $
+                                ;                                                  SYMBOL='o', LINESTYLE='', COLOR = 'blue', /SYM_FILLED, SYM_SIZE=1.0)
+                                ;        clhq = where((clyes EQ 1) AND (hqyes EQ 1))
+                                ;        IF (clhq[0] NE -1) THEN prsfullfov = plot([xs[clhq]], [ys[clhq]], /OVERPLOT, $
+                                ;                                                  SYMBOL='o', LINESTYLE='', COLOR = 'red', /SYM_FILLED, SYM_SIZE=1.5)
+                                ;        clmq = where((clyes EQ 1) AND (mqyes EQ 1))
+                                ;        IF (clmq[0] NE -1) THEN prsfullfov = plot([xs[clmq]], [ys[clmq]], /OVERPLOT, $
+                                ;                                                  SYMBOL='o', LINESTYLE='', COLOR = 'red', /SYM_FILLED, SYM_SIZE=1.25)
+                                ;        cllq = where((clyes EQ 1) AND (lqyes EQ 1))
+                                ;        IF (cllq[0] NE -1) THEN prsfullfov = plot([xs[cllq]], [ys[cllq]], /OVERPLOT, $
+                                ;                                                  SYMBOL='o', LINESTYLE='', COLOR = 'red', /SYM_FILLED, SYM_SIZE=1.0)
+                                ;     ENDIF ELSE BEGIN
+                                ;        
+                                ;        fimem = where(fiyes EQ 1)
+                                ;        zpoints = plot(xs[fimem], ys[fimem], 'o', /OVERPLOT, $
+                                ;                       COLOR='black', /SYM_FILLED, SYM_SIZE=1.0) 
+                                ;        clmem = where(clyes EQ 1)
+                                ;        zpoints = plot(xs[clmem], ys[clmem], 'o', /OVERPLOT, $
+                                ;                       COLOR='black', /SYM_FILLED, SYM_SIZE=1.0) 
+                                ;     ENDELSE
+                                ;ENDIF ELSE points = plot(xs, ys, 'o',
+                                ;/OVERPLOT, /SYM_FILLED, SYM_SIZE=0.6)
+  
+                                ;  IF (agnind NE -1) THEN BEGIN
+                                ;     agn = plot(xs[agnyes], ys[agnyes], 'td', /OVERPLOT, COLOR = 'orange', /SYM_FILLED, SYM_SIZE=1.25)
+                                ;  ENDIF
+                                ;  IF (elagnind NE -1) AND (elagnyes[0] NE -1) THEN BEGIN
+                                ;     agn = plot(xs[elagnyes], ys[elagnyes], 'tu', /OVERPLOT, COLOR = 'red', /SYM_FILLED, SYM_SIZE=1.25)
+                                ;ENDIF
 
-  iragnplot.save, fniragnplot, RESOLUTION=600 ;save plot
-  self.iragnmade = 1                          ;set as plot made this call
-  self.nwin = self.nwin + 1                   ;up window number
+  mylegend = legend(TARGET=targets, $                                          ;legend
+                    POSITION=[self.iragnxmin+0.08,self.iragnymax-0.2], /DATA, $ ;legend options
+                    SHADOW=0, LINESTYLE=6, FONT_SIZE=10, $                     ;legend options
+                    SAMPLE_WIDTH=0.1)                                          ;legend options
+  
+
+  ;iragnplot.save, fniragnplot, RESOLUTION=600 ;save plot
+  ;self.iragnmade = 1                          ;set as plot made this call
+  ;self.nwin = self.nwin + 1                   ;up window number
 
 END
 ;====================================================================================================
@@ -1483,10 +1562,10 @@ FUNCTION mzranalysis::init, CURCAT=curcat, DIRCURCAT=dircurcat, DIRSTACK=dirstac
 
   IF keyword_set(IRAGNMADE) THEN self.iragnmade = string(iragnmade[0]) ELSE self.iragnmade = 0                                  ;set default
   IF keyword_set(FNIRAGNPLOT) THEN self.fniragnplot = string(fniragnplot[0]) ELSE self.fniragnplot = 'cdfs44_iragnall_v1-3.eps' ;set default
-  IF keyword_set(IRAGNXMIN) THEN self.iragnxmin = float(iragnxmin[0]) ELSE self.iragnxmin = -0.45                               ;set default
-  IF keyword_set(IRAGNXMAX) THEN self.iragnxmax = float(iragnxmax[0]) ELSE self.iragnxmax = 0.85                                ;set default
-  IF keyword_set(IRAGNYMIN) THEN self.iragnymin = float(iragnymin[0]) ELSE self.iragnymin = -0.65                               ;set default
-  IF keyword_set(IRAGNYMAX) THEN self.iragnymax = float(iragnymax[0]) ELSE self.iragnymax = 1.35                                ;set default
+  IF keyword_set(IRAGNXMIN) THEN self.iragnxmin = float(iragnxmin[0]) ELSE self.iragnxmin = -0.75                               ;set default
+  IF keyword_set(IRAGNXMAX) THEN self.iragnxmax = float(iragnxmax[0]) ELSE self.iragnxmax = 0.75                                ;set default
+  IF keyword_set(IRAGNYMIN) THEN self.iragnymin = float(iragnymin[0]) ELSE self.iragnymin = -1.25                               ;set default
+  IF keyword_set(IRAGNYMAX) THEN self.iragnymax = float(iragnymax[0]) ELSE self.iragnymax = 1.75                                ;set default
 
 
   IF keyword_set(MZRMADE) THEN self.mzrmade = string(mzrmade[0]) ELSE self.mzrmade = 0                                        ;set default

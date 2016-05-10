@@ -750,7 +750,7 @@ PRO degroot2015a::workingon, subset, CATALOG=catalog, BINSET=binset
           {name:'seven', catalog:'kemclass_pz_specz_v0-8-2.fits', BINSET:'cluster', NINBIN:14, SM:'smcurrent', FITMZR:'tr04', MCMASS:1}, $ 
           {name:'eight', catalog:'kemclass_pz_specz_v0-8-3.fits', BINSET:'field', NINBIN:20, SM:'smcurrent', FITMZR:'tr04', MCMASS:1}, $
           {name:'nine', catalog:'kemclass_pz_specz_v0-8-3.fits', BINSET:'cluster', NINBIN:14, SM:'smcurrent', FITMZR:'tr04', MCMASS:1}, $ 
-          {name:'onezero', catalog:'kemclass_pz_specz_v1-0-1.fits', BINSET:'all', NINBIN:24, SM:'smcurrent', FITMZR:'tr04', MCMASS:5}, $ 
+          {name:'onezero', catalog:'kemclass_pz_specz_v1-0-0.fits', BINSET:'all', NINBIN:24, SM:'smcurrent', FITMZR:'tr04', MCMASS:5}, $ 
           {name:'oneone', catalog:'kemclass_pz_specz_v1-1-1.fits', BINSET:'cluster', NINBIN:21, SM:'smcurrent', FITMZR:'tr04', MCMASS:1}, $ 
           {name:'onetwo', catalog:'kemclass_pz_specz_v1-1-1.fits', BINSET:'field', NINBIN:19, SM:'smcurrent', FITMZR:'tr04', MCMASS:1} ] 
   
