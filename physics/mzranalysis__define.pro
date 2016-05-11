@@ -1138,28 +1138,75 @@ END
 
 
 ;====================================================================================================
-PRO mzranalysis::buildperturb, INDIR=indir 
+PRO mzranalysis::buildperturb, PERTRUBFILE=perturbfile, INDIR=indir 
 
-  print, 'now here!'
-  IF keyword_set(INDIR) THEN indir = strlowcase(string(indir[0])) ELSE indir = self.dirsort ;set default
+  IF keyword_set(PERTURBFILE) THEN perturbfile = strlowcase(string(perturbfile[0])) ELSE perturbfile = self.bootsumcat ;set default
+  IF keyword_set(INDIR) THEN indir = strlowcase(string(indir[0])) ELSE indir = self.dirsort                            ;set default
   
-  print, indir
 
 
   ;;;gather appropriate files
-    
+  ;;;the perturation file
+  perturbfile = strcompress(indir + perturbfile, /REMOVE_ALL) ;remove whitespace
+  ;print, perturbfile
+  perturbdata = mrdfits(perturbfile, 1, hdr, /SILENT)
+  ;help, perturbdata
+  ;help, perturbdata, /STRUC
+  ;print, perturbdata.bin
 
   ;;;Mass-metallicty relation binned spectra
-  checking = ['A','B','C','D','E','F','G','H','I','J','K','L','M', $
-              'N','O','P','Q','R','S','T','U','V','W','X','Y','Z']
-  base = 'compos_spectstk_1d_bin???_v3-6-1.fits' ;base name
-  FOR xx=0, n_elements(specs)-1, 1 DO BEGIN      ;loop over subsets
-     bit = base                                  ;copy base
-     strreplace, bit, '???', specs[xx]           ;replace the wildcard
-     bit = strcompress(indir + bit, /REMOVE_ALL) ;remove whitespace
-     specs[xx] = bit                             ;store the result
-  ENDFOR                                         ;end loop over subsets
+  checking = ['A','B','C','D','E','F','G','H','I','J','K','L','M', $ ;
+              'N','O','P','Q','R','S','T','U','V','W','X','Y','Z']   ;
+  base = 'compos_spectstk_1d_bin???_v3-6-1.fits'                     ;base name
+  FOR xx=0, n_elements(checking)-1, 1 DO BEGIN                       ;loop over subsets
+     bit = base                                                      ;copy base
+     strreplace, bit, '???', checking[xx]                            ;replace the wildcard
+     bit = strcompress(indir + bit, /REMOVE_ALL)                     ;remove whitespace
+     chk = file_test(bit)                                            ;see if file exists
+     IF chk EQ 1 THEN BEGIN ;if the file exists
+        data = mrdfits(bit, 1, hdr, /SILENT)
+        help, data, /STRUC
+        these = where(perturbdata.bin EQ checking[xx])
+        IF these[0] NE -1 THEN BEGIN
+           fullerr = data.lambdas
+           fullerr[*] = 0.0
+           ;print, these
+           ;help, perturbdata[these].spec1d
+           ;print, perturbdata[these].spec1d[1200]
+           ;myhist = histogram(perturbdata[these].spec1d[1200], LOCATIONS=xbin, BINSIZE=0.0005)
+           ;print, xbin
+           ;print, myhist
+           ;myplot = plot(xbin, myhist)
 
+           FOR yy=0, n_elements(data.lambdas)-1, 1 DO BEGIN
+              perterr = stdev(perturbdata[these].spec1d[yy])
+              ;fullerr[yy] = (data.spec1dwei[yy]^2 + perterr^2)^0.5
+              fullerr[yy] = perterr
+           ENDFOR
+           print, data.spec1dwei[1000:1010], fullerr[1000:1010]
+           chktag = tag_exist(data, 'SPEC1DFULLWEI')
+           print, chktag
+           IF chktag  EQ 0 THEN BEGIN
+              add_tag, data, 'SPEC1DFULLWEI', fltarr(n_elements(fullerr)), newdata
+           ENDIF ELSE BEGIN
+              newdata = data
+           ENDELSE
+           newdata.spec1dfullwei = fullerr
+
+           ;print, newdata.spec1dfullwei
+           ;help, newdata, /STRUC
+
+           ;mwrfits, newdata, bit, hdr, /CREATE
+
+           ;stop
+        ENDIF
+
+
+
+     ENDIF                      ;end file exists
+  ENDFOR                                                             ;end loop over subsets
+
+  
 
 
 END
@@ -1168,7 +1215,7 @@ END
 
 
 ;====================================================================================================
-PRO mzranalysis::plotspecstack, SUBSET=subset, INDIR=indir 
+PRO mzranalysis::plotspecstack, SUBSET=subset, INDIR=indir, USEFULLERR=usefullerr 
 
   COMPILE_OPT idl2
   
@@ -1237,15 +1284,15 @@ PRO mzranalysis::plotspecstack, SUBSET=subset, INDIR=indir
   size = size(specs)            ;size of array
   CASE size[0] OF               ;how many dimensions
 
-     1 : BEGIN                                                     ;one dimension
-        chk = stackspec1xn(specs, options, FILENAME=fnplspecstack) ;plot stacked spectra
-        IF chk EQ 1 THEN print, '    ...created successfully'      ;print info
-     END                                                           ;end one dimension
+     1 : BEGIN                                                                            ;one dimension
+        chk = stackspec1xn(specs, options, FILENAME=fnplspecstack, USEFULLERR=usefullerr) ;plot stacked spectra
+        IF chk EQ 1 THEN print, '    ...created successfully'                             ;print info
+     END                                                                                  ;end one dimension
 
-     2 : BEGIN                                                     ;two dimensions
-        chk = stackspec2xn(specs, options, FILENAME=fnplspecstack) ;plot stacked spectra
-        IF chk EQ 1 THEN print, '    ...created successfully'      ;print info
-     END                                                           ;end two dimensions
+     2 : BEGIN                                                                            ;two dimensions
+        chk = stackspec2xn(specs, options, FILENAME=fnplspecstack, USEFULLERR=usefullerr) ;plot stacked spectra
+        IF chk EQ 1 THEN print, '    ...created successfully'                             ;print info
+     END                                                                                  ;end two dimensions
      
      ELSE : BEGIN
         print, 'Not yet able to handle this size of array'
@@ -1268,9 +1315,6 @@ PRO mzranalysis::fitmzrstack, WHICH=which, ISERROR=iserror, $
   ;;;read catalog and fine appropriate data
   self.readstack                                                               ;file name
   data = *self.stackdata                                                       ;copy data
-  help, data, /STRUC
-  print, self.indsclmem
-  print, data.(self.indsclmem)
   envbins = uniq(fix(data.(self.indsclmem)), sort(fix(data.(self.indsclmem)))) ;find unique environemnt values
   self.valsclmem = ptr_new(data[envbins].(self.indsclmem))                     ;store those values
   
@@ -1293,14 +1337,7 @@ PRO mzranalysis::fitmzrstack, WHICH=which, ISERROR=iserror, $
   
   ;;;load object and use fitting routine
   FOR xx=0, n_elements(envvals)-1, 1 DO BEGIN              ;loop over sets to fit
-     print, xx
      thisfit = where(data.(self.indsclmem) EQ envvals[xx]) ;find subset
-     print, thisfit
-     print, data[thisfit].(self.indsmass)
-     print, metals[thisfit]
-     print, masserr[thisfit]
-     print,  dmetals[thisfit]
-    
 
      CASE which OF                                                                   ;which fit to perform
         'tr04' : BEGIN                                                               ;Tremonti 2004 constant offset
@@ -1323,9 +1360,7 @@ PRO mzranalysis::fitmzrstack, WHICH=which, ISERROR=iserror, $
      IF (xx EQ 0) THEN outresult = result ELSE outresult = [outresult, result] ;store it up
   ENDFOR                                                                       ;end loop over sets to fit
 
-  print, result
-  stop
-  self.fitinfo = ptr_new(result) ;store fit result
+   self.fitinfo = ptr_new(result) ;store fit result
 
   IF keyword_set(SAVE) THEN BEGIN                                                     ;if we want to save file
      filechk = file_test(strcompress(self.dirsort + self.fnmzrfit))                   ;check if file exists

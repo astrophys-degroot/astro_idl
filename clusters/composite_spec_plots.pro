@@ -1,5 +1,5 @@
 ;========================================================================================================================
-FUNCTION STACKSPEC1xn, xdata, xoptions, YMIN=ymin, YMAX=ymax, FILENAME=filename
+FUNCTION STACKSPEC1xn, xdata, xoptions, YMIN=ymin, YMAX=ymax, FILENAME=filename, USEFULLERR=usefullerr
 
 
   IF keyword_set(YMIN) THEN ymin = float(ymin[0]) ELSE ymin = -0.4                                           ;set default
@@ -40,6 +40,7 @@ FUNCTION STACKSPEC1xn, xdata, xoptions, YMIN=ymin, YMAX=ymax, FILENAME=filename
      eavemass = string(floor(avemass))                                                                                  ;get lowest whole interger
      bavemass = string(10^(avemass-eavemass), FORMAT='(F4.2)')                                                          ;proper formatting
      savemass = strcompress('$\langle M_{*} \rangle$ ='+bavemass + '$\times 10^{'+eavemass+'}$ M$_\Sun$' , /REMOVE_ALL) ;more formatting
+     IF keyword_set(USEFULLERR) THEN specerr = spdata.spec1dfullwei ELSE specerr = spdata.spec1dwei                     ;pick the error
      specplot1 = plot(spdata.lambdas, spdata.spec1d, /CURRENT, $                                                        ;plot
                       XRANGE=[xoptions.wavemin,xoptions.wavemax], $                                                     ;plot options
                       XTICKNAME=replicate('', 6), $                                                                     ;plot options
@@ -47,7 +48,7 @@ FUNCTION STACKSPEC1xn, xdata, xoptions, YMIN=ymin, YMAX=ymax, FILENAME=filename
                       LAYOUT=[1,n,xx], POSITION=[0.1,0.1+xx*step,0.9,0.1+(xx+1)*step])                                  ;plot options
                                 ;xtext1 = text(0.50,0.1+xx*(1.5*step),'Cluster Bin 1', FONT_SIZE=11)
      specplot1 = plot([spdata.lambdas[0],spdata.lambdas,spdata.lambdas[-1],spdata.lambdas[0]], $
-                      ([0.0, spdata.spec1dwei^0.5,0.0,0.0]-0.2), 'grey', $
+                      ([0.0, specerr^0.5,0.0,0.0]-0.2), 'grey', $
                       FILL_BACKGROUND=1, FILL_COLOR='grey', $
                       /CURRENT, /OVERPLOT)
      IF (avemass NE 0) THEN xtext3 = text(0.50,(0.1+0.7*step)+xx*step, savemass, FONT_SIZE=11)
@@ -74,7 +75,7 @@ END
 
 
 ;========================================================================================================================
-FUNCTION STACKSPEC2xn, xdata, xoptions, FILENAME=filename
+FUNCTION STACKSPEC2xn, xdata, xoptions, FILENAME=filename, USEFULLERR=usefullerr
   
   
   IF keyword_set(FILENAME) THEN filename = string(filename[0]) ELSE filename = 'composite_stackspec_new.eps' ;set default
@@ -125,6 +126,7 @@ FUNCTION STACKSPEC2xn, xdata, xoptions, FILENAME=filename
            eavemass = string(floor(avemass))                         ;calculate average mass
            bavemass = string(10^(avemass-eavemass), FORMAT='(F4.2)') ;out of log space
            savemass = strcompress('$\langle M_{*} \rangle$ ='+bavemass + '$\times 10^{'+eavemass+'}$ M$_\Sun$' , /REMOVE_ALL)
+           IF keyword_set(USEFULLERR) THEN specerr = spdata.spec1dfullwei ELSE specerr = spdata.spec1dwei ;pick the error
            specplot1 = plot(spdata.lambdas, spdata.spec1d, /CURRENT, $
                             XRANGE=[xoptions.wavemin,xoptions.wavemax], $
                             XTICKNAME=xtickname, $
@@ -133,7 +135,7 @@ FUNCTION STACKSPEC2xn, xdata, xoptions, FILENAME=filename
                             LAYOUT=[2,size[1],xx+yy],$
                             POSITION=[0.1+(xx*xstep),0.1+yy*ystep,0.1+((xx+1)*xstep),0.1+(yy+1)*ystep])
            specplot1 = plot([spdata.lambdas[0],spdata.lambdas,spdata.lambdas[-1],spdata.lambdas[0]], $
-                            ([0.0, spdata.spec1dwei^0.5,0.0,0.0]-0.5), 'grey', $
+                            ([0.0, specerr^0.5,0.0,0.0]-0.5), 'grey', $
                             FILL_BACKGROUND=1, FILL_COLOR='grey', $
                             /CURRENT, /OVERPLOT)
            xtext1 = text((0.1+0.4*xstep)+xx*xstep,(0.1+0.8*ystep)+yy*ystep,label, FONT_SIZE=10)
