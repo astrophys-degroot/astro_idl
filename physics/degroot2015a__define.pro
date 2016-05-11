@@ -701,19 +701,20 @@ PRO degroot2015a::runmzranalysis, xsubset
   run.readcat, xsubset.catalog, INDIR='/Users/adegroot/research/clusters/combination/catalogs/' ;read in data 
   run.findtags                                                                                  ;find all the tags we need
   IF xsubset.mcmass GT 1 THEN newmass = run.mcmass(xsubset.mcmass, WHICH=2)                     ;get perturbed masses
-                                ;;run.plotmzrindiv, ALLTOG=alltog, LABEL=0                                                      ;plot individual points
-                                ;;run.plotbpt, /NOIRAGN                                                                         ;plot sudo-BPT points
-                                ;;run.plotiragn
+  run.plotmzrindiv, ALLTOG=alltog, LABEL=0                                                      ;plot individual points
+                                ;run.plotbpt, /NOIRAGN                                                                         ;plot sudo-BPT points
+                                ;run.plotiragn                                                                                 ;plot Donley 2012 IR AGN selection
   run.makebins, BINSET=xsubset.binset, NINBIN=xsubset.ninbin                                    ;find mass bin sizes
   run.specsort                                                                                  ;sort data into bins
-  ;run.findstats                                                                                 ;find stats for bins
+  run.findstats                                                                                 ;find stats for bins
   ;run.specstack, SM=xsubset.sm                                                                  ;stack spectra
-  ;run.collatespecstack, /STACKSPEC                                                              ;stack spectra
+  run.collatespecstack, /STACKSPEC                                                              ;stack spectra
   run.readstack                                                                                 ;read in the mzr stack data
   run.findstacktags                                                                             ;find all the tags we need
-  ;run.plotspecstack                                                                             ;plot the stacked spectra
-  ;run.fitmzrstack, WHICH=xsubset.fitmzr, /SAVE, /STARTOVER                                      ;fit the stack measured MZR
-                                ;run.plotmzrstack                                                                              ;plot the stacked MZR
+  run.plotspecstack                                                                             ;plot the stacked spectra
+  run.fitmzrstack, WHICH=xsubset.fitmzr, /SAVE, /STARTOVER                                      ;fit the stack measured MZR
+  run.plotmzrstack, /SHOWFIT                                                                    ;plot the stacked MZR
+  stop
 
   ;FOR ww=1, xsubset.mcmass-1, 1 DO BEGIN                       ;loop over monte carlo mass errors
      ;run.storenew, MASSES=newmass[*,ww]                        ;set in new masses
@@ -732,6 +733,10 @@ PRO degroot2015a::runmzranalysis, xsubset
   ;stackdata = mrdfits('/Users/adegroot/research/clusters/combination/spectroscopy/stacks/' + $
   ;                    'clfour/smcurrent/all/highq/MOSFIRE_compsum_clfour_smcurrent_all_highq_v3-6-1.fits', 1, hdr)
   ;run.plotmzrstack, STACKDATA=stackdata ;plot the stacked MZR
+  run.buildperturb
+  
+
+                                ;run.plotspecstack
 
 
 
@@ -756,7 +761,7 @@ PRO degroot2015a::workingon, subset, CATALOG=catalog, BINSET=binset
           {name:'seven', catalog:'kemclass_pz_specz_v0-8-2.fits', BINSET:'cluster', NINBIN:14, SM:'smcurrent', FITMZR:'tr04', MCMASS:1}, $ 
           {name:'eight', catalog:'kemclass_pz_specz_v0-8-3.fits', BINSET:'field', NINBIN:20, SM:'smcurrent', FITMZR:'tr04', MCMASS:1}, $
           {name:'nine', catalog:'kemclass_pz_specz_v0-8-3.fits', BINSET:'cluster', NINBIN:14, SM:'smcurrent', FITMZR:'tr04', MCMASS:1}, $ 
-          {name:'onezero', catalog:'kemclass_pz_specz_v1-1-1.fits', BINSET:'all', NINBIN:24, SM:'smcurrent', FITMZR:'tr04', MCMASS:5}, $ 
+          {name:'onezero', catalog:'kemclass_pz_specz_v1-1-1.fits', BINSET:'all', NINBIN:24, SM:'smcurrent', FITMZR:'tr04', MCMASS:1}, $ 
           {name:'oneone', catalog:'kemclass_pz_specz_v1-1-1.fits', BINSET:'cluster', NINBIN:21, SM:'smcurrent', FITMZR:'tr04', MCMASS:1}, $ 
           {name:'onetwo', catalog:'kemclass_pz_specz_v1-1-1.fits', BINSET:'field', NINBIN:19, SM:'smcurrent', FITMZR:'tr04', MCMASS:1} ] 
   

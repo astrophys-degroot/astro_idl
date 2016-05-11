@@ -1137,6 +1137,35 @@ END
 ;====================================================================================================
 
 
+;====================================================================================================
+PRO mzranalysis::buildperturb, INDIR=indir 
+
+  print, 'now here!'
+  IF keyword_set(INDIR) THEN indir = strlowcase(string(indir[0])) ELSE indir = self.dirsort ;set default
+  
+  print, indir
+
+
+  ;;;gather appropriate files
+    
+
+  ;;;Mass-metallicty relation binned spectra
+  checking = ['A','B','C','D','E','F','G','H','I','J','K','L','M', $
+              'N','O','P','Q','R','S','T','U','V','W','X','Y','Z']
+  base = 'compos_spectstk_1d_bin???_v3-6-1.fits' ;base name
+  FOR xx=0, n_elements(specs)-1, 1 DO BEGIN      ;loop over subsets
+     bit = base                                  ;copy base
+     strreplace, bit, '???', specs[xx]           ;replace the wildcard
+     bit = strcompress(indir + bit, /REMOVE_ALL) ;remove whitespace
+     specs[xx] = bit                             ;store the result
+  ENDFOR                                         ;end loop over subsets
+
+
+
+END
+;====================================================================================================
+
+
 
 ;====================================================================================================
 PRO mzranalysis::plotspecstack, SUBSET=subset, INDIR=indir 
@@ -1239,9 +1268,13 @@ PRO mzranalysis::fitmzrstack, WHICH=which, ISERROR=iserror, $
   ;;;read catalog and fine appropriate data
   self.readstack                                                               ;file name
   data = *self.stackdata                                                       ;copy data
+  help, data, /STRUC
+  print, self.indsclmem
+  print, data.(self.indsclmem)
   envbins = uniq(fix(data.(self.indsclmem)), sort(fix(data.(self.indsclmem)))) ;find unique environemnt values
   self.valsclmem = ptr_new(data[envbins].(self.indsclmem))                     ;store those values
   
+  envvals = *self.valsclmem
   ;;;If mass errors given are the actual errors or the data values off by the error
   IF keyword_set(ISERROR) THEN BEGIN                        ;if keyword is set
      emassi = data.(self.indsemassi)                        ;take errors as is
@@ -1260,7 +1293,14 @@ PRO mzranalysis::fitmzrstack, WHICH=which, ISERROR=iserror, $
   
   ;;;load object and use fitting routine
   FOR xx=0, n_elements(envvals)-1, 1 DO BEGIN              ;loop over sets to fit
+     print, xx
      thisfit = where(data.(self.indsclmem) EQ envvals[xx]) ;find subset
+     print, thisfit
+     print, data[thisfit].(self.indsmass)
+     print, metals[thisfit]
+     print, masserr[thisfit]
+     print,  dmetals[thisfit]
+    
 
      CASE which OF                                                                   ;which fit to perform
         'tr04' : BEGIN                                                               ;Tremonti 2004 constant offset
@@ -1283,7 +1323,8 @@ PRO mzranalysis::fitmzrstack, WHICH=which, ISERROR=iserror, $
      IF (xx EQ 0) THEN outresult = result ELSE outresult = [outresult, result] ;store it up
   ENDFOR                                                                       ;end loop over sets to fit
 
-
+  print, result
+  stop
   self.fitinfo = ptr_new(result) ;store fit result
 
   IF keyword_set(SAVE) THEN BEGIN                                                     ;if we want to save file
@@ -1353,7 +1394,9 @@ PRO mzranalysis::plotmzrstack, STACKDATA=stackdata, FNPLMZRSTACK=fnplmzrstack, I
   ENDIF ELSE BEGIN
      fitinfo = 0
   ENDELSE
-
+  print, fitinfo
+  stop
+  
 
   ;;;If mass errors given are the actual errors or the data values off by the error
   IF keyword_set(ISERROR) THEN BEGIN                        ;if keyword is set
@@ -1387,7 +1430,7 @@ PRO mzranalysis::plotmzrstack, STACKDATA=stackdata, FNPLMZRSTACK=fnplmzrstack, I
 
   chk = plot_mzr(data.(self.indsmass), 'N2', N2RULE='PP04', $                      ;cont next line
                  HAFLUX=data.(self.indshaflux), NIIFLUX=data.(self.indsniiflux), $ ;
-                 STACK=1, $                                                        ;
+                 STACK=1, $                                                        ;set to 0 if you want to look at pertrubation results
                  CLMEM=clmem, $                                                    ;
                  EMASS=masserr, $                                                  ; 
                  NS=data.(self.indsninbin), TITLE = 'KEMCLASS ALL STACK', $        ;
