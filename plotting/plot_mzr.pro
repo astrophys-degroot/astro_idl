@@ -221,7 +221,7 @@ function PLOT_MZR, mass, metalrule, CLMEM=clmem, NS=ns, $ ;, DEMETALLICITY=dmeta
            'M08' : BEGIN                                                                                  ;Maiolino 2008
               IF verbose GE 2 THEN print, '  Using conversion from Maiolino 2008'                         ;print info
               print, 'WARNING!!! This still needs to be verified!!'                                       ;print info
-              metals = maiolino_2008(haflux, niiflux, /N2)                                                ;get metallicity
+                                ;metals = maiolino_2008(haflux, niiflux, N2=1)                                               ;get metallicity
            END                                                                                            ;end Maiolino 2008
            'ST14' : BEGIN                                                                                 ;steidel 2014
               IF verbose GE 2 THEN print, '  Using conversion from Steidel et al. 2014'                   ;print info
@@ -255,8 +255,6 @@ function PLOT_MZR, mass, metalrule, CLMEM=clmem, NS=ns, $ ;, DEMETALLICITY=dmeta
      ENDELSE                                                                    ;end metallicity not found
   ENDCASE                                                                       ;end which metallicity
 
-  print, mass[100:110]
-  print, metals[100:110]
 
   ;;;cut sample to window limits
   ;chk = where((mass LT xmin) OR (mass GT xmax), COMPLEMENT=keep) ;find outside limits
@@ -271,10 +269,6 @@ function PLOT_MZR, mass, metalrule, CLMEM=clmem, NS=ns, $ ;, DEMETALLICITY=dmeta
      haflux = haflux[keep]
      niiflux = niiflux[keep]
   ENDIF                         ;end something outside limits
-  help, mass
-  help, metals
-  print, mass[100:110]
-  print, metals[100:110]
 
 
   ;;;Find environment(s) subset if possible
@@ -439,7 +433,7 @@ function PLOT_MZR, mass, metalrule, CLMEM=clmem, NS=ns, $ ;, DEMETALLICITY=dmeta
      targets2 = [targets2, mzrpoints]   ;add to legend targets
   ENDIF                                 ;end show Sanders work
 
-  IF keyword_set(STACK) THEN BEGIN                                                                              ;if error are put on each point
+  IF keyword_set(STACK) THEN BEGIN                                                                     ;if error are put on each point
      myerror = errorplot(mass, metals, emass, replicate([0.18],nspec)/ns^0.5, '.', THICK=2, /OVERPLOT) ;plot errors
   ENDIF ELSE myerror = errorplot([xmax-0.2], [ymax-0.25], [0.1], [0.18], '.', THICK=2, /OVERPLOT)      ;sample error bar
   

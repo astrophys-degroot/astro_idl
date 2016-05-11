@@ -286,10 +286,10 @@ PRO mzranalysis::findtags
           tgclmem:['AN_SHIGAP','AN_ADAPKER','AN_CLMEM'], $ ;possible tags
           tglab1:['SP_M_OBJ'], $                           ;possible tags
           tglab2:['SP_M_MASK'], $                          ;possible tags
-          tgch1flux:['PH_IRAC1FLUX'], $                    ;possible tags
-          tgch2flux:['PH_IRAC2FLUX'], $                    ;possible tags
-          tgch3flux:['PH_IRAC3FLUX'], $                    ;possible tags
-          tgch4flux:['PH_IRAC4FLUX'], $                    ;possible tags
+          ;tgch1flux:['PH_IRAC1FLUX'], $                    ;possible tags
+          ;tgch2flux:['PH_IRAC2FLUX'], $                    ;possible tags
+          ;tgch3flux:['PH_IRAC3FLUX'], $                    ;possible tags
+          ;tgch4flux:['PH_IRAC4FLUX'], $                    ;possible tags
           tgiragn:['AN_AGND12']}                           ;possible tags
 
 
@@ -487,9 +487,9 @@ PRO mzranalysis::plotbpt, NOIRAGN=noiragn, $
   ;;;make the plot
   w = window(LOCATION=[100+50*self.nwin,-25+25*self.nwin])         ;window
   bptplot = plot([1.0], [1.0], '.', /CURRENT, /NODATA, $           ;plot data
-                 XTITLE='log([NII/H$\alpha$])', $                  ;plot options
+                 XTITLE='log([NII]$\lambda$6585/H$\alpha$)', $                  ;plot options
                  XRANGE=[self.bptxmin,self.bptxmax], $             ;plot options
-                 YTITLE='log([OIII/H$\beta$])', $                  ;plot options
+                 YTITLE='log([OIII]$\lambda$5007/H$\beta$)', $                  ;plot options
                  YRANGE=[self.bptymin,self.bptymax], $             ;plot options
                  FONT_SIZE=14, FONT_STYLE=0)                       ;plot options
 
@@ -1308,12 +1308,12 @@ END
 
 
 ;====================================================================================================
-PRO mzranalysis::plotmzrstack, FNPLMZRSTACK=fnplmzrstack, ISERROR=iserror, $
-                               LABEL=label, $
+PRO mzranalysis::plotmzrstack, STACKDATA=stackdata, FNPLMZRSTACK=fnplmzrstack, ISERROR=iserror, $
+                               LABEL=label, SHOWMEAN=showmean, SHOWMED=showmed, SHOWFIT=showfit, $
                                HELP=help
 
   
-  IF keyword_set(ISERROR) THEN iserror = string(iserror) ELSE iserror = 0                   ;set default value
+  IF keyword_set(ISERROR) THEN iserror = string(iserror) ELSE iserror = 0 ;set default value
  
   ;;;set default values
   print, '  Stacked points MZR plot...'      ;print info
@@ -1321,16 +1321,38 @@ PRO mzranalysis::plotmzrstack, FNPLMZRSTACK=fnplmzrstack, ISERROR=iserror, $
   fnplmzrstack = strcompress(self.dirsort + fnplmzrstack)                                                        ;append directory
 
   ;;;read catalog and fine appropriate data
-  self.readstack                ;file name
-  data = *self.stackdata        ;copy data
-  help, data, /STRUC
+  IF keyword_set(STACKDATA) THEN BEGIN
+     data = stackdata
+  ENDIF ELSE BEGIN
+     self.readstack             ;file name
+     data = *self.stackdata     ;copy data
+  ENDELSE
+                                ;help, data, /STRUC
   
   
   ;;;grab median and mean mass, N2 values in case we want them
-  medmass = *self.binmedmass
-  meanmass = *self.binmeanmass
-  medn2 = *self.binmedn2
-  meann2 = *self.binmeann2
+  IF keyword_set(SHOWMED) THEN BEGIN
+     medmass = *self.binmedmass
+     medn2 = *self.binmedn2
+  ENDIF ELSE BEGIN
+     medmass = 0
+     medn2 = 0
+  ENDELSE
+  IF keyword_set(SHOWMEAN) THEN BEGIN
+     meanmass = *self.binmeanmass
+     meann2 = *self.binmeann2
+  ENDIF ELSE BEGIN
+     meanmass = 0
+     meann2 = 0
+  ENDELSE
+
+
+  ;;;grab fit info if possible and desired
+  IF keyword_set(SHOWFIT) THEN BEGIN
+     fitinfo = *self.fitinfo
+  ENDIF ELSE BEGIN
+     fitinfo = 0
+  ENDELSE
 
 
   ;;;If mass errors given are the actual errors or the data values off by the error
@@ -1357,16 +1379,24 @@ PRO mzranalysis::plotmzrstack, FNPLMZRSTACK=fnplmzrstack, ISERROR=iserror, $
   ENDIF                                                                                           ;end label desired
   IF total(ulims) EQ 0 THEN ulims = 0                                                             ;check if an upper limits exists
  
+
+  ;;;deal with cluster membership flag
+  clmem = data.(self.indsclmem)
+  clmem[*] = 0
+
+
   chk = plot_mzr(data.(self.indsmass), 'N2', N2RULE='PP04', $                      ;cont next line
                  HAFLUX=data.(self.indshaflux), NIIFLUX=data.(self.indsniiflux), $ ;
-                 STACK=1, CLMEM=data.(self.indsclmem), EMASS=masserr, $            ; 
+                 STACK=1, $                                                        ;
+                 CLMEM=clmem, $                                                    ;
+                 EMASS=masserr, $                                                  ; 
                  NS=data.(self.indsninbin), TITLE = 'KEMCLASS ALL STACK', $        ;
                  ULIMS=ulims, LABEL=label, OUTFILE=fnplmzrstack, SATURATE=1, $     ;
-                 FITINFO=*self.fitinfo, $                                          ;
+                 FITINFO=fitinfo, $                                                ;
                  SHOWST14PT=1, SHOWST14TR=0, SHOWSA14=1, $                         ;
                  SHOWMEAN=1, MEANMASS=meanmass, MEANN2=meann2, $                   ;
                  SHOWMED=1, MEDMASS=medmass, MEDN2=medn2, $ 
-                 SHOWERB06PTS=1, SHOWERB06TREND=0, SHOWTR04=1)                     ;plot mzr
+                 SHOWERB06PTS=1, SHOWERB06TREND=0, SHOWTR04=1) ;plot mzr
 
 END
 ;====================================================================================================
