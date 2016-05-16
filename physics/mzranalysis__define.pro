@@ -1138,9 +1138,10 @@ END
 
 
 ;====================================================================================================
-PRO mzranalysis::buildperturb, PERTRUBFILE=perturbfile, INDIR=indir 
+PRO mzranalysis::buildperturb, PERTRUBFILE=perturbfile, PERTURBHOW=perturbhow, INDIR=indir 
 
   IF keyword_set(PERTURBFILE) THEN perturbfile = strlowcase(string(perturbfile[0])) ELSE perturbfile = self.bootsumcat ;set default
+  IF keyword_set(PERTURBHOW) THEN perturbhow = strlowcase(string(perturbhow[0])) ELSE perturbhow = 'central68'         ;set default
   IF keyword_set(INDIR) THEN indir = strlowcase(string(indir[0])) ELSE indir = self.dirsort                            ;set default
   
 
@@ -1148,11 +1149,7 @@ PRO mzranalysis::buildperturb, PERTRUBFILE=perturbfile, INDIR=indir
   ;;;gather appropriate files
   ;;;the perturation file
   perturbfile = strcompress(indir + perturbfile, /REMOVE_ALL) ;remove whitespace
-  ;print, perturbfile
   perturbdata = mrdfits(perturbfile, 1, hdr, /SILENT)
-  ;help, perturbdata
-  ;help, perturbdata, /STRUC
-  ;print, perturbdata.bin
 
   ;;;Mass-metallicty relation binned spectra
   checking = ['A','B','C','D','E','F','G','H','I','J','K','L','M', $ ;
@@ -1165,27 +1162,38 @@ PRO mzranalysis::buildperturb, PERTRUBFILE=perturbfile, INDIR=indir
      chk = file_test(bit)                                            ;see if file exists
      IF chk EQ 1 THEN BEGIN ;if the file exists
         data = mrdfits(bit, 1, hdr, /SILENT)
-        help, data, /STRUC
+        ;help, data, /STRUC
         these = where(perturbdata.bin EQ checking[xx])
         IF these[0] NE -1 THEN BEGIN
            fullerr = data.lambdas
            fullerr[*] = 0.0
-           ;print, these
-           ;help, perturbdata[these].spec1d
-           ;print, perturbdata[these].spec1d[1200]
-           ;myhist = histogram(perturbdata[these].spec1d[1200], LOCATIONS=xbin, BINSIZE=0.0005)
-           ;print, xbin
-           ;print, myhist
-           ;myplot = plot(xbin, myhist)
 
            FOR yy=0, n_elements(data.lambdas)-1, 1 DO BEGIN
-              perterr = stdev(perturbdata[these].spec1d[yy])
-              ;fullerr[yy] = (data.spec1dwei[yy]^2 + perterr^2)^0.5
+              CASE perturbhow OF
+                 'stdev' :  BEGIN
+                    perterr = stdev(perturbdata[these].spec1d[yy])
+                 END
+                 'central68' : BEGIN
+                    tempdata = perturbdata[these].spec1d[yy]
+                    tempdata = tempdata(sort(tempdata))
+                    middle = ulong(0.5*n_elements(tempdata))
+                    out = ulong(0.34*n_elements(tempdata))
+                    lower = middle - out
+                    upper = middle + out
+                    perterr = 0.5*(tempdata[upper]-tempdata[lower])
+                 END
+                 ELSE : BEGIN
+                    print, 'WARNING!! PERTURBHOW value not found!!'
+                    print, '  Using a simple standard deviation instead!!'
+                    perterr = stdev(perturbdata[these].spec1d[yy])
+                 END
+              ENDCASE
+                                ;fullerr[yy] = (data.spec1dwei[yy]^2 + perterr^2)^0.5
               fullerr[yy] = perterr
+              ;stop
            ENDFOR
-           print, data.spec1dwei[1000:1010], fullerr[1000:1010]
            chktag = tag_exist(data, 'SPEC1DFULLWEI')
-           print, chktag
+           ;print, chktag
            IF chktag  EQ 0 THEN BEGIN
               add_tag, data, 'SPEC1DFULLWEI', fltarr(n_elements(fullerr)), newdata
            ENDIF ELSE BEGIN
@@ -1196,12 +1204,10 @@ PRO mzranalysis::buildperturb, PERTRUBFILE=perturbfile, INDIR=indir
            ;print, newdata.spec1dfullwei
            ;help, newdata, /STRUC
 
-           ;mwrfits, newdata, bit, hdr, /CREATE
+           mwrfits, newdata, bit, hdr, /CREATE
 
            ;stop
         ENDIF
-
-
 
      ENDIF                      ;end file exists
   ENDFOR                                                             ;end loop over subsets

@@ -716,17 +716,16 @@ PRO degroot2015a::runmzranalysis, xsubset
                                 ;run.plotmzrstack, /SHOWFIT                                                                    ;plot the stacked MZR
                                 ;stop
 
-                                ;FOR ww=1, xsubset.mcmass-1, 1 DO BEGIN                       ;loop over monte carlo mass errors
-                                ;run.storenew, MASSES=newmass[*,ww]                        ;set in new masses
-     ;run.specsort                                              ;sort data into bins
-     ;run.binbootstrap, xsubset.ninbin                          ;bootstrap resample each mass bin
-     ;run.specstack, SM=xsubset.sm, /BOOTSTRAP, /PERTURB        ;stack spectra
-     ;run.collatespecstack, /ACTUALSPEC, /STACKSPEC, /SUMMATION ;stack spectra
-
-                                ;run.readstack                                              ;read in the mzr stack data
-                                ;run.findstacktags                                          ;find all the tags we need
-                                ;run.fitmzrstack, WHICH=xsubset.fitmzr, /SAVE               ;fit the stack measured MZR
-  ;ENDFOR                        ;end monte carlo mass errors
+  FOR ww=1, xsubset.mcmass-1, 1 DO BEGIN                       ;loop over monte carlo mass errors
+     run.storenew, MASSES=newmass[*,ww]                        ;set in new masses
+     run.specsort                                              ;sort data into bins
+     run.binbootstrap, xsubset.ninbin                          ;bootstrap resample each mass bin
+     run.specstack, SM=xsubset.sm, /BOOTSTRAP, /PERTURB        ;stack spectra
+     run.collatespecstack, /ACTUALSPEC, /STACKSPEC, /SUMMATION ;stack spectra
+     ;run.readstack                                             ;read in the mzr stack data
+     ;run.findstacktags                                         ;find all the tags we need
+     ;run.fitmzrstack, WHICH=xsubset.fitmzr, /SAVE              ;fit the stack measured MZR
+  ENDFOR                                                       ;end monte carlo mass errors
 
 
   ;;;post mass perturbation stuff
@@ -759,7 +758,7 @@ PRO degroot2015a::workingon, subset, CATALOG=catalog, BINSET=binset
           {name:'seven', catalog:'kemclass_pz_specz_v0-8-2.fits', BINSET:'cluster', NINBIN:14, SM:'smcurrent', FITMZR:'tr04', MCMASS:1}, $ 
           {name:'eight', catalog:'kemclass_pz_specz_v0-8-3.fits', BINSET:'field', NINBIN:20, SM:'smcurrent', FITMZR:'tr04', MCMASS:1}, $
           {name:'nine', catalog:'kemclass_pz_specz_v0-8-3.fits', BINSET:'cluster', NINBIN:14, SM:'smcurrent', FITMZR:'tr04', MCMASS:1}, $ 
-          {name:'onezero', catalog:'kemclass_pz_specz_v1-1-1.fits', BINSET:'all', NINBIN:24, SM:'smcurrent', FITMZR:'tr04', MCMASS:1}, $ 
+          {name:'onezero', catalog:'kemclass_pz_specz_v1-1-1.fits', BINSET:'all', NINBIN:24, SM:'smcurrent', FITMZR:'tr04', MCMASS:50}, $ 
           {name:'oneone', catalog:'kemclass_pz_specz_v1-1-1.fits', BINSET:'cluster', NINBIN:21, SM:'smcurrent', FITMZR:'tr04', MCMASS:1}, $ 
           {name:'onetwo', catalog:'kemclass_pz_specz_v1-1-1.fits', BINSET:'field', NINBIN:19, SM:'smcurrent', FITMZR:'tr04', MCMASS:1} ] 
   
