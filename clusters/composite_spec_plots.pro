@@ -9,7 +9,7 @@ FUNCTION STACKSPEC1xn, xdata, xoptions, YMIN=ymin, YMAX=ymax, FILENAME=filename,
   ;;;setup
   print, '  Stacked Spectra for MZR plot 1xn ...' ;print info
   n = n_elements(xdata)                           ;number of stacked spectra
-  step = (0.8 / n)                                ;divy up the vertical space
+  step = (0.88 / n)                                ;divy up the vertical space
   
 
   ;;;get emission lines
@@ -63,9 +63,9 @@ FUNCTION STACKSPEC1xn, xdata, xoptions, YMIN=ymin, YMAX=ymax, FILENAME=filename,
      ENDFOR
   ENDFOR
 
-  titletext = text(0.30,0.95,'KEMCLASS Stacked Spectra', FONT_SIZE=15)
-  xaxtext = text(0.30,0.025,'Rest Frame Wavelength [$\AA$]', FONT_SIZE=15)
-  yaxtext = text(0.04,0.36,'Flux [arbitrary units]', FONT_SIZE=15, ORIENTATION=90)
+  ;titletext = text(0.30,0.95,'KEMCLASS Stacked Spectra', FONT_SIZE=16)
+  xaxtext = text(0.30,0.065,'Rest Frame Wavelength [$\AA$]', FONT_SIZE=16)
+  yaxtext = text(0.035,0.36,'Flux [arbitrary units]', FONT_SIZE=16, ORIENTATION=90)
  
   specplot1.save, filename, RESOLUTION=1200
 

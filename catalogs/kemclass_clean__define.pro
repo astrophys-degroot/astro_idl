@@ -191,18 +191,18 @@ FUNCTION KEMCLASS_CLEAN::cleanspecz, xspecz, NORMALIZE=normalize, BINSIZE=binsiz
                 THICK=2.0, $                         ;plot options
                 XTITLE = 'Spectroscopic Redshift', $ ;plot options
                 YTITLE = 'Frequency', $              ;plot options
-                FONT_SIZE=14, FONT_STYLE=1, $        ;plot options
+                FONT_SIZE=26, FONT_STYLE=0, $        ;plot options
                 /CURRENT)                            ;plot options
 
   IF keyword_set(UPLIM) THEN BEGIN
-     myplot = plot(xuplimbins, pdfuplim, $                                 ;plot specz hist
+     myplot = plot(xuplimbins, pdfuplim, $                             ;plot specz hist
                    COLOR=color, FILL_COLOR=color, FILL_BACKGROUND=1, $ ;plot options
-                   /STAIRSTEP, $                                           ;plot options
-                   THICK=2.0, $                                            ;plot options
-                   XTITLE = 'Spectroscopic Redshift', $                    ;plot options
-                   YTITLE = 'Frequency', $                                 ;plot options
-                   FONT_SIZE=14, FONT_STYLE=1, $                           ;plot options
-                   /CURRENT, /OVERPLOT)                                    ;plot options
+                   /STAIRSTEP, $                                       ;plot options
+                   THICK=2.0, $                                        ;plot options
+                   XTITLE = 'Spectroscopic Redshift', $                ;plot options
+                   YTITLE = 'Frequency', $                             ;plot options
+                   FONT_SIZE=26, FONT_STYLE=0, $                       ;plot options
+                   /CURRENT, /OVERPLOT)                                ;plot options
   ENDIF
   
   self.nwin = self.nwin + 1     ;up window number

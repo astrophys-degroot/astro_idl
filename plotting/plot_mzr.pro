@@ -87,7 +87,7 @@ FUNCTION SANDERSCOMP, sanderswhich, fakexs
         mzrtrend = errorplot(mymzr.xs, mymzr.ys, xerrors, yerrors, $                 ;plot points
                              'td', SYM_COLOR='purple', SYM_FILLED=0, SYM_SIZE=2.0, $ ;plot values
                              ERRORBAR_COLOR='purple', $                              ;plot values
-                             SYM_THICK=2, /OVERPLOT, NAME='Sanders 2014')                ;plot options
+                             SYM_THICK=2, /OVERPLOT, NAME='Sanders 2015')                ;plot options
      END
      
      2 : BEGIN                  ;plot trend
@@ -187,7 +187,7 @@ function PLOT_MZR, mass, metalrule, CLMEM=clmem, NS=ns, $ ;, DEMETALLICITY=dmeta
   IF keyword_set(CLCOLOR) THEN clcolor = clcolor[0] ELSE clcolor = 'red'   ;set default 
   IF keyword_set(GRCOLOR) THEN grcolor = grcolor[0] ELSE grcolor = 'green' ;set default 
   IF keyword_set(FICOLOR) THEN ficolor = ficolor[0] ELSE ficolor = 'blue'  ;set default 
-  IF keyword_set(TITLE) THEN title = title[0] ELSE title = 'MZR'           ;set default 
+  IF keyword_set(TITLE) THEN title = title[0] ELSE title = 0               ;set default 
   IF keyword_set(QMAX) THEN qmax = qmax[0] ELSE qmax = 2                   ;set default 
   IF keyword_set(NULLVAL) THEN nullval = nullval[0] ELSE nullval = -99.0   ;set default 
   IF keyword_set(VERBOSE) THEN verbose = verbose[0] ELSE verbose = 3       ;set default 
@@ -319,14 +319,15 @@ function PLOT_MZR, mass, metalrule, CLMEM=clmem, NS=ns, $ ;, DEMETALLICITY=dmeta
                         YTITLE='12 +  log(O/H)', $                                                                            ;plot options
                         YRANGE=[ymin,ymax], $                                                                                 ;plot options
                         SYM_SIZE=1.0, /SYM_FILLED, SYM_COLOR=ficolor, $                                                       ;plot options
-                        NAME=strcompress(' Our Field Sample:N=' + string(nfieldall) + '(' + string(n_elements(field)) + ')')) ;plot options
+                        FONT_SIZE=16, $                                                                                       ;plot options
+                        NAME=strcompress(' This work: N=' + string(nfieldall) + '(' + string(n_elements(field)) + ')'))       ;plot options
 
-  IF (fieldul[0] NE -1) THEN BEGIN                                                                                 ;if field membership given
-     FOR xx=0, n_elements(fieldul)-1, 1 DO BEGIN                                                                   ;loop over upper lims
+  IF (fieldul[0] NE -1) THEN BEGIN                                                                                  ;if field membership given
+     FOR xx=0, n_elements(fieldul)-1, 1 DO BEGIN                                                                    ;loop over upper lims
         myarrow = arrow([mass[fieldul[xx]], mass[fieldul[xx]]], [metals[fieldul[xx]], metals[fieldul[xx]]-0.125], $ ;plot upper limits
-                        COLOR=ficolor, /DATA, /CURRENT, $                                                          ;plot options
-                        HEAD_SIZE=0.4, HEAD_INDENT=0.0, LINE_THICK=1.5)                                              ;plot options
-     ENDFOR                                                                                                        ;end loop 
+                        COLOR=ficolor, /DATA, /CURRENT, $                                                           ;plot options
+                        HEAD_SIZE=0.4, HEAD_INDENT=0.0, LINE_THICK=1.5)                                             ;plot options
+     ENDFOR                                                                                                         ;end loop 
   ENDIF 
   
 
@@ -390,10 +391,10 @@ function PLOT_MZR, mass, metalrule, CLMEM=clmem, NS=ns, $ ;, DEMETALLICITY=dmeta
 
   ;;;plot published data
   If keyword_set(saturate) THEN  BEGIN
-     myplot = plot([xmin-0.1,xmax+0.1], [saturatehard,saturatehard], '-', THICK=2, /OVERPLOT, NAME='AGN CUT')   ;plot options
-     targets = [targets, myplot]                                                                                ;add to legend target
-     myplot = plot([xmin-0.1,xmax+0.1], [saturatesoft,saturatesoft], '--', THICK=2, /OVERPLOT, NAME='COMP CUT') ;plot options
-     targets = [targets, myplot]                                                                                ;add to legend target
+     myplot = plot([xmin-0.1,xmax+0.1], [saturatehard,saturatehard], '-', THICK=2, /OVERPLOT, NAME='AGN CUT')        ;plot options
+     targets = [targets, myplot]                                                                                     ;add to legend target
+     myplot = plot([xmin-0.1,xmax+0.1], [saturatesoft,saturatesoft], '--', THICK=2, /OVERPLOT, NAME='COMPOSITE CUT') ;plot options
+     targets = [targets, myplot]                                                                                     ;add to legend target
   ENDIF
   
   IF keyword_set(SHOWTR04) THEN BEGIN                          ;show Steidel work
@@ -460,9 +461,9 @@ function PLOT_MZR, mass, metalrule, CLMEM=clmem, NS=ns, $ ;, DEMETALLICITY=dmeta
 
   ;;;legend stuff
   mylegend = legend(TARGET=targets, POSITION=[xmin+0.1,ymax-0.15], /DATA, $  ;legend
-                    SHADOW=0, LINESTYLE=0, SAMPLE_WIDTH=0.1, FONT_SIZE=9)    ;legend options
+                    SHADOW=0, LINESTYLE=0, SAMPLE_WIDTH=0.1, FONT_SIZE=12)    ;legend options
   mylegend = legend(TARGET=targets2, POSITION=[xmax-1.3,ymax-0.15], /DATA, $ ;legend
-                    SHADOW=0, LINESTYLE=0, SAMPLE_WIDTH=0.1, FONT_SIZE=9)    ;legend options
+                    SHADOW=0, LINESTYLE=0, SAMPLE_WIDTH=0.1, FONT_SIZE=12)    ;legend options
   
 
 

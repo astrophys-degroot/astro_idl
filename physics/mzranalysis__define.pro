@@ -405,7 +405,7 @@ PRO mzranalysis::plotmzrindiv, ALLTOG=alltog, NSIGULIM=nsigulim, DIFFPLOT=diffpl
   chk = plot_mzr(xdata.(self.indmass), 'N2', N2RULE='PP04', HAFLUX=xdata.(self.indhaflux), $ ;cont next line
                  NIIFLUX=xdata.(self.indniiflux), $                                          ;cont next line
                  CLMEM=clmems, $                                                             ;cont next line
-                 TITLE = 'MZR - KEMCLASS', $                                                 ;cont next line
+                 TITLE = 0, $                                                                ;cont next line
                  ULIMS=ulims, LABEL=label, OUTFILE=fnplmzrindiv, DOUTFILE=fndmzrplot, $      ;cont next line
                  SHOWST14TR=0, SHOWST14PT=1, SHOWSA14PT=1, $                                 ;cont next line
                  SHOWERB06PTS=1, SHOWERB06TREND=0, SHOWTR04=1, $                             ;cont next line
@@ -491,7 +491,7 @@ PRO mzranalysis::plotbpt, NOIRAGN=noiragn, $
                  XRANGE=[self.bptxmin,self.bptxmax], $             ;plot options
                  YTITLE='log([OIII]$\lambda$5007/H$\beta$)', $                  ;plot options
                  YRANGE=[self.bptymin,self.bptymax], $             ;plot options
-                 FONT_SIZE=14, FONT_STYLE=0)                       ;plot options
+                 FONT_SIZE=16, FONT_STYLE=0)                       ;plot options
 
   bptplot1 = plot(model.lmixxs, model.lmixys, '-', /OVERPLOT, $            ;plot model
                   THICK=2, color='green')                                  ;plot options
@@ -565,82 +565,14 @@ PRO mzranalysis::plotiragn, FNIRAGNPLOT=fniragnplot
 
 
   ;;;read catalog and fine appropriate data
-                                ;self.readcat                  ;read in file
-                                ;self.sample                   ;get sample
   xdata = *self.compdata        ;grab data
-                                ;xdata = xdata[*self.sample]   ;grab subset
-  ;help, xdata
-  ;chk = tag_exist(xdata, self.tgch1flux, INDEX=ch1find)    ;find necessary tag
-  ;text = '   This plot requires a IRAC CH1 flux keyword: ' ;text to pass
-  ;IF chk EQ 0 THEN ch1find = tagprompt(xdata, text)        ;find necessary tag
-  ;chk = tag_exist(xdata, self.tgch2flux, INDEX=ch2find)    ;find necessary tag
-  ;text = '   This plot requires a IRAC CH2 flux keyword: ' ;text to pass
-  ;IF chk EQ 0 THEN ch2find = tagprompt(xdata, text)        ;find necessary tag
-  ;chk = tag_exist(xdata, self.tgch3flux, INDEX=ch3find)    ;find necessary tag
-  ;text = '   This plot requires a IRAC CH3 flux keyword: ' ;text to pass
-  ;IF chk EQ 0 THEN ch3find = tagprompt(xdata, text)        ;find necessary tag
-  ;chk = tag_exist(xdata, self.tgch4flux, INDEX=ch4find)    ;find necessary tag
-  ;text = '   This plot requires a IRAC CH4 flux keyword: ' ;text to pass
-  ;IF chk EQ 0 THEN ch4find = tagprompt(xdata, text)        ;find necessary tag
-
-  ;print, self.indch1flux
-  ;print, self.indch2flux
-  ;print, self.indch3flux
-  ;print, self.indch4flux
-
-  ;chk = tag_exist(xdata, self.tgagn, INDEX=agnind)                       ;find necessary tag
-  ;text = '   This plot options a IR AGN diagnostic keyword: '            ;text to pass
-  ;IF chk EQ 0 THEN agnind = tagprompt(xdata, text)                       ;find necessary tag
-  ;chk = tag_exist(xdata, self.tgelagn, INDEX=elagnind)                   ;find necessary tag
-  ;text = '   This plot options a emission line AGN diagnostic keyword: ' ;text to pass
-  ;IF chk EQ 0 THEN elagnind = tagprompt(xdata, text)                     ;find necessary tag
-  ;chk = tag_exist(xdata, 'SP_SPECZBEST', INDEX=spzfind)                  ;find necessary tag
-  ;text = '   This plot options a redshift keyword: '                     ;text to pass
-  ;IF chk EQ 0 THEN spzfind = tagprompt(xdata, text)                      ;find necessary tag
-  ;chk = tag_exist(xdata, 'SP_SPECZFLAG', INDEX=qspzind)                  ;find necessary tag
-  ;text = '   This plot options a spec-z quality keyword: '               ;text to pass
-  ;IF chk EQ 0 THEN qspzind = tagprompt(xdata, text)                      ;find necessary tag  
-  ;chk = tag_exist(xdata, self.tgclmem, INDEX=clmemind)                   ;find necessary tag
-  ;text = '   This plot options a cluster member keyword: '               ;text to pass
-  ;IF chk EQ 0 THEN clmemind = tagprompt(xdata, text)                     ;find necessary tag
-
-  ;print, self.indiragn
-
-  ;;;create flag arrays for subset
-                                ;clyes = intarr(n_elements(xdata.(0)))  ;create array
-                                ;fiyes = intarr(n_elements(xdata.(0)))  ;create array
-                                ;hqyes = intarr(n_elements(xdata.(0)))  ;create array
-                                ;mqyes = intarr(n_elements(xdata.(0)))  ;create array
-                                ;lqyes = intarr(n_elements(xdata.(0)))  ;create array
-                                ;agnyes = intarr(n_elements(xdata.(0))) ;create array
-
+ 
 
   ;;;find subsets and fill subset arrarys
   IF (self.indspz1 NE 0) THEN BEGIN                                                                     ;
      allz = xdata.(self.indspz1)                                                                        ;
      specz = where((xdata.(self.indspz1) GE 0.0) AND (xdata.(self.indspz1) LE 5.0), COMPLEMENT=nospecz) ;has real redshift
-                                ;cl = where(xdata.(self.indclmem) EQ 1, COMPLEMENT=field)                                           ;has cluster redshift
-                                ;IF cl[0] NE -1 THEN clyes[specz[cl]] = 1                                                           ;
-                                ;IF field[0] NE -1 THEN fiyes[specz[field]] = 1                                                     ; 
   ENDIF
-
-  ;help, specz
-  ;help, nospecz
-  ;help, cl
-  ;help, field
-
-                                ;IF (qspzind NE -1) THEN BEGIN
-                                ;chk = where((xdata.(qspzind) EQ 0) OR (xdata.(qspzind) EQ 1)) ;good quality 
-                                ;IF (chk[0] NE -1) THEN hqyes[chk] = 1                         ;flag it
-                                ;chk = where((xdata.(qspzind) EQ 2))                           ;good quality 
-                                ;IF (chk[0] NE -1) THEN mqyes[chk] = 1                         ;flag it
-                                ;chk = where((xdata.(qspzind) EQ 3))                           ;good quality 
-                                ;IF (chk[0] NE -1) THEN lqyes[chk] = 1                         ;flag it
-                                ;ENDIF 
-
-                                ;agnyes = where(xdata.(agnind) EQ 1)     ;find agn
-                                ;elagnyes = where(xdata.(elagnind) EQ 2) ;find agn
-  
 
 
   ;;;find plausible flux ratio measurements
@@ -681,6 +613,8 @@ PRO mzranalysis::plotiragn, FNIRAGNPLOT=fniragnplot
   miny = -2.5
   biny = 0.5
   maxx = 2.5
+  help, xs[nospecz]
+  help, ys[nospecz]
                                 ;hist2d = hist_2d(xs[nospecz], ys[nospecz], MIN1=minx, BIN1=binx, MIN2=biny, BIN2=biny)
                                 ;hist2d = hist_2d(xs[nospecz], ys[nospecz], MIN1=minx, MAX1=maxx, MIN2=maxy, MAX2=maxy)
   hist2d = hist_2d(xs[nospecz], ys[nospecz], MIN1=minx, BIN1=binx, MAX1=maxx, MIN2=maxy, BIN2=biny, MAX2=maxy)
@@ -1435,9 +1369,7 @@ PRO mzranalysis::plotmzrstack, STACKDATA=stackdata, FNPLMZRSTACK=fnplmzrstack, I
   ENDIF ELSE BEGIN
      fitinfo = 0
   ENDELSE
-  print, fitinfo
-  stop
-  
+  print, fitinfo  
 
   ;;;If mass errors given are the actual errors or the data values off by the error
   IF keyword_set(ISERROR) THEN BEGIN                        ;if keyword is set
@@ -1471,16 +1403,18 @@ PRO mzranalysis::plotmzrstack, STACKDATA=stackdata, FNPLMZRSTACK=fnplmzrstack, I
 
   chk = plot_mzr(data.(self.indsmass), 'N2', N2RULE='PP04', $                      ;cont next line
                  HAFLUX=data.(self.indshaflux), NIIFLUX=data.(self.indsniiflux), $ ;
-                 STACK=1, $                                                        ;set to 0 if you want to look at pertrubation results
+                 STACK=0, $                                                        ;set to 0 if you want to look at pertrubation results
                  CLMEM=clmem, $                                                    ;
                  EMASS=masserr, $                                                  ; 
-                 NS=data.(self.indsninbin), TITLE = 'KEMCLASS ALL STACK', $        ;
+                 NS=data.(self.indsninbin), $                                      ;
+                 ;TITLE = 'KEMCLASS ALL STACK', $                                   ;
+                 TITLE = 0, $                                                  ;
                  ULIMS=ulims, LABEL=label, OUTFILE=fnplmzrstack, SATURATE=1, $     ;
                  FITINFO=fitinfo, $                                                ;
                  SHOWST14PT=1, SHOWST14TR=0, SHOWSA14=1, $                         ;
                  SHOWMEAN=1, MEANMASS=meanmass, MEANN2=meann2, $                   ;
-                 SHOWMED=1, MEDMASS=medmass, MEDN2=medn2, $ 
-                 SHOWERB06PTS=1, SHOWERB06TREND=0, SHOWTR04=1) ;plot mzr
+                 SHOWMED=1, MEDMASS=medmass, MEDN2=medn2, $                        ;
+                 SHOWERB06PTS=1, SHOWERB06TREND=0, SHOWTR04=1)                     ;plot mzr
 
 END
 ;====================================================================================================
