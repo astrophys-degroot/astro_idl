@@ -1,5 +1,5 @@
 ;====================================================================================================
-FUNCTION equalbins, xarray, REVERSE=reverse, NINBIN=ninbin, INCENDS=incends
+FUNCTION equalbins, xarray, REVERSE=reverse, NINBIN=ninbin, ABSORBLAST=absorblast, INCENDS=incends
 
   IF keyword_set(REVERSE) THEN reverse = fix(reverse[0]) ELSE reverse = 1 ;set default
   IF keyword_set(NINBIN) THEN ninbin = fix(ninbin[0]) ELSE ninbin = 20    ;set default
@@ -20,6 +20,8 @@ FUNCTION equalbins, xarray, REVERSE=reverse, NINBIN=ninbin, INCENDS=incends
      IF (((cnt+1)*ninbin) GT nxarray) THEN iter = 0                                            ;
      cnt = cnt + 1                                                                             ;
   ENDWHILE                                                                                     ;end working
+
+  IF keyword_set(ABSORBLAST) THEN bins = bins[0:n_elements(bins)-fix(absorblast[0])-1] ;if you want to meld last bins together
 
   IF keyword_set(INCENDS) THEN bins = [xarray[0], bins, xarray[-1]] ;include end points if desired
   
