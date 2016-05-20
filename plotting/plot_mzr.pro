@@ -303,7 +303,7 @@ function PLOT_MZR, mass, metalrule, CLMEM=clmem, NS=ns, $ ;, DEMETALLICITY=dmeta
         tmpfield = where(fieldind EQ -1, COMPLEMENT=tmpfieldul) ;find real and upper limits
         fieldul = field[tmpfieldul]                             ;get actual indices
         field = field[tmpfield]                                 ;get actual indices
-     ENDIF                                                      ;end if sorted by environment
+     ENDIF ELSE fieldul = [-1]                                  ;end if sorted by environment
 
   ENDIF ELSE BEGIN              ;end upper limits keyword set
      clul = [-1]                ;null array
