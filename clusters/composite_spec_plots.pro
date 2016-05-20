@@ -64,7 +64,7 @@ FUNCTION STACKSPEC1xn, xdata, xoptions, YMIN=ymin, YMAX=ymax, FILENAME=filename,
   ENDFOR
 
   ;titletext = text(0.30,0.95,'KEMCLASS Stacked Spectra', FONT_SIZE=16)
-  xaxtext = text(0.30,0.065,'Rest Frame Wavelength [$\AA$]', FONT_SIZE=16)
+  xaxtext = text(0.30,0.035,'Rest Frame Wavelength [$\AA$]', FONT_SIZE=16)
   yaxtext = text(0.035,0.36,'Flux [arbitrary units]', FONT_SIZE=16, ORIENTATION=90)
  
   specplot1.save, filename, RESOLUTION=1200
