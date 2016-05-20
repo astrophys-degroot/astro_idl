@@ -1159,7 +1159,6 @@ PRO mzranalysis::plotspecstack, SUBSET=subset, INDIR=indir, USEFULLERR=usefuller
 
   COMPILE_OPT idl2
   
-  IF keyword_set(SUBSET) THEN subset = (string(subset)) ELSE subset = *self.subset          ;set default
   IF keyword_set(INDIR) THEN indir = strlowcase(string(indir[0])) ELSE indir = self.dirsort ;set default
   fnplspecstack = strcompress(indir + self.fnplspecstack, /REMOVE_ALL)                      ;set default
   composite_spec_plots
@@ -1169,29 +1168,32 @@ PRO mzranalysis::plotspecstack, SUBSET=subset, INDIR=indir, USEFULLERR=usefuller
   self.valsclmem = ptr_new(data[envbins].(self.indsclmem))                     ;store those values
   envbins = n_elements(envbins)                                                ;find number of those values
 
-;END
-;PRO mzranalysis::storage
-  specs = strarr(envbins, ceil(n_elements(subset)/float(envbins)))
-  checking = ['A','B','C','D','E','F','G','H','I','J','K','L','M', $
-              'N','O','P','Q','R','S','T','U','V','W','X','Y','Z']
-  count = 0
-  keepup = 0
-  FOR xx=0, n_elements(subset)-1, 1 DO BEGIN
-     chk = checking[count+keepup] EQ subset[count]
-     IF chk EQ 1 THEN BEGIN
-        specs[count+keepup] = subset[xx]
-     ENDIF ELSE BEGIN
-        WHILE chk EQ 0 DO BEGIN
-           specs[count+keepup] = 'EMPTY'
-           chk = checking[count+keepup] EQ subset[count]
-           IF chk NE 1 THEN keepup = keepup + 1 ELSE specs[count+keepup] = subset[count]
-        ENDWHILE
-     ENDELSE
-     count = count + 1
-  ENDFOR
-  specs = transpose(specs)
+  IF keyword_set(SUBSET) THEN BEGIN
+     subset = (string(subset)) 
+     specs = subset
+  ENDIF ELSE BEGIN
+     subset = *self.subset      ;set default
+     specs = strarr(envbins, ceil(n_elements(subset)/float(envbins)))
+     checking = ['A','B','C','D','E','F','G','H','I','J','K','L','M', $
+                 'N','O','P','Q','R','S','T','U','V','W','X','Y','Z']
+     count = 0
+     keepup = 0
+     FOR xx=0, n_elements(subset)-1, 1 DO BEGIN
+        chk = checking[count+keepup] EQ subset[count]
+        IF chk EQ 1 THEN BEGIN
+           specs[count+keepup] = subset[xx]
+        ENDIF ELSE BEGIN
+           WHILE chk EQ 0 DO BEGIN
+              specs[count+keepup] = 'EMPTY'
+              chk = checking[count+keepup] EQ subset[count]
+              IF chk NE 1 THEN keepup = keepup + 1 ELSE specs[count+keepup] = subset[count]
+           ENDWHILE
+        ENDELSE
+        count = count + 1
+     ENDFOR
+     specs = transpose(specs)
+  ENDELSE
   
-
   ;;;set default values
   options = {FILE:'hithere', AUXFILE:'hithere2', NWIN:1, WEPSILON:750.0, $
              bcgrasex:'', bcgdecsex:'', bcgradeg:0.0D, bcgdecdeg:0.0D, $
@@ -1398,12 +1400,12 @@ PRO mzranalysis::plotmzrstack, STACKDATA=stackdata, FNPLMZRSTACK=fnplmzrstack, I
 
   ;;;deal with cluster membership flag
   clmem = data.(self.indsclmem)
-  clmem[*] = 0
+                                ;clmem[*] = 0 ;undo this if you want to look at perturb points
 
 
   chk = plot_mzr(data.(self.indsmass), 'N2', N2RULE='PP04', $                      ;cont next line
                  HAFLUX=data.(self.indshaflux), NIIFLUX=data.(self.indsniiflux), $ ;
-                 STACK=0, $                                                        ;set to 0 if you want to look at pertrubation results
+                 STACK=1, $                                                        ;set to 0 if you want to look at pertrubation results
                  CLMEM=clmem, $                                                    ;
                  EMASS=masserr, $                                                  ; 
                  NS=data.(self.indsninbin), $                                      ;
@@ -1593,7 +1595,8 @@ FUNCTION mzranalysis::init, CURCAT=curcat, DIRCURCAT=dircurcat, DIRSTACK=dirstac
   working = self.workingon(self.dirsort, self.sortcat, self.compcat, self.compsumcat, self.bootcat, self.bootsumcat)
   IF (working NE 1) THEN stop
   
-  IF keyword_set(NIIFLAGUL) THEN self.niiflagul = string(niiflagul[0]) ELSE self.niiflagul = 32 ;
+  ;;;currently [NII] must be at least 3sigma to not be an upper limit, set to 32 for 5sigma
+  IF keyword_set(NIIFLAGUL) THEN self.niiflagul = string(niiflagul[0]) ELSE self.niiflagul = 64 
 
 
 
