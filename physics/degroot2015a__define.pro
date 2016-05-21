@@ -92,6 +92,7 @@ PRO degroot2015a::sample, infile, outfile, REMTAGS=remtags, TGRA=tgra, TGDEC=tgd
   IF keyword_set(TGPOSSIBLE) THEN tgpossible = string(tgpossible[0]) ELSE tgpossible = 'SP_M_QFLAG_MOSFIRE' ;set default value
   IF keyword_set(POSSMIN) THEN possmin = float(possmin[0]) ELSE possmin = 0                                 ;set default value
   IF keyword_set(POSSMAX) THEN possmax = float(possmax[0]) ELSE possmax = 3                                 ;set default value 
+  IF keyword_set(N2AGNLIM) THEN n2agnlim = float(n2agnlim[0]) ELSE n2agnlim = -0.2                          ;set default value 
 
   
   ;;;read in catalog
@@ -273,8 +274,17 @@ PRO degroot2015a::sample, infile, outfile, REMTAGS=remtags, TGRA=tgra, TGDEC=tgd
   ;ENDIF                         ;end check variables set
 
 
- 
+  ;;;cut on N2 value for AGN removal
+  IF (keyword_set(TGHAFLUX) AND keyword_set(TGNIIFLUX)) THEN BEGIN                                     ;check variables set
+     chk = tag_exist(xdata, tghaflux, INDEX=indhaflux)                                                 ;find necessary tag
+     chk = tag_exist(xdata, tgniiflux, INDEX=indniiflux)                                               ;find necessary tag
+     IF ((indhaflux NE -1) AND (indniiflux NE -1)) THEN BEGIN                                          ;if tag is found
+        n2agn = where(alog10(xdata.(indniiflux)/xdata.(indhaflux)) LT n2agnlim, NCOMPLEMENT=lostn2agn) ;find real
+        xdata = xdata[n2agn]                                                                           ;cut the data
+     ENDIF                                                                                             ;end tag found
+  ENDIF                                                                                                ;end check variables set
 
+  
   ;;;keep unique values only
   started = n_elements(xdata)
   sorted = sort(xdata.sp_m_obj)
@@ -302,6 +312,7 @@ PRO degroot2015a::sample, infile, outfile, REMTAGS=remtags, TGRA=tgra, TGDEC=tgd
   print, '    Number of entries lost by spec-z discrepancy: ', lostspzdiff         ;print info
   print, '    Number of entries lost by RA, Dec cleaning: ', lostradec             ;print info
   print, '    Number of entries lost by demanding uniqueness: ', lostuniq          ;print info
+  print, '    Number of entries lost by N2 AGN cut: ', lostn2agn                   ;print info
                                 ;print, '    Number of entries lost by spec-z quality flag: ', lostspzflag1       ;print info
   print, '%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%' ;eye catcher
   print, ' '                                                                       ;spacer
@@ -696,25 +707,30 @@ PRO degroot2015a::runmzranalysis, xsubset
 
 
   IF xsubset.binset EQ 'all' THEN alltog = 1 ELSE alltog = 0
-
+  stackdata = mrdfits('/Users/adegroot/research/clusters/combination/spectroscopy/stacks/' + $
+                      'clfour/smcurrent/all/highq/MOSFIRE_compsum_clfour_smcurrent_all_highq_v3-6-1.fits', 1, hdr)
+  
   run = obj_new('mzranalysis', CURCAT=xsubset.catalog, WORKING=xsubset.name)                    ;make analysis object
   run.readcat, xsubset.catalog, INDIR='/Users/adegroot/research/clusters/combination/catalogs/' ;read in data 
   run.findtags                                                                                  ;find all the tags we need
   IF xsubset.mcmass GT 1 THEN newmass = run.mcmass(xsubset.mcmass, WHICH=2)                     ;get perturbed masses
-                                ;run.plotmzrindiv, ALLTOG=alltog, LABEL=0                                                      ;plot individual points
-                                ;run.plotbpt, /NOIRAGN        ;plot sudo-BPT points, run with v1-0-1 of catalog!!!
+  run.plotmzrindiv, ALLTOG=alltog, LABEL=0                                                      ;plot individual points
+                                ;run.plotbpt, /NOIRAGN                                                                         ;plot sudo-BPT points, run with v1-0-1 of catalog!!!
                                 ;run.plotiragn                 ;plot Donley 2012 IR AGN selection, run with v1-0-0 of catalog!!!
+  stop
   run.makebins, BINSET=xsubset.binset, NINBIN=xsubset.ninbin ;find mass bin sizes
   run.specsort                                               ;sort data into bins
   run.findstats                                              ;find stats for bins
-                                ;run.specstack, SM=xsubset.sm                                                                  ;stack spectra
-                                ;run.collatespecstack, /STACKSPEC                                                              ;stack spectra
-  run.readstack                 ;read in the mzr stack data
+  ;run.specstack, SM=xsubset.sm                               ;stack spectra
+  run.collatespecstack, /STACKSPEC                           ;stack spectra
+  run.readstack, STACKFILE=0                                 ;read in the mzr stack data
+                                ;run.readstack, STACKFILE = 'MOSFIRE_comp_clfour_smcurrent_envtwo_highq_v3-6-1_each.fits' ;read in the mzr stack data
   run.findstacktags             ;find all the tags we need
-                                ;run.plotspecstack                                                                             ;plot the stacked spectra
-                                ;run.fitmzrstack, WHICH=xsubset.fitmzr, /SAVE, /STARTOVER                                      ;fit the stack measured MZR
-                                ;run.plotmzrstack, /SHOWFIT                                                                    ;plot the stacked MZR
-                                ;stop
+  run.buildperturb
+  run.plotspecstack, USEFULLERR=1                          ;, SUBSET=['A','C','E','G','I','K','M','O','Q'] ;plot the stacked spectra
+  run.fitmzrstack, WHICH=xsubset.fitmzr, /SAVE, /STARTOVER ;fit the stack measured MZR
+  run.plotmzrstack, /SHOWFIT, SHOWMED=0, SHOWMEAN=0        ;plot the stacked MZR
+  ;stop
 
   FOR ww=1, xsubset.mcmass-1, 1 DO BEGIN                       ;loop over monte carlo mass errors
      run.storenew, MASSES=newmass[*,ww]                        ;set in new masses
@@ -722,18 +738,15 @@ PRO degroot2015a::runmzranalysis, xsubset
      run.binbootstrap, xsubset.ninbin                          ;bootstrap resample each mass bin
      run.specstack, SM=xsubset.sm, /BOOTSTRAP, /PERTURB        ;stack spectra
      run.collatespecstack, /ACTUALSPEC, /STACKSPEC, /SUMMATION ;stack spectra
-     ;run.readstack                                             ;read in the mzr stack data
-     ;run.findstacktags                                         ;find all the tags we need
-     ;run.fitmzrstack, WHICH=xsubset.fitmzr, /SAVE              ;fit the stack measured MZR
-  ENDFOR                                                       ;end monte carlo mass errors
+                                ;run.readstack                                             ;read in the mzr stack data
+                                ;run.findstacktags                                         ;find all the tags we need
+                                ;run.fitmzrstack, WHICH=xsubset.fitmzr, /SAVE              ;fit the stack measured MZR
+  ENDFOR                        ;end monte carlo mass errors
 
 
   ;;;post mass perturbation stuff
-  stackdata = mrdfits('/Users/adegroot/research/clusters/combination/spectroscopy/stacks/' + $
-                      'clfour/smcurrent/all/highq/MOSFIRE_compsum_clfour_smcurrent_all_highq_v3-6-1.fits', 1, hdr)
-  run.plotmzrstack, STACKDATA=stackdata ;plot the stacked MZR
-  run.buildperturb
-  run.plotspecstack, /USEFULLERR
+                                 ;run.plotmzrstack, STACKDATA=stackdata ;plot the stacked MZR
+                                ;run.plotspecstack, /USEFULLERR
 
 
 
@@ -758,9 +771,9 @@ PRO degroot2015a::workingon, subset, CATALOG=catalog, BINSET=binset
           {name:'seven', catalog:'kemclass_pz_specz_v0-8-2.fits', BINSET:'cluster', NINBIN:14, SM:'smcurrent', FITMZR:'tr04', MCMASS:1}, $ 
           {name:'eight', catalog:'kemclass_pz_specz_v0-8-3.fits', BINSET:'field', NINBIN:20, SM:'smcurrent', FITMZR:'tr04', MCMASS:1}, $
           {name:'nine', catalog:'kemclass_pz_specz_v0-8-3.fits', BINSET:'cluster', NINBIN:14, SM:'smcurrent', FITMZR:'tr04', MCMASS:1}, $ 
-          {name:'onezero', catalog:'kemclass_pz_specz_v1-1-1.fits', BINSET:'all', NINBIN:24, SM:'smcurrent', FITMZR:'tr04', MCMASS:1}, $ 
-          {name:'oneone', catalog:'kemclass_pz_specz_v1-1-1.fits', BINSET:'cluster', NINBIN:21, SM:'smcurrent', FITMZR:'tr04', MCMASS:1}, $ 
-          {name:'onetwo', catalog:'kemclass_pz_specz_v1-1-1.fits', BINSET:'field', NINBIN:19, SM:'smcurrent', FITMZR:'tr04', MCMASS:1} ] 
+          {name:'onezero', catalog:'kemclass_pz_specz_v1-2-0.fits', BINSET:'all', NINBIN:24, SM:'smcurrent', FITMZR:'tr04', MCMASS:1}, $ 
+          {name:'oneone', catalog:'kemclass_pz_specz_v1-1-1_cl.fits', BINSET:'cluster', NINBIN:21, SM:'smcurrent', FITMZR:'tr04', MCMASS:1}, $ 
+          {name:'onetwo', catalog:'kemclass_pz_specz_v1-1-1.fits', BINSET:'field', NINBIN:20, SM:'smcurrent', FITMZR:'tr04', MCMASS:1}] 
   
 
   chk = where(sets.name EQ strlowcase(string(subset[0])))
