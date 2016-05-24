@@ -360,7 +360,7 @@ PRO degroot2015a::fitmzrtrend, which, OPTION=option
 
   ;;;grab the data
   thatart = obj_new(which)
-  thatart.boxscore
+  thatart.boxscore              ;this load the data
   CASE which of
      'erb2006' :  mzrdata = *thatart.e06mzrdata
      'sanders2014' : BEGIN
@@ -377,25 +377,13 @@ PRO degroot2015a::fitmzrtrend, which, OPTION=option
            ELSE : mzrdata = *thatart.st14mzrdata
         ENDCASE
      END
-     'cullen2015' : BEGIN
-        CASE OPTION OF
-           1 : mzrdata = *thatart.cu15R23data
-           ELSE : mzrdata = *thatart.cu15mzrdata
-        ENDCASE
-     END
      'maiolino2008' : BEGIN
         CASE OPTION OF
            1 : mzrdata = *thatart.ma08R23data
            ELSE : mzrdata = *thatart.ma08mzrdata
         ENDCASE
      END
-     'zahid2014' : BEGIN
-        CASE OPTION OF
-           1 : mzrdata = *thatart.za14N2data
-           ELSE : mzrdata = *thatart.za14mzrdata
-        ENDCASE
-     END
-     'yabe2012' : BEGIN
+    'yabe2012' : BEGIN
         CASE OPTION OF
            1 : mzrdata = *thatart.ya12N2data
            2 : mzrdata = *thatart.ya12O3N2data
@@ -406,6 +394,25 @@ PRO degroot2015a::fitmzrtrend, which, OPTION=option
         CASE OPTION OF
            1 : mzrdata = *thatart.za12R23data
            ELSE : mzrdata = *thatart.za12mzrdata
+        ENDCASE
+     END
+     'wuyts2014' : BEGIN
+        CASE OPTION OF
+           1 : mzrdata = *thatart.wu14N2data_z09
+           2 : mzrdata = *thatart.wu14N2data_z23
+           ELSE : mzrdata = *thatart.wu14mzrdata_09
+        ENDCASE
+     END
+     'zahid2014' : BEGIN
+        CASE OPTION OF
+           1 : mzrdata = *thatart.za14N2data
+           ELSE : mzrdata = *thatart.za14mzrdata
+        ENDCASE
+     END
+    'cullen2015' : BEGIN
+        CASE OPTION OF
+           1 : mzrdata = *thatart.cu15R23data
+           ELSE : mzrdata = *thatart.cu15mzrdata
         ENDCASE
      END
 
@@ -437,7 +444,7 @@ PRO degroot2015a::mzrtrend, INCLUDEFIT=includefit
   universeage = 13.8
   data = [{name:'This Work', xval:1.62, exvalm:0.3, exvalp:0.1, yval:-0.39, eyvalm:0.016, eyvalp:0.017, multiline:0, mzr:'N2', cl:0, symcolor:'green'}, $
           {name:'Tremonti 04', xval:0.00001, exvalm:0.00001, exvalp:0.00001, yval:0.0, eyvalm:0.01, eyvalp:0.01, multiline:1, mzr:'R23', cl:0, symcolor:'black'}, $
-          {name:'Erb 06', xval:2.26, exvalm:0.17, exvalp:0.17, yval:-0.56, eyvalm:0.028, eyvalp:0.027, multiline:0, mzr:'N2', cl:0, symcolor:'teal'}, $
+          {name:'Erb 06', xval:2.26, exvalm:0.17, exvalp:0.17, yval:-0.56, eyvalm:0.028, eyvalp:0.027, multiline:0, mzr:'N2', cl:0, symcolor:'aquamarine'}, $
           {name:'Maiolino 08', xval:3.35, exvalm:0.35, exvalp:0.35, yval:-0.76, eyvalm:0.25, eyvalp:0.30, multiline:1, mzr:'R23', cl:0, symcolor:'blue'}, $
           {name:'Yabe 12', xval:1.4, exvalm:0.2, exvalp:0.2, yval:-0.518, eyvalm:0.025, eyvalp:0.030, multiline:0, mzr:'N2', cl:0, symcolor:'tan'}, $
           {name:'Zahid 12', xval:0.78, exvalm:0.03, exvalp:0.04, yval:-0.475, eyvalm:0.05, eyvalp:0.05, multiline:1, mzr:'R23', cl:0, symcolor:'olive'}, $
@@ -446,6 +453,8 @@ PRO degroot2015a::mzrtrend, INCLUDEFIT=includefit
           {name:'Sanders 14', xval:2.3, exvalm:0.21, exvalp:0.31, yval:-0.67, eyvalm:0.023, eyvalp:0.025, multiline:1, mzr:'O3N2', cl:0, symcolor:'magenta'}, $
           {name:'Steidel 14', xval:2.3, exvalm:0.35, exvalp:0.35, yval:-0.55, eyvalm:0.017, eyvalp:0.017, multiline:1, mzr:'N2', cl:0, symcolor:'orange'}, $
           {name:'Steidel 14', xval:2.3, exvalm:0.35, exvalp:0.35, yval:-0.68, eyvalm:0.011, eyvalp:0.011, multiline:1, mzr:'O3N2', cl:0, symcolor:'orange'}, $
+          {name:'Wuyts 14', xval:0.9, exvalm:0.15, exvalp:0.15, yval:-0.43, eyvalm:0.020, eyvalp:0.020, multiline:0, mzr:'N2', cl:0, symcolor:'deep sky blue'}, $
+          {name:'Wuyts 14', xval:2.3, exvalm:0.15, exvalp:0.15, yval:-0.63, eyvalm:0.022, eyvalp:0.022, multiline:0, mzr:'N2', cl:0, symcolor:'deep sky blue'}, $
           {name:'Zahid 14', xval:1.55, exvalm:0.15, exvalp:0.15, yval:-0.45, eyvalm:0.008, eyvalp:0.01, multiline:1, mzr:'N2', cl:0, symcolor:'pink'}, $
           {name:'Cullen 15', xval:2.16, exvalm:0.16, exvalp:0.14, yval:-0.63, eyvalm:0.04, eyvalp:0.04, multiline:0, mzr:'R23', cl:0, symcolor:'red'}, $
           {name:'This Work', xval:1.62, exvalm:0.3, exvalp:0.1, yval:-0.39, eyvalm:0.016, eyvalp:0.017, multiline:0, mzr:'N2', cl:0, symcolor:'green'}]
@@ -621,9 +630,6 @@ PRO degroot2015a::mzrtrend, INCLUDEFIT=includefit
 
 
 
-
-  ;myplot.save, 'mzrtrend_v0-1.jpeg', RESOLUTION=600 ;save plot
-
  
 
 END
@@ -707,17 +713,21 @@ PRO degroot2015a::runmzranalysis, xsubset
 
 
   IF xsubset.binset EQ 'all' THEN alltog = 1 ELSE alltog = 0
+  ;stackdata = mrdfits('/Users/adegroot/research/clusters/combination/spectroscopy/stacks/' + $
+  ;                    'clfour/smcurrent/all/highq/MOSFIRE_compsum_clfour_smcurrent_all_highq_v3-6-1.fits', 1, hdr)
   stackdata = mrdfits('/Users/adegroot/research/clusters/combination/spectroscopy/stacks/' + $
-                      'clfour/smcurrent/all/highq/MOSFIRE_compsum_clfour_smcurrent_all_highq_v3-6-1.fits', 1, hdr)
+                      'clfour/smcurrent/envtwo/highq/cluster/MOSFIRE_compsum_clfour_smcurrent_envtwo_highq_v3-6-1.fits', 1, hdr)
+  ;stackdata = mrdfits('/Users/adegroot/research/clusters/combination/spectroscopy/stacks/' + $
+  ;                    'clfour/smcurrent/envtwo/highq/field/MOSFIRE_compsum_clfour_smcurrent_envtwo_highq_v3-6-1.fits', 1, hdr)
   
   run = obj_new('mzranalysis', CURCAT=xsubset.catalog, WORKING=xsubset.name)                    ;make analysis object
   run.readcat, xsubset.catalog, INDIR='/Users/adegroot/research/clusters/combination/catalogs/' ;read in data 
   run.findtags                                                                                  ;find all the tags we need
   IF xsubset.mcmass GT 1 THEN newmass = run.mcmass(xsubset.mcmass, WHICH=2)                     ;get perturbed masses
   run.plotmzrindiv, ALLTOG=alltog, LABEL=0                                                      ;plot individual points
-                                ;run.plotbpt, /NOIRAGN                                                                         ;plot sudo-BPT points, run with v1-0-1 of catalog!!!
-                                ;run.plotiragn                 ;plot Donley 2012 IR AGN selection, run with v1-0-0 of catalog!!!
   stop
+                                ;run.plotbpt, /NOIRAGN  ;plot sudo-BPT points, run with v1-0-1 of catalog!!!
+                                ;run.plotiragn  ;plot Donley 2012 IR AGN selection, run with v1-0-0 of catalog!!!
   run.makebins, BINSET=xsubset.binset, NINBIN=xsubset.ninbin ;find mass bin sizes
   run.specsort                                               ;sort data into bins
   run.findstats                                              ;find stats for bins
@@ -727,10 +737,13 @@ PRO degroot2015a::runmzranalysis, xsubset
                                 ;run.readstack, STACKFILE = 'MOSFIRE_comp_clfour_smcurrent_envtwo_highq_v3-6-1_each.fits' ;read in the mzr stack data
   run.findstacktags             ;find all the tags we need
   run.buildperturb
-  run.plotspecstack, USEFULLERR=1                          ;, SUBSET=['A','C','E','G','I','K','M','O','Q'] ;plot the stacked spectra
+  ;run.plotspecstack, USEFULLERR=1                          ;plot the stacked spectra
+  run.plotspecstack, USEFULLERR=1, SUBSET=['B','D','F']    ;plot the stacked spectra
+                                ;run.plotspecstack, USEFULLERR=1, SUBSET=['A','C','E','G','I','K'] ;plot the stacked spectra
   run.fitmzrstack, WHICH=xsubset.fitmzr, /SAVE, /STARTOVER ;fit the stack measured MZR
-  run.plotmzrstack, /SHOWFIT, SHOWMED=0, SHOWMEAN=0        ;plot the stacked MZR
-  ;stop
+  run.plotmzrstack, SHOWFIT=1, SHOWMED=0, SHOWMEAN=0        ;plot the stacked MZR
+  run.plotmzrstack, STACKDATA=stackdata, PERTURB=1          ;plot the stacked MZR
+  stop
 
   FOR ww=1, xsubset.mcmass-1, 1 DO BEGIN                       ;loop over monte carlo mass errors
      run.storenew, MASSES=newmass[*,ww]                        ;set in new masses
@@ -745,7 +758,6 @@ PRO degroot2015a::runmzranalysis, xsubset
 
 
   ;;;post mass perturbation stuff
-                                 ;run.plotmzrstack, STACKDATA=stackdata ;plot the stacked MZR
                                 ;run.plotspecstack, /USEFULLERR
 
 
@@ -771,9 +783,9 @@ PRO degroot2015a::workingon, subset, CATALOG=catalog, BINSET=binset
           {name:'seven', catalog:'kemclass_pz_specz_v0-8-2.fits', BINSET:'cluster', NINBIN:14, SM:'smcurrent', FITMZR:'tr04', MCMASS:1}, $ 
           {name:'eight', catalog:'kemclass_pz_specz_v0-8-3.fits', BINSET:'field', NINBIN:20, SM:'smcurrent', FITMZR:'tr04', MCMASS:1}, $
           {name:'nine', catalog:'kemclass_pz_specz_v0-8-3.fits', BINSET:'cluster', NINBIN:14, SM:'smcurrent', FITMZR:'tr04', MCMASS:1}, $ 
-          {name:'onezero', catalog:'kemclass_pz_specz_v1-2-0.fits', BINSET:'all', NINBIN:24, SM:'smcurrent', FITMZR:'tr04', MCMASS:1}, $ 
-          {name:'oneone', catalog:'kemclass_pz_specz_v1-1-1_cl.fits', BINSET:'cluster', NINBIN:21, SM:'smcurrent', FITMZR:'tr04', MCMASS:1}, $ 
-          {name:'onetwo', catalog:'kemclass_pz_specz_v1-1-1.fits', BINSET:'field', NINBIN:20, SM:'smcurrent', FITMZR:'tr04', MCMASS:1}] 
+          {name:'onezero', catalog:'kemclass_pz_specz_v1-2-0.fits', BINSET:'all', NINBIN:26, SM:'smcurrent', FITMZR:'tr04', MCMASS:1}, $ 
+          {name:'oneone', catalog:'kemclass_pz_specz_v1-2-0.fits', BINSET:'cluster', NINBIN:16, SM:'smcurrent', FITMZR:'tr04', MCMASS:1}, $ 
+          {name:'onetwo', catalog:'kemclass_pz_specz_v1-2-0_field.fits', BINSET:'field', NINBIN:25, SM:'smcurrent', FITMZR:'tr04', MCMASS:1}] 
   
 
   chk = where(sets.name EQ strlowcase(string(subset[0])))
