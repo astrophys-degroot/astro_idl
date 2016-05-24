@@ -257,43 +257,20 @@ FUNCTION specstack::perturb, xmyout, TPERTURB=tperturb, SIGMA=sigma, NPTS=npts
   CASE tperturb OF 
      1 : BEGIN
         bump = 1928
-        ;help, xmyout, /STRUC
-        ;print, n_elements(xmyout)
         unifdevs = uniformran(n_elements(xmyout[0].spec1d), n_elements(xmyout))
-        ;help, unifdevs
         FOR ii=0, n_elements(xmyout)-1, 1 DO BEGIN
-           ;print, ii
-           ;help, xmyout[ii].(1)
-           ;print, xmyout[ii].spec1d
            perthere = where(abs(xmyout[ii].spec1d) GT 0.0001 AND abs(xmyout[ii].spec1dwei) GT 0.0001)
            IF perthere[0] NE -1 THEN BEGIN
-              ;print, 'something to do '
-              ;myplot = plot(xmyout[ii].lambdas, xmyout[ii].spec1d, 'b')
-              
               FOR jj=0, n_elements(perthere)-1, 1 DO BEGIN
-                 ;print, xmyout[ii].spec1d[perthere[jj]], xmyout[ii].spec1dwei[perthere[jj]]
                  low =  xmyout[ii].spec1d[perthere[jj]] - sigma*xmyout[ii].spec1dwei[perthere[jj]]
                  high =  xmyout[ii].spec1d[perthere[jj]] + sigma*xmyout[ii].spec1dwei[perthere[jj]]
-                 ;print,  low, xmyout[ii].spec1d[perthere[jj]], high
                  xs = (high-low)/npts * indgen(npts+1) + low
                  cdf = 0.5 + 0.5 * erf((xs-xmyout[ii].spec1d[perthere[jj]]) / (1.414214*xmyout[ii].spec1dwei[perthere[jj]]))
-                 ;print, abs(unifdevs[jj,ii]-cdf)
-                 ;print, min(abs(unifdevs[jj,ii]-cdf))
-                 themin = min(abs(unifdevs[jj,ii]-cdf), minind)
-                 ;print, minind, xs[minind]
- 
+                 themin = min(abs(unifdevs[jj,ii]-cdf), minind) 
                  xmyout[ii].spec1d[perthere[jj]] = xs[minind]
-
-                 ;stop
               ENDFOR
- 
-
-              ;myplot = plot(xmyout[ii].lambdas, xmyout[ii].spec1d, 'g', /OVERPLOT)
            ENDIF
-           ;stop
         ENDFOR
-
-        ;stop
      END
      ELSE : BEGIN
         print, 'Perturbation type not understood'
