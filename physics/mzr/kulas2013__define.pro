@@ -95,16 +95,16 @@ PRO kulas2013::boxscore
   self.ku13zclmax = 2.3096                       ;minimum redshift
   self.ku13zmin = 2.19                           ;minimum redshift
   self.ku13zmax = 2.50                           ;maximum redshift
-  self.ku13N2cldata = ptr_new({xsmod:[9.95,10.62], $ ;
-                               xs:[0.89E10,4.15E10], $     
+  self.ku13N2cldata = ptr_new({xsmod:[9.95, 10.62], $ ;
+                                ;xs:[0.89E10, 4.15E10], $     
                                 ;xserr:[], $       ;
                                xserrmodn:[0.5,0.4], $   ;
                                xserrmodp:[0.2,0.4], $   ;
                                xserrmod:[0.35,0.4], $   ;
-                               yspre:[], $              ;just [NII]/Halpha
-                               yspreerrn:[], $          ;
-                               yspreerrp:[], $          ;
-                               yspreerr:[], $           ;
+                                ;yspre:[], $              ;just [NII]/Halpha
+                                ;yspreerrn:[], $          ;
+                                ;yspreerrp:[], $          ;
+                                ;yspreerr:[], $           ;
                                ys:[8.40, 8.40], $       ;
                                yserrn:[0.2,0.1], $      ;
                                yserrp:[0.2,0.1], $      ;
@@ -112,38 +112,39 @@ PRO kulas2013::boxscore
                                ul:[0,0], $              ;
                                ngal:[11,12] })          ;
   self.ku13N2fielddata = ptr_new({xsmod:[9.91,10.66], $ ;
-                                  xs:[0.82E10,4.53E10], $     
+                                ;xs:[0.82E10,4.53E10], $     
                                 ;xserr:[], $       ;
                                   xserrmodn:[0.3,0.5], $ ;
                                   xserrmodp:[0.2,0.7], $ ;
                                   xserrmod:[0.25,0.6], $ ;
-                                  yspre:[], $            ;just [NII]/Halpha
-                                  yspreerrn:[], $        ;
-                                  yspreerrp:[], $        ;
-                                  yspreerr:[], $         ;
-                                  ys:[8.25, 8.41], $     ;
-                                  yserrn:[0.1,0.2], $    ;
-                                  yserrp:[0.1,0.2], $    ;
-                                  yserr:[0.1,0.2], $     ;
-                                  ul:[0,0], $            ;
-                                  ngal:[10,10] })        ;
+                                ;yspre:[], $            ;just [NII]/Halpha
+                                ;yspreerrn:[], $        ;
+                                ;yspreerrp:[], $        ;
+                                ;yspreerr:[], $         ;
+                                  ys:[8.25, 8.41], $  ;
+                                  yserrn:[0.1,0.2], $ ;
+                                  yserrp:[0.1,0.2], $ ;
+                                  yserr:[0.1,0.2], $  ;
+                                  ul:[0,0], $         ;
+                                  ngal:[10,10] })     ;
 
-  self.ku13mzrdata = ptr_new({xsmod:[9.95,10.62], $ ;
-                              xs:[0.89E10,4.15E10], $     
+  self.ku13mzrdata = ptr_new({xsmod:[9.95,10.62,9.91,10.66], $  ;
+                                ;xs:[0.89E10,4.15E10], $     
                                 ;xserr:[], $       ;
-                              xserrmodn:[0.5,0.4], $  ;
-                              xserrmodp:[0.2,0.4], $  ;
-                              xserrmod:[0.35,0.4], $  ;
-                              yspre:[], $             ;just [NII]/Halpha
-                              yspreerrn:[], $         ;
-                              yspreerrp:[], $         ;
-                              yspreerr:[], $          ;
-                              ys:[8.40, 8.40], $      ;
-                              yserrn:[0.2,0.1], $     ;
-                              yserrp:[0.2,0.1], $     ;
-                              yserr:[0.2,0.1], $      ;
-                              ul:[0,0], $             ;
-                              ngal:[11,12] })         ;
+                              xserrmodn:[0.5,0.4,0.3,0.5], $ ;
+                              xserrmodp:[0.2,0.4,0.2,0.7], $ ;
+                              xserrmod:[0.35,0.4,0.25,0.6], $ ;
+                                ;yspre:[], $             ;just [NII]/Halpha
+                                ;yspreerrn:[], $         ;
+                                ;yspreerrp:[], $         ;
+                                ;yspreerr:[], $          ;
+                              ys:[8.40,8.40,8.25,8.41], $  ;
+                              yserrn:[0.2,0.1,0.1,0.2], $ ;
+                              yserrp:[0.2,0.1,0.1,0.2], $ ;
+                              yserr:[0.2,0.1,0.1,0.2], $  ;
+                              ul:[0,0,0,0], $         ;
+                              cl:[1,1,0,0], $         ;
+                              ngal:[11,12,10,10] })   ;
   
   
 END
@@ -153,7 +154,8 @@ END
 ;====================================================================================================
 PRO kulas2013::cleanup
 
-  ptr_free, self.ku13N2data 
+  ptr_free, self.ku13N2cldata 
+  ptr_free, self.ku13N2fielddata
   ptr_free, self.ku13mzrdata
 
   RETURN
@@ -175,10 +177,11 @@ END
 PRO kulas2013__define
 
   void = {kulas2013, ku13objver:'A', $
-          ku13sampsize:0, ku13zmin:0.0, ku13zmax:0.0, $
+          ku13sampsize:0, ku13clsampsize:0, ku13fieldsampsize:0, $
+          ku13zcl:0.0, ku13zclmin:0.0, ku13zclmax:0.0, ku13zmin:0.0, ku13zmax:0.0, $
           ku13IMF:'A', ku13SEDfit:'A', ku13SEDmodels:'A', ku13mzrtype:'A', ku13mzrconvert:'A', $
           ku13selection:'A', $
-          ku13N2data:ptr_new(), ku13mzrdata:ptr_new()}
+          ku13N2cldata:ptr_new(), ku13N2fielddata:ptr_new(), ku13mzrdata:ptr_new()}
 
   RETURN
 END
