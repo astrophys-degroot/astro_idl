@@ -335,13 +335,28 @@ FUNCTION specstack::continuum, xmyout, TCONTINUUM=tcontinuum
         print, '    No alteration of the spectras continuum'
      END
      1 : BEGIN
-        print, '    Subtracting off the spectras continuum'
+        print, '    Subtracting off the spectras continuum but not accounting for continuum errors'
         FOR ii=0, n_elements(xmyout)-1, 1 DO BEGIN                                                     ;loop over spectra
            zeros = where(xmyout[ii].spec1d EQ 0.0, nzeros)                                             ;check for zeros in xmyfiles[xx]
            xmyout[ii].spec1d = xmyout[ii].spec1d - $                                                   ;subtract off
                                (xmyout[ii].x0 + xmyout[ii].x1*(xmyout[ii].lambdas-xmyout[ii].lmedian)) ;the linear continuum
            xmyout[ii].spec1d[zeros] = 0.0                                                              ;reset the zeros
-                                ;boxscore, xmyout[ii].spec1d
+        ENDFOR
+     END
+     2 : BEGIN
+        print, '    Subtracting off the spectras continuum and accounting for continuum errors'
+        FOR ii=0, n_elements(xmyout)-1, 1 DO BEGIN                                                     ;loop over spectra
+           ;;;the spectra
+           zeros = where(xmyout[ii].spec1d EQ 0.0, nzeros)                                             ;check for zeros in xmyfiles[xx]
+           xmyout[ii].spec1d = xmyout[ii].spec1d - $                                                   ;subtract off
+                               (xmyout[ii].x0 + xmyout[ii].x1*(xmyout[ii].lambdas-xmyout[ii].lmedian)) ;the linear continuum
+           xmyout[ii].spec1d[zeros] = 0.0                                                              ;reset the zeros
+
+           ;;;the error spectra
+           boxscore, xmyout[ii].spec1dwei
+           xmyout[ii].spec1dwei = ((xmyout[ii].spec1dwei^2) + (xmyout[ii].dx0^2) + $
+                                   (xmyout[ii].dx1*(xmyout[ii].lambdas-xmyout[ii].lmedian))^2 )^0.5
+           boxscore, xmyout[ii].spec1dwei
         ENDFOR
      END
      ELSE : BEGIN
