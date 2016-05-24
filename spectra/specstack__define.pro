@@ -252,8 +252,6 @@ FUNCTION specstack::perturb, xmyout, TPERTURB=tperturb, SIGMA=sigma, NPTS=npts
   IF keyword_set(SIGMA) THEN sigma = float(sigma[0]) ELSE sigma = 4.0                ;set default
   IF keyword_set(NPTS) THEN npts = float(npts[0]) ELSE npts = 1000.0                 ;set default
 
-  print, 'perturbation time'
-
   CASE tperturb OF 
      1 : BEGIN
         bump = 1928
@@ -274,6 +272,28 @@ FUNCTION specstack::perturb, xmyout, TPERTURB=tperturb, SIGMA=sigma, NPTS=npts
      END
      ELSE : BEGIN
         print, 'Perturbation type not understood'
+     ENDELSE
+  ENDCASE
+
+
+  RETURN, xmyout
+END
+;====================================================================================================
+
+
+;====================================================================================================
+FUNCTION specstack::continuum, xmyout, TCONTINUUM=tcontinuum
+
+  IF keyword_set(TCONTINUUM) THEN tcontinuum = tcontinuum[0] ELSE tcontinuum = self.tcontinuum ;set default
+
+  help, xmyout
+  help, xmyout, /STRUC
+
+  CASE tcontinuum OF 
+     1 : BEGIN
+    END
+     ELSE : BEGIN
+        print, 'Continuum type not understood'
      ENDELSE
   ENDCASE
 
