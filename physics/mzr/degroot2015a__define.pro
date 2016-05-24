@@ -446,7 +446,7 @@ END
 
 
 ;====================================================================================================
-PRO degroot2015a::mzrtrend, INCLUDEFIT=includefit
+PRO degroot2015a::mzrtrend, INCLUDEFIT=includefit, FITMETALS=fitmetals
 
 
   universeage = 13.8
@@ -479,15 +479,19 @@ PRO degroot2015a::mzrtrend, INCLUDEFIT=includefit
 
   ;;;fit the data
   IF keyword_set(INCLUDEFIT) THEN BEGIN
-     xval = alog10(1.0+data.xval)
+     IF keyword_set(FITMETALS) THEN BEGIN
+        chk = where(data.mzr EQ string(fitmetals[0]))
+        IF chk[0] NE -1 THEN xdata = data[chk] ELSE xdata = data
+     ENDIF ELSE xdata = data
+     xval = alog10(1.0+xdata.xval)
      exval = []
      eyval = []
-     FOR ii=0, n_elements(data.exvalm)-1, 1 DO BEGIN
-        exval = [exval, mean([data[ii].exvalm, data[ii].exvalp])]
-        eyval = [eyval, mean([data[ii].eyvalm, data[ii].eyvalp])]
+     FOR ii=0, n_elements(xdata.exvalm)-1, 1 DO BEGIN
+        exval = [exval, mean([xdata[ii].exvalm, xdata[ii].exvalp])]
+        eyval = [eyval, mean([xdata[ii].eyvalm, xdata[ii].eyvalp])]
      ENDFOR
-     exval = alog10(1.0 + data.xval+exval) - xval
-     bayesian_linear_xyerr, xval, data.yval, exval, eyval, $
+     exval = alog10(1.0 + xdata.xval+exval) - xval
+     bayesian_linear_xyerr, xval, xdata.yval, exval, eyval, $
                             INTMIN=-0.05, INTMAX=0.05, INTBIN=0.001, $
                             SLPMIN=-1.4, SLPMAX=-0.8, SLPBIN=0.005, $
                             TXMIN=-1.0, TXMAX=1.0, TXBIN=0.05, $
@@ -520,9 +524,9 @@ PRO degroot2015a::mzrtrend, INCLUDEFIT=includefit
   ;;;create the plot
   FOR xx=0, n_elements(data)-1, 1 DO BEGIN
      CASE data[xx].mzr OF
-        'N2' : symbol = 'S' 
-        'R23' : symbol='s'
-        'O3N2' : symbol='o'
+        'N2' : symbol = 's' 
+        'R23' : symbol='o'
+        'O3N2' : symbol='S'
      ENDCASE
      CASE data[xx].cl OF
         0 : symcolor = 'black' 
@@ -595,7 +599,7 @@ PRO degroot2015a::mzrtrend, INCLUDEFIT=includefit
      IF xx EQ n_elements(data)-1 THEN doit = 0
 
      IF doit EQ 1 THEN t = TEXT(xval, 0.82-0.030*(xx-notmove), data[xx].name, $
-                                FONT_SIZE=10, $
+                                FONT_SIZE=11, $
                                 FONT_COLOR=data[xx].symcolor)
 
   ENDFOR
