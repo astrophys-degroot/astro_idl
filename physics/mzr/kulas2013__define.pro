@@ -81,50 +81,69 @@ END
 PRO kulas2013::boxscore
 
 
-  self.ku13sampsize = 56                                       ;sample size
-  self.ku13IMF = ''                                            ;IMF choice
-  self.ku13SEDfit = ''                                         ;
-  self.ku13SEDmodels = ''                                      ;
-  self.ku13mzrtype = ''                                        ;MZR conversion type
-  ;;;also O3N2
-  self.ku13mzrconvert = 'pp04'                                 ;converted to O/H by
-  self.ku13selection = 'hband'                                 ;sample selection
-  ;;;but also Ks band and stellar mass cuts
-  self.ku13zmin = 0.8                                          ;minimum redshift
-  self.ku13zmax = 1.0                                          ;maximum redshift
-  self.ku13N2data = ptr_new({xsmod:[9.98, 10.35, 10.73], $ ;
-                                ;xs:[], $     
-                                ;xserr:[], $                                            ;
-                                 xserrmodn:[0.12, 0.13, 0.17], $ ;
-                                 xserrmodp:[0.16, 0.16, 0.14], $ ;
-                                 xserrmod:[0.14, 0.145, 0.155], $ ;
-                                 yspre:[0.21, 0.30, 0.39], $      ;just [NII]/Halpha
-                                 yspreerrn:[0.03, 0.03, 0.04], $  ;
-                                 yspreerrp:[0.03, 0.03, 0.04], $  ;
-                                 yspreerr:[0.03, 0.03, 0.04], $   ;
-                                 ys:[8.50, 8.60, 8.66], $         ;
-                                 yserrn:[0.038, 0.026, 0.020], $  ;
-                                 yserrp:[0.033, 0.024, 0.018], $  ;
-                                 yserr:[0.0355, 0.025, 0.019], $   ;
-                                 ul:[0,0,0], $                    ;
-                                 ngal:[18, 19, 19] })             ;
+  self.ku13sampsize = 43                         ;sample size
+  self.ku13clsampsize = 23                       ;sample size
+  self.ku13fieldsampsize = 20                    ;sample size
+  self.ku13IMF = 'salpeter1955'                  ;IMF choice
+  self.ku13SEDfit = 'reddy2012'                  ;
+  self.ku13SEDmodels = 'CB11'                    ;
+  self.ku13mzrtype = 'N2'                        ;MZR conversion type
+  self.ku13mzrconvert = 'pp04'                   ;converted to O/H by
+  self.ku13selection = 'KBSS'                    ;sample selection
+  self.ku13zcl = 2.30                            ;minimum redshift
+  self.ku13zclmin = 2.2840                       ;minimum redshift
+  self.ku13zclmax = 2.3096                       ;minimum redshift
+  self.ku13zmin = 2.19                           ;minimum redshift
+  self.ku13zmax = 2.50                           ;maximum redshift
+  self.ku13N2cldata = ptr_new({xsmod:[9.95,10.62], $ ;
+                               xs:[0.89E10,4.15E10], $     
+                                ;xserr:[], $       ;
+                               xserrmodn:[0.5,0.4], $   ;
+                               xserrmodp:[0.2,0.4], $   ;
+                               xserrmod:[0.35,0.4], $   ;
+                               yspre:[], $              ;just [NII]/Halpha
+                               yspreerrn:[], $          ;
+                               yspreerrp:[], $          ;
+                               yspreerr:[], $           ;
+                               ys:[8.40, 8.40], $       ;
+                               yserrn:[0.2,0.1], $      ;
+                               yserrp:[0.2,0.1], $      ;
+                               yserr:[0.2,0.1], $       ;
+                               ul:[0,0], $              ;
+                               ngal:[11,12] })          ;
+  self.ku13N2fielddata = ptr_new({xsmod:[9.91,10.66], $ ;
+                                  xs:[0.82E10,4.53E10], $     
+                                ;xserr:[], $       ;
+                                  xserrmodn:[0.3,0.5], $ ;
+                                  xserrmodp:[0.2,0.7], $ ;
+                                  xserrmod:[0.25,0.6], $ ;
+                                  yspre:[], $            ;just [NII]/Halpha
+                                  yspreerrn:[], $        ;
+                                  yspreerrp:[], $        ;
+                                  yspreerr:[], $         ;
+                                  ys:[8.25, 8.41], $     ;
+                                  yserrn:[0.1,0.2], $    ;
+                                  yserrp:[0.1,0.2], $    ;
+                                  yserr:[0.1,0.2], $     ;
+                                  ul:[0,0], $            ;
+                                  ngal:[10,10] })        ;
 
-  self.ku13mzrdata = ptr_new({xsmod:[9.98, 10.35, 10.73], $ ;
-                                ;xs:[], $     
-                                ;xserr:[], $                                            ;
-                                  xserrmodn:[0.12, 0.13, 0.17], $ ;
-                                  xserrmodp:[0.16, 0.16, 0.14], $ ;
-                                  xserrmod:[0.14, 0.145, 0.155], $ ;
-                                  yspre:[0.21, 0.30, 0.39], $      ;just [NII]/Halpha
-                                  yspreerrn:[0.03, 0.03, 0.04], $  ;
-                                  yspreerrp:[0.03, 0.03, 0.04], $  ;
-                                  yspreerr:[0.03, 0.03, 0.04], $   ;
-                                  ys:[8.50, 8.60, 8.66], $         ;
-                                  yserrn:[0.038, 0.026, 0.020], $  ;
-                                  yserrp:[0.033, 0.024, 0.018], $  ;
-                                  yserr:[0.355, 0.025, 0.019], $   ;
-                                  ul:[0,0,0], $                    ;
-                                  ngal:[18, 19, 19] })             ;
+  self.ku13mzrdata = ptr_new({xsmod:[9.95,10.62], $ ;
+                              xs:[0.89E10,4.15E10], $     
+                                ;xserr:[], $       ;
+                              xserrmodn:[0.5,0.4], $  ;
+                              xserrmodp:[0.2,0.4], $  ;
+                              xserrmod:[0.35,0.4], $  ;
+                              yspre:[], $             ;just [NII]/Halpha
+                              yspreerrn:[], $         ;
+                              yspreerrp:[], $         ;
+                              yspreerr:[], $          ;
+                              ys:[8.40, 8.40], $      ;
+                              yserrn:[0.2,0.1], $     ;
+                              yserrp:[0.2,0.1], $     ;
+                              yserr:[0.2,0.1], $      ;
+                              ul:[0,0], $             ;
+                              ngal:[11,12] })         ;
   
   
 END
