@@ -387,16 +387,20 @@ PRO mzranalysis::plotmzrindiv, ALLTOG=alltog, NSIGULIM=nsigulim, DIFFPLOT=diffpl
 
   xdata = *self.compdata                                                          ;grab data
   IF keyword_set(ALLTOG) THEN clmems = 0 ELSE clmems = xdata.(self.indclmem)      ;set default
-  IF keyword_set(NSIGULIM) THEN nsigulim = float(nsigulim[0]) ELSE nsigulim = 2.0 ;set default
+  IF keyword_set(NSIGULIM) THEN nsigulim = float(nsigulim[0]) ELSE nsigulim = 3.0 ;set default
 
   ;;;set default values
   print, '  Individual point MZR plot...'                                                                        ;print info
   IF keyword_set(FNPLMZRINDIV) THEN fnplmzrindiv = string(fnplmzrindiv[0]) ELSE fnplmzrindiv = self.fnplmzrindiv ;set default value
   fnplmzrindiv = strcompress(self.dirsort + fnplmzrindiv, /REMOVE_ALL)                                           ;add directory
 
-  IF (self.indniiflag NE -1) THEN ulims = where(xdata.(self.indniiflag) GE self.niiflagul)               ;find upper limit points
-  IF ulims[0] NE -1 THEN xdata[ulims].(self.indniiflux) = $                                              ;cont next line
-     xdata[ulims].(self.indniiflux) + nsigulim*xdata[ulims].(self.indniiflux)                            ;bump up value
+  IF (self.indniiflag NE -1) THEN ulims = where(xdata.(self.indniiflag) GE self.niiflagul) ;find upper limit points
+  IF ulims[0] NE -1 THEN xdata[ulims].(self.indniiflux) = $                                ;cont next line
+     xdata[ulims].(self.indniiflux) + nsigulim*xdata[ulims].(self.indniiflux)              ;bump up value
+  tmpulims = intarr(n_elements(xdata.(self.indmass)))                                      ;
+  tmpulims[ulims] = 1                                                                      ;
+  ulims = tmpulims                                                                         ;
+
   IF keyword_set(LABEL) THEN BEGIN                                                                       ;if label is desired
      IF (self.indlab1 NE -1) THEN label = xdata.(self.indlab1)                                           ;start label
      IF (self.indlab2 NE -1) THEN label = strcompress(xdata.(self.indlab2) + ':' + xdata.(self.indlab1)) ;start label
@@ -407,8 +411,10 @@ PRO mzranalysis::plotmzrindiv, ALLTOG=alltog, NSIGULIM=nsigulim, DIFFPLOT=diffpl
                  CLMEM=clmems, $                                                             ;cont next line
                  TITLE = 0, $                                                                ;cont next line
                  ULIMS=ulims, LABEL=label, OUTFILE=fnplmzrindiv, DOUTFILE=fndmzrplot, $      ;cont next line
-                 SHOWST14TR=0, SHOWST14PT=1, SHOWSA14PT=1, $                                 ;cont next line
-                 SHOWERB06PTS=1, SHOWERB06TREND=0, SHOWTR04=1, $                             ;cont next line
+                 SHOWST14PT=1, SHOWST14TR=0, $                                               ;cont next line
+                 SHOWSA14PT=1, $                                                             ;cont next line
+                 SHOWERB06PTS=1, SHOWERB06TREND=0, $                                         ;cont next line
+                 SHOWTR04=1, $                                                               ;cont next line
                  DIFFPLOT=diffplot, SATURATE=1)                                              ;plot mzr
   
                                 ;IF (chk[0].(0) NE -99) THEN BEGIN
@@ -506,9 +512,15 @@ PRO mzranalysis::plotbpt, NOIRAGN=noiragn, $
   bptplot3 = plot(model3.xs, model3.ys, '-', /OVERPLOT, $                  ;plot options
                   THICK=2, color='black', NAME='Kewley 2006 Composite')    ;plot model
 
-  IF (N2agnul[0] NE -1) THEN mydata = plot(N2[N2agnul], fakeysul[N2agnul], 'r<', $                           ;plot options
-                                           /OVERPLOT, SYM_SIZE=2.0, SYM_THICK=2.0, SYM_FILLED=0, $           ;plot options
-                                           NAME='  Up lim; AGN')                                             ;plot upper limits
+  IF (N2agnul[0] NE -1) THEN BEGIN                                                                           ;
+     mydata = plot(N2[N2agnul], fakeysul[N2agnul], 'r<', $                                                   ;plot options
+                   /OVERPLOT, SYM_SIZE=2.0, SYM_THICK=2.0, SYM_FILLED=0, $                                   ;plot options
+                   NAME='  Up lim; AGN')                                                                     ;plot upper limits
+  ENDIF ELSE BEGIN                                                                                           ;
+     mydata = plot([-99.0], [-99.0], 'r<', $                                                                 ;plot options
+                   /OVERPLOT, SYM_SIZE=2.0, SYM_THICK=2.0, SYM_FILLED=0, $                                   ;plot options
+                   NAME='  Up lim; AGN')                                                                     ;plot upper limits
+  ENDELSE                                                                                                    ;
   target2 = [mydata]                                                                                         ;
   IF (N2compul[0] NE -1) THEN mydata = plot(N2[N2compul], fakeysul[N2compul], '<', /OVERPLOT, $              ;plot options
                                             SYM_COLOR='orange', SYM_THICK=2.0, SYM_SIZE=2.0, SYM_FILLED=0, $ ;plot options
@@ -833,8 +845,8 @@ PRO mzranalysis::makebins, BINSET=binset, NINBIN=ninbin
   IF (chk[0] NE -1) THEN data = xdata[chk]               ;grab subset
   masses = data.(self.indmass)                           ;grab masses
   
-  bins = equalbins(masses, /INCENDS, NINBIN=ninbin) ;get bin size
-  self.massbins = ptr_new(bins)                     ;store data
+  bins = equalbins(masses, /INCENDS, ABSORBLAST=1, NINBIN=ninbin) ;get bin size
+  self.massbins = ptr_new(bins)                                   ;store data
 
 END
 ;====================================================================================================
@@ -1049,7 +1061,7 @@ PRO mzranalysis::collatespecstack, STACKSPEC=stackspec, ACTUALSPEC=actualspec, S
            addthis = {bin:checking[ii], lambdas:keepdata.lambdas, spec1d:keepdata.spec1d, $
                       spec1dwei:keepdata.spec1dwei, spec1dflag:keepdata.spec1dflag}
            
-           IF checking[ii] NE 'A' THEN BEGIN
+           IF checking[ii] NE 'B' THEN BEGIN
               added = [added, addthis]
            ENDIF ELSE BEGIN
               added = [addthis]
@@ -1122,9 +1134,9 @@ PRO mzranalysis::buildperturb, PERTRUBFILE=perturbfile, PERTURBHOW=perturbhow, I
                     perterr = stdev(perturbdata[these].spec1d[yy])
                  END
               ENDCASE
-                                ;fullerr[yy] = (data.spec1dwei[yy]^2 + perterr^2)^0.5
-              fullerr[yy] = perterr
-              ;stop
+              fullerr[yy] = (data.spec1dwei[yy]^2 + perterr^2)^0.5
+                                ;fullerr[yy] = perterr
+                                ;stop
            ENDFOR
            chktag = tag_exist(data, 'SPEC1DFULLWEI')
            ;print, chktag
@@ -1327,6 +1339,7 @@ END
 
 ;====================================================================================================
 PRO mzranalysis::plotmzrstack, STACKDATA=stackdata, FNPLMZRSTACK=fnplmzrstack, ISERROR=iserror, $
+                               PERTURB=perturb, $
                                LABEL=label, SHOWMEAN=showmean, SHOWMED=showmed, SHOWFIT=showfit, $
                                HELP=help
 
@@ -1400,12 +1413,14 @@ PRO mzranalysis::plotmzrstack, STACKDATA=stackdata, FNPLMZRSTACK=fnplmzrstack, I
 
   ;;;deal with cluster membership flag
   clmem = data.(self.indsclmem)
-                                ;clmem[*] = 0 ;undo this if you want to look at perturb points
-
+  IF keyword_set(PERTURB) THEN BEGIN
+     clmem[*] = 0               ;undo this if you want to look at perturb points
+     stack = 0
+  ENDIF ELSE stack = 1
 
   chk = plot_mzr(data.(self.indsmass), 'N2', N2RULE='PP04', $                      ;cont next line
                  HAFLUX=data.(self.indshaflux), NIIFLUX=data.(self.indsniiflux), $ ;
-                 STACK=1, $                                                        ;set to 0 if you want to look at pertrubation results
+                 STACK=stack, $                                                    ;set to 0 if you want to look at perturbation results
                  CLMEM=clmem, $                                                    ;
                  EMASS=masserr, $                                                  ; 
                  NS=data.(self.indsninbin), $                                      ;
