@@ -48,7 +48,7 @@ FUNCTION STACKSPEC1xn, xdata, xoptions, YMIN=ymin, YMAX=ymax, FILENAME=filename,
                       LAYOUT=[1,n,xx], POSITION=[0.1,0.1+xx*step,0.9,0.1+(xx+1)*step])                                  ;plot options
                                 ;xtext1 = text(0.50,0.1+xx*(1.5*step),'Cluster Bin 1', FONT_SIZE=11)
      specplot1 = plot([spdata.lambdas[0],spdata.lambdas,spdata.lambdas[-1],spdata.lambdas[0]], $
-                      ([0.0, specerr^0.5,0.0,0.0]-0.2), 'grey', $
+                      ([0.0, specerr^0.5,0.0,0.0]-0.3), 'grey', $
                       FILL_BACKGROUND=1, FILL_COLOR='grey', $
                       /CURRENT, /OVERPLOT)
      IF (avemass NE 0) THEN xtext3 = text(0.50,(0.1+0.7*step)+xx*step, savemass, FONT_SIZE=11)
