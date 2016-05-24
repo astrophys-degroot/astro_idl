@@ -120,7 +120,9 @@ END
 
 
 ;====================================================================================================
-FUNCTION specstack::readfiles, xspec, XDIR=xdir, KEYZ=keyz
+FUNCTION specstack::readfiles, xspec, XDIR=xdir, KEYZ=keyz, $
+                               KEYCX0=keycx0, KEYCDX0=keycdx0, KEYCX1=keycx1, KEYCDX1=keycdx1 
+  
 
 
   IF keyword_set(KEYZ) THEN keyz = keyz[0] ELSE keyz = self.keyz ;set default
@@ -1028,7 +1030,8 @@ FUNCTION specstack::init, TWAVEGRID=twavegrid, TCOMMONGRID=tcommongrid, TNORMALI
                           TCONVOLVE=tconvolve, TREJECTION=trejection, TCOMBINATION=tcombination, $
                           TPERTURB=tperturb, TCONTINUUM=tcontinuum, $
                           ERRFLOOR=errfloor, $
-                          KEYZ=keyz, KEYMASS=keymass, MASSES=masses, $
+                          KEYZ=keyz, KEYCX0=keycx0, KEYCDX0=keycdx0, KEYCX1=keycx1, KEYCDX1=keycdx1, $
+                          KEYMASS=keymass, MASSES=masses, $
                           OUTFILE=outfile
 
                                 ;self.data = ptr_new(data)
@@ -1044,6 +1047,10 @@ FUNCTION specstack::init, TWAVEGRID=twavegrid, TCOMMONGRID=tcommongrid, TNORMALI
   IF keyword_set(TCONTINUUM) THEN self.tcontinuum = tcontinuum[0] ELSE self.tcontinuum = 1           ;set default 
   IF keyword_set(ERRFLOOR) THEN self.errfloor = errfloor[0] ELSE self.errfloor = 0.5                 ;set default 
   IF keyword_set(KEYZ) THEN self.keyz = keyz[0] ELSE self.keyz = 'z'                                 ;set default
+  IF keyword_set(KEYCX0) THEN self.keycx0 = keycx0[0] ELSE self.keycx0 = 'z'                         ;set default
+  IF keyword_set(KEYCDX0) THEN self.keycdx0 = keycdx0[0] ELSE self.keycdx0 = 'z'                     ;set default
+  IF keyword_set(KEYCX1) THEN self.keycx1 = keycx1[0] ELSE self.keycx1 = 'z'                         ;set default
+  IF keyword_set(KEYCDX1) THEN self.keycdx1 = keycdx1[0] ELSE self.keycdx1 = 'z'                     ;set default
   IF keyword_set(KEYMASS) THEN self.keymass = keymass[0] ELSE self.keymass = 'mass'                  ;set default
   IF keyword_set(MASSES) THEN self.masses = ptr_new(masses)                                          ;set default
   IF keyword_set(OUTFILE) THEN self.outfile = outfile[0] ELSE self.outfile = 'stacked_spectrum.fits' ;set default
