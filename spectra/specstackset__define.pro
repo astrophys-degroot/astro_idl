@@ -78,7 +78,7 @@ FUNCTION specstackset::getpresets, xpreset
 
   CASE xpreset OF               ;which stack settings to use
 
-     'smcurrent' : xpreset = {wavegrid:3, commongrid:2, normalize:99, convolve:99, $ ;cont next line
+     'smcurrent' : xpreset = {wavegrid:3, commongrid:2, normalize:1, convolve:99, $ ;cont next line
                               rejection:1, combination:4, perturb:0}                 ;present
 
      'kulas13' : BEGIN          ;do as Kulas did
