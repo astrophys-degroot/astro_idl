@@ -78,8 +78,9 @@ FUNCTION specstackset::getpresets, xpreset
 
   CASE xpreset OF               ;which stack settings to use
 
-     'smcurrent' : xpreset = {wavegrid:3, commongrid:2, normalize:1, convolve:99, $ ;cont next line
-                              rejection:1, combination:4, perturb:0}                 ;present
+     'smcurrent' : xpreset = {perturb:0, continuum:1, wavegrid:3, commongrid:2, $ ;cont next line
+                              normalize:1, convolve:99, $                         ;cont next line
+                              rejection:1, combination:4}                         ;present
 
      'kulas13' : BEGIN          ;do as Kulas did
      END                        ;end as Kulas did
@@ -153,6 +154,8 @@ FUNCTION specstackset::makestack, xmyspecs, xpre, ENV=env, SUBSET=subset, TEMPNA
      mystack.findfiles, data.file, XDIR=data.directory                                         ;find files
      myfiles = mystack.readfiles(data.file, XDIR=data.directory)                               ;read those files
      myfiles = mystack.perturb(myfiles)                                                        ;perturb the spectra
+     myfiles = mystack.continuum(myfiles)                                                      ;handle spectra continuum
+     stop
      mygrid = mystack.wavegrid(TWAVEGRID=wavegrid, MINLAMB=5400, MAXLAMB=7100, DELTALAMB=0.62) ;create wavelength grid
      myout = mystack.prepout(mygrid)                                                           ;get output sample to fill
      myout = mystack.commongrid(mygrid, myfiles, myout, /LSQUADRATIC)                          ;everything on common wavelength grid
