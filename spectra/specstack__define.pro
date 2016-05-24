@@ -353,10 +353,8 @@ FUNCTION specstack::continuum, xmyout, TCONTINUUM=tcontinuum
            xmyout[ii].spec1d[zeros] = 0.0                                                              ;reset the zeros
 
            ;;;the error spectra
-           boxscore, xmyout[ii].spec1dwei
            xmyout[ii].spec1dwei = ((xmyout[ii].spec1dwei^2) + (xmyout[ii].dx0^2) + $
                                    (xmyout[ii].dx1*(xmyout[ii].lambdas-xmyout[ii].lmedian))^2 )^0.5
-           boxscore, xmyout[ii].spec1dwei
         ENDFOR
      END
      ELSE : BEGIN
