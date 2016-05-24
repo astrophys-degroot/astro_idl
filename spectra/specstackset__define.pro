@@ -155,7 +155,7 @@ FUNCTION specstackset::makestack, xmyspecs, xpre, ENV=env, SUBSET=subset, TEMPNA
      myfiles = mystack.readfiles(data.file, XDIR=data.directory)                               ;read those files
      myfiles = mystack.perturb(myfiles)                                                        ;perturb the spectra
      myfiles = mystack.continuum(myfiles)                                                      ;handle spectra continuum
-     stop
+     ;stop
      mygrid = mystack.wavegrid(TWAVEGRID=wavegrid, MINLAMB=5400, MAXLAMB=7100, DELTALAMB=0.62) ;create wavelength grid
      myout = mystack.prepout(mygrid)                                                           ;get output sample to fill
      myout = mystack.commongrid(mygrid, myfiles, myout, /LSQUADRATIC)                          ;everything on common wavelength grid
