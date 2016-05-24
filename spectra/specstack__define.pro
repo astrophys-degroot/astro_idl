@@ -1069,7 +1069,7 @@ PRO specstack__define
           tconvolve:0, convolve:'A', convolveval:0.0, $
           trejection:0, rejection:'A', $
           tcombination:0, combination:'A', $
-          tperturb:0, errfloor:0.0, $
+          tperturb:0, tcontinuum:0, errfloor:0.0, $
           outfile:'A'}
 
   RETURN
