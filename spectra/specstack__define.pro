@@ -321,14 +321,14 @@ FUNCTION specstack::continuum, xmyout, TCONTINUUM=tcontinuum
 
   IF keyword_set(TCONTINUUM) THEN tcontinuum = tcontinuum[0] ELSE tcontinuum = self.tcontinuum ;set default
 
-  help, xmyout
-  help, xmyout, /STRUC
-  print, xmyout.z
-  print, xmyout.lmedian
-  print, xmyout.x0
-  print, xmyout.dx0
-  print, xmyout.x1
-  print, xmyout.dx1
+  ;help, xmyout
+  ;help, xmyout, /STRUC
+  ;print, xmyout.z
+  ;print, xmyout.lmedian
+  ;print, xmyout.x0
+  ;print, xmyout.dx0
+  ;print, xmyout.x1
+  ;print, xmyout.dx1
 
   CASE tcontinuum OF 
      0 : BEGIN
@@ -336,6 +336,13 @@ FUNCTION specstack::continuum, xmyout, TCONTINUUM=tcontinuum
      END
      1 : BEGIN
         print, '    Subtracting off the spectras continuum'
+        FOR ii=0, n_elements(xmyout)-1, 1 DO BEGIN                                                     ;loop over spectra
+           zeros = where(xmyout[ii].spec1d EQ 0.0, nzeros)                                             ;check for zeros in xmyfiles[xx]
+           xmyout[ii].spec1d = xmyout[ii].spec1d - $                                                   ;subtract off
+                               (xmyout[ii].x0 + xmyout[ii].x1*(xmyout[ii].lambdas-xmyout[ii].lmedian)) ;the linear continuum
+           xmyout[ii].spec1d[zeros] = 0.0                                                              ;reset the zeros
+                                ;boxscore, xmyout[ii].spec1d
+        ENDFOR
      END
      ELSE : BEGIN
         print, 'Continuum type not understood'
