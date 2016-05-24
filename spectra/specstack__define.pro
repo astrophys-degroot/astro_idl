@@ -120,32 +120,65 @@ END
 
 
 ;====================================================================================================
-FUNCTION specstack::readfiles, xspec, XDIR=xdir, KEYZ=keyz, $
+FUNCTION specstack::readfiles, xspec, XDIR=xdir, KEYZ=keyz, KEYCLAMB=keyclamb, $
                                KEYCX0=keycx0, KEYCDX0=keycdx0, KEYCX1=keycx1, KEYCDX1=keycdx1 
   
 
 
-  IF keyword_set(KEYZ) THEN keyz = keyz[0] ELSE keyz = self.keyz ;set default
+  IF keyword_set(KEYZ) THEN keyz = keyz[0] ELSE keyz = self.keyz                             ;set default
+  IF keyword_set(KEYCLAMB) THEN keyclamb = string(keyclamb[0]) ELSE keyclamb = self.keyclamb ;set default
+  IF keyword_set(KEYCX0) THEN keycx0 = string(keycx0[0]) ELSE keycx0 = self.keycx0           ;set default
+  IF keyword_set(KEYCDX0) THEN keycdx0 = string(keycdx0[0]) ELSE keycdx0 = self.keycdx0      ;set default
+  IF keyword_set(KEYCX1) THEN keycx1 = string(keycx1[0]) ELSE keycx1 = self.keycx1           ;set default
+  IF keyword_set(KEYCDX1) THEN keycdx1 = string(keycdx1[0]) ELSE keycdx1 = self.keycdx1      ;set default
 
-  fullfile = *self.specnames                          ;print full file
+  fullfile = *self.specnames                           ;print full file
   FOR xx=0, n_elements(fullfile)-1, 1 DO BEGIN         ;loop over specs
      spectrum = mrdfits(fullfile[xx], 1, hdr, /SILENT) ;read in file
      IF (xx NE 0) THEN BEGIN                           ;if not first spectrum
         FOR yy=0, ntags-1, 1 DO BEGIN                  ;loop over tags
            retfiles[xx].(yy) = spectrum.(yy)           ;store values
         ENDFOR                                         ;end loop over tags
-        retfiles[xx].(mytag) = float(fxpar(hdr, keyz)) ;get redshift from header
      ENDIF ELSE BEGIN                                  ;if first spectrum
         ntags = n_elements(tag_names(spectrum))        ;grab number of tags in struc
         retfiles = spectrum                            ;copy structure
-        add_tag, retfiles, keyz, 0.0, tmpstruc         ;add tag
-        retfiles = 0                                   ;remove previous
-        retfiles = tmpstruc                            ;recapture
-        mytag = tagind(retfiles, keyz)                 ;get tag index
-        retfiles = replicate(retfiles, self.nspec)     ;replicate structure
-        retfiles[xx].(mytag) = float(fxpar(hdr, keyz)) ;get redshift from header
-     ENDELSE                                           ;end if first spectrum
-  ENDFOR                                               ;end loop over specs
+        
+        ;;;add the tags to the structure
+        add_tag, retfiles, keyz, 0.0, tmpstruc     ;add tag
+        retfiles = 0                               ;remove previous
+        retfiles = tmpstruc                        ;recapture
+        mytagz = tagind(retfiles, keyz)            ;get tag index       
+        add_tag, retfiles, keyclamb, 0.0, tmpstruc ;add tag
+        retfiles = 0                               ;remove previous
+        retfiles = tmpstruc                        ;recapture
+        mytagclamb = tagind(retfiles, keyclamb)    ;get tag index
+        add_tag, retfiles, keycx0, 0.0, tmpstruc   ;add tag
+        retfiles = 0                               ;remove previous
+        retfiles = tmpstruc                        ;recapture
+        mytagcx0 = tagind(retfiles, keycx0)        ;get tag index
+        add_tag, retfiles, keycdx0, 0.0, tmpstruc  ;add tag
+        retfiles = 0                               ;remove previous
+        retfiles = tmpstruc                        ;recapture
+        mytagcdx0 = tagind(retfiles, keycdx0)      ;get tag index
+        add_tag, retfiles, keycx1, 0.0, tmpstruc   ;add tag
+        retfiles = 0                               ;remove previous
+        retfiles = tmpstruc                        ;recapture
+        mytagcx1 = tagind(retfiles, keycx1)        ;get tag index
+        add_tag, retfiles, keycdx1, 0.0, tmpstruc  ;add tag
+        retfiles = 0                               ;remove previous
+        retfiles = tmpstruc                        ;recapture
+        mytagcdx1 = tagind(retfiles, keycdx1)      ;get tag index
+
+        retfiles = replicate(retfiles, self.nspec)              ;replicate structure        
+     ENDELSE                    ;end if first spectrum
+ 
+     retfiles[xx].(mytagz) = float(fxpar(hdr, keyz))         ;get redshift from header
+     retfiles[xx].(mytagclamb) = float(fxpar(hdr, keyclamb)) ;get central wavelength from header
+     retfiles[xx].(mytagcx0) = float(fxpar(hdr, keycx0))     ;get first constant from header
+     retfiles[xx].(mytagcdx0) = float(fxpar(hdr, keycdx0))   ;get first constant error from header
+     retfiles[xx].(mytagcx1) = float(fxpar(hdr, keycx1))     ;get second constant from header
+     retfiles[xx].(mytagcdx1) = float(fxpar(hdr, keycdx1))   ;get second constant error from header
+  ENDFOR                                                     ;end loop over specs
 
   RETURN, retfiles
 END
@@ -290,10 +323,20 @@ FUNCTION specstack::continuum, xmyout, TCONTINUUM=tcontinuum
 
   help, xmyout
   help, xmyout, /STRUC
+  print, xmyout.z
+  print, xmyout.lmedian
+  print, xmyout.x0
+  print, xmyout.dx0
+  print, xmyout.x1
+  print, xmyout.dx1
 
   CASE tcontinuum OF 
+     0 : BEGIN
+        print, '    No alteration of the spectras continuum'
+     END
      1 : BEGIN
-    END
+        print, '    Subtracting off the spectras continuum'
+     END
      ELSE : BEGIN
         print, 'Continuum type not understood'
      ENDELSE
@@ -1030,7 +1073,8 @@ FUNCTION specstack::init, TWAVEGRID=twavegrid, TCOMMONGRID=tcommongrid, TNORMALI
                           TCONVOLVE=tconvolve, TREJECTION=trejection, TCOMBINATION=tcombination, $
                           TPERTURB=tperturb, TCONTINUUM=tcontinuum, $
                           ERRFLOOR=errfloor, $
-                          KEYZ=keyz, KEYCX0=keycx0, KEYCDX0=keycdx0, KEYCX1=keycx1, KEYCDX1=keycdx1, $
+                          KEYZ=keyz, KEYCLAMB=keyclamb, $
+                          KEYCX0=keycx0, KEYCDX0=keycdx0, KEYCX1=keycx1, KEYCDX1=keycdx1, $
                           KEYMASS=keymass, MASSES=masses, $
                           OUTFILE=outfile
 
@@ -1047,10 +1091,11 @@ FUNCTION specstack::init, TWAVEGRID=twavegrid, TCOMMONGRID=tcommongrid, TNORMALI
   IF keyword_set(TCONTINUUM) THEN self.tcontinuum = tcontinuum[0] ELSE self.tcontinuum = 1           ;set default 
   IF keyword_set(ERRFLOOR) THEN self.errfloor = errfloor[0] ELSE self.errfloor = 0.5                 ;set default 
   IF keyword_set(KEYZ) THEN self.keyz = keyz[0] ELSE self.keyz = 'z'                                 ;set default
-  IF keyword_set(KEYCX0) THEN self.keycx0 = keycx0[0] ELSE self.keycx0 = 'z'                         ;set default
-  IF keyword_set(KEYCDX0) THEN self.keycdx0 = keycdx0[0] ELSE self.keycdx0 = 'z'                     ;set default
-  IF keyword_set(KEYCX1) THEN self.keycx1 = keycx1[0] ELSE self.keycx1 = 'z'                         ;set default
-  IF keyword_set(KEYCDX1) THEN self.keycdx1 = keycdx1[0] ELSE self.keycdx1 = 'z'                     ;set default
+  IF keyword_set(KEYCLAMB) THEN self.keyclamb = keyclamb[0] ELSE self.keyclamb = 'LMEDIAN'           ;set default
+  IF keyword_set(KEYCX0) THEN self.keycx0 = keycx0[0] ELSE self.keycx0 = 'X0'                        ;set default
+  IF keyword_set(KEYCDX0) THEN self.keycdx0 = keycdx0[0] ELSE self.keycdx0 = 'DX0'                   ;set default
+  IF keyword_set(KEYCX1) THEN self.keycx1 = keycx1[0] ELSE self.keycx1 = 'X1'                        ;set default
+  IF keyword_set(KEYCDX1) THEN self.keycdx1 = keycdx1[0] ELSE self.keycdx1 = 'DX1'                   ;set default
   IF keyword_set(KEYMASS) THEN self.keymass = keymass[0] ELSE self.keymass = 'mass'                  ;set default
   IF keyword_set(MASSES) THEN self.masses = ptr_new(masses)                                          ;set default
   IF keyword_set(OUTFILE) THEN self.outfile = outfile[0] ELSE self.outfile = 'stacked_spectrum.fits' ;set default
@@ -1066,7 +1111,8 @@ PRO specstack__define
 
   void = {specstack, ssobjver:'A', nspec:0, specnames:ptr_new(), $
           masses:ptr_new(), massave:0.0, massmin:0.0, massmax:0.0, massmle:0.0, masssig:0.0, $
-          keyz:'A', keymass:'A', $
+          keyz:'A', keyclamb:'A', keycx0:'A', keycdx0:'A', keycx1:'A', keycdx1:'A', $
+          keymass:'A', $
           twavegrid:0, wavegrid:'A', minwave:0.0, maxwave:0.0, $
           tcommongrid:0, commongrid:'A', $
           tnormalize:0, normalize:'A', $
