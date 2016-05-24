@@ -1029,7 +1029,7 @@ END
 ;====================================================================================================
 FUNCTION specstack::init, TWAVEGRID=twavegrid, TCOMMONGRID=tcommongrid, TNORMALIZE=tnormalize, $
                           TCONVOLVE=tconvolve, TREJECTION=trejection, TCOMBINATION=tcombination, $
-                          TPERTURB=tperturb, $
+                          TPERTURB=tperturb, TCONTINUUM=tcontinuum, $
                           ERRFLOOR=errfloor, $
                           KEYZ=keyz, KEYMASS=keymass, MASSES=masses, $
                           OUTFILE=outfile
@@ -1044,6 +1044,7 @@ FUNCTION specstack::init, TWAVEGRID=twavegrid, TCOMMONGRID=tcommongrid, TNORMALI
   IF keyword_set(TREJECTION) THEN self.trejection = trejection[0] ELSE self.trejection = 1           ;set default 
   IF keyword_set(TCOMBINATION) THEN self.tcombination = tcombination[0] ELSE self.tcombination = 1   ;set default 
   IF keyword_set(TPERTURB) THEN self.tperturb = tperturb[0] ELSE self.tperturb = 1                   ;set default 
+  IF keyword_set(TCONTINUUM) THEN self.tcontinuum = tcontinuum[0] ELSE self.tcontinuum = 1           ;set default 
   IF keyword_set(ERRFLOOR) THEN self.errfloor = errfloor[0] ELSE self.errfloor = 0.5                 ;set default 
   IF keyword_set(KEYZ) THEN self.keyz = keyz[0] ELSE self.keyz = 'z'                                 ;set default
   IF keyword_set(KEYMASS) THEN self.keymass = keymass[0] ELSE self.keymass = 'mass'                  ;set default
