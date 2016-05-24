@@ -473,7 +473,7 @@ function PLOT_MZR, mass, metalrule, CLMEM=clmem, NS=ns, $ ;, DEMETALLICITY=dmeta
                     SHADOW=0, LINESTYLE=6, SAMPLE_WIDTH=0.0, FONT_SIZE=11)   ;legend options
   mylegend = legend(TARGET=targets2, POSITION=[xmax-1.4,ymax-0.1], /DATA, $ ;legend
                     SHADOW=0, LINESTYLE=6, SAMPLE_WIDTH=0.0, FONT_SIZE=11)   ;legend options
-  mylegend = legend(TARGET=targets3, POSITION=[xmin+0.15,ymax-0.19], /DATA, $ ;legend
+  mylegend = legend(TARGET=targets3, POSITION=[xmin+0.15,ymax-0.27], /DATA, $ ;legend
                     SHADOW=0, LINESTYLE=6, SAMPLE_WIDTH=0.075, FONT_SIZE=11)   ;legend options
   
 
@@ -501,26 +501,16 @@ function PLOT_MZR, mass, metalrule, CLMEM=clmem, NS=ns, $ ;, DEMETALLICITY=dmeta
      nextname = replicate('',8)
      fullmajorname = [fullmajorname, nextname]
   ENDFOR
-  ;minorname = strarr(n_elements(possminor))
-  ;FOR ii=0, n_elements(possminor)-1, 1 DO BEGIN
-  ;   ;minorname[ii] = strcompress(string(possminor[ii], FORMAT='(F6.1)'), /REMOVE_ALL)
-  ;   minorname[ii] = ''
-  ;ENDFOR  
   offsetsminor = 8.90+0.57*alog10(fullmajorval)
-  print, offsetsminor
   keep = where((offsetsminor GE ymin) AND (offsetsminor LE ymax))
   IF keep[0] NE -1 THEN BEGIN
      offsetsminor = offsetsminor[keep]
      fullmajorname = fullmajorname[keep]
   ENDIF
-  help, fullmajorname
-  print, fullmajorname
-
-
   
   ax = myplot.axes              ;get the axis object
   ax[3].HIDE = 1                ;hide the right axis
-  yaxis = axis('Y', $           ;remkae the right axis
+  yaxis = axis('Y', $           ;remake the right axis minor ticks
                TITLE='[NII]$\lambda6585$/H$\alpha$', $
                LOCATION='right', $
                MAJOR=n_elements(offsetsminor), $
@@ -530,7 +520,7 @@ function PLOT_MZR, mass, metalrule, CLMEM=clmem, NS=ns, $ ;, DEMETALLICITY=dmeta
                TICKLEN=0.02, $
                TICKFONT_SIZE=16, $
                STYLE=1)
-  yaxis = axis('Y', $           ;remkae the right axis
+  yaxis = axis('Y', $           ;remkae the right axis major ticks
                LOCATION='right', $
                MAJOR=n_elements(offsets), $
                TICKVALUES=offsets, $
