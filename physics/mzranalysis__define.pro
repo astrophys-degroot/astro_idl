@@ -549,10 +549,10 @@ PRO mzranalysis::plotbpt, NOIRAGN=noiragn, $
 
   mylegend = legend(TARGET=[bptplot1, bptplot2, bptplot3], $               ;legend
                     POSITION=[self.bptxmax-1.4,self.bptymax-0.1], /DATA, $ ;legend options
-                    SHADOW=0, LINESTYLE=6, FONT_SIZE=10)                   ;legend options
+                    SHADOW=0, LINESTYLE=6, FONT_SIZE=11)                   ;legend options
   mylegend = legend(TARGET=target2, $                                      ;legend
                     POSITION=[self.bptxmin+0.1,self.bptymax-1.2], /DATA, $ ;legend options
-                    SHADOW=0, LINESTYLE=6, FONT_SIZE=10, SAMPLE_WIDTH=0.1) ;legend options
+                    SHADOW=0, LINESTYLE=6, FONT_SIZE=11, SAMPLE_WIDTH=0)   ;legend options
 
   
   ;bptplot.save, fnbptplot, RESOLUTION=600 ;save plot
@@ -1061,7 +1061,7 @@ PRO mzranalysis::collatespecstack, STACKSPEC=stackspec, ACTUALSPEC=actualspec, S
            addthis = {bin:checking[ii], lambdas:keepdata.lambdas, spec1d:keepdata.spec1d, $
                       spec1dwei:keepdata.spec1dwei, spec1dflag:keepdata.spec1dflag}
            
-           IF checking[ii] NE 'B' THEN BEGIN
+           IF checking[ii] NE 'A' THEN BEGIN
               added = [added, addthis]
            ENDIF ELSE BEGIN
               added = [addthis]
@@ -1492,8 +1492,8 @@ PRO mzranalysis::comparemetallicity, TGHAFLUX=tghaflux, TGNIIFLUX=gniiflux, $
   ppoh = pettini_pagel_2004(data.(hafind), data.(niifind)) ;get metallicity
   print, ppoh
 
-  maiolinooh = maiolino_2008(data.(hafind), data.(niifind), /N2) ;get metallicity
-  print, maiolinooh
+                                ;maiolinooh = maiolino_2008(data.(hafind), data.(niifind), /N2) ;get metallicity
+                                ;print, maiolinooh
 
 
   compare1 = plot(ppoh, steideloh, 'ro', $

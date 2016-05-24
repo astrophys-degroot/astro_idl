@@ -494,9 +494,7 @@ function PLOT_MZR, mass, metalrule, CLMEM=clmem, NS=ns, $ ;, DEMETALLICITY=dmeta
   FOR ii=0, n_elements(possmajor)-1, 1 DO BEGIN
      fullmajorval = [fullmajorval, possmajor[ii]]
      next = (findgen(8)+2)*possmajor[ii]
-     ;print, next
      fullmajorval = [fullmajorval, next]
-     ;print, fullmajorval
      fullmajorname = [fullmajorname, strcompress(string(possmajor[ii], FORMAT='(F6.2)'), /REMOVE_ALL)]
      nextname = replicate('',8)
      fullmajorname = [fullmajorname, nextname]

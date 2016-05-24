@@ -711,10 +711,10 @@ END
 ;====================================================================================================
 PRO degroot2015a::runmzranalysis, xsubset
 
-  stop
+
   IF xsubset.binset EQ 'all' THEN alltog = 1 ELSE alltog = 0
-  ;stackdata = mrdfits('/Users/adegroot/research/clusters/combination/spectroscopy/stacks/' + $
-  ;                    'clfour/smcurrent/all/highq/MOSFIRE_compsum_clfour_smcurrent_all_highq_v3-6-1.fits', 1, hdr)
+  stackdata = mrdfits('/Users/adegroot/research/clusters/combination/spectroscopy/stacks/' + $
+                      'clfour/smcurrent/all/highq/MOSFIRE_compsum_clfour_smcurrent_all_highq_v3-6-1.fits', 1, hdr)
   ;stackdata = mrdfits('/Users/adegroot/research/clusters/combination/spectroscopy/stacks/' + $
   ;                    'clfour/smcurrent/envtwo/highq/cluster/MOSFIRE_compsum_clfour_smcurrent_envtwo_highq_v3-6-1.fits', 1, hdr)
   ;stackdata = mrdfits('/Users/adegroot/research/clusters/combination/spectroscopy/stacks/' + $
@@ -725,13 +725,12 @@ PRO degroot2015a::runmzranalysis, xsubset
   run.findtags                                                                                  ;find all the tags we need
   IF xsubset.mcmass GT 1 THEN newmass = run.mcmass(xsubset.mcmass, WHICH=2)                     ;get perturbed masses
                                 ;run.plotmzrindiv, ALLTOG=alltog, LABEL=0                                                      ;plot individual points
-  run.plotbpt, /NOIRAGN         ;plot sudo-BPT points, run with v1-0-1 of catalog!!!
-  stop
+                                ;run.plotbpt, /NOIRAGN  ;plot sudo-BPT points, run with v1-0-1 of catalog!!!
                                 ;run.plotiragn  ;plot Donley 2012 IR AGN selection, run with v1-0-0 of catalog!!!
   run.makebins, BINSET=xsubset.binset, NINBIN=xsubset.ninbin ;find mass bin sizes
   run.specsort                                               ;sort data into bins
   run.findstats                                              ;find stats for bins
-                                ;run.specstack, SM=xsubset.sm                               ;stack spectra
+  run.specstack, SM=xsubset.sm                               ;stack spectra
   run.collatespecstack, /STACKSPEC                           ;stack spectra
   run.readstack, STACKFILE=0                                 ;read in the mzr stack data
                                 ;run.readstack, STACKFILE = 'MOSFIRE_comp_clfour_smcurrent_envtwo_highq_v3-6-1_each.fits' ;read in the mzr stack data
@@ -782,7 +781,7 @@ PRO degroot2015a::workingon, subset, CATALOG=catalog, BINSET=binset
           {name:'seven', catalog:'kemclass_pz_specz_v0-8-2.fits', BINSET:'cluster', NINBIN:14, SM:'smcurrent', FITMZR:'tr04', MCMASS:1}, $ 
           {name:'eight', catalog:'kemclass_pz_specz_v0-8-3.fits', BINSET:'field', NINBIN:20, SM:'smcurrent', FITMZR:'tr04', MCMASS:1}, $
           {name:'nine', catalog:'kemclass_pz_specz_v0-8-3.fits', BINSET:'cluster', NINBIN:14, SM:'smcurrent', FITMZR:'tr04', MCMASS:1}, $ 
-          {name:'onezero', catalog:'kemclass_pz_specz_v1-0-1.fits', BINSET:'all', NINBIN:26, SM:'smcurrent', FITMZR:'tr04', MCMASS:1}, $ 
+          {name:'onezero', catalog:'kemclass_pz_specz_v1-2-0.fits', BINSET:'all', NINBIN:26, SM:'smcurrent', FITMZR:'tr04', MCMASS:10}, $ 
           {name:'oneone', catalog:'kemclass_pz_specz_v1-2-0.fits', BINSET:'cluster', NINBIN:16, SM:'smcurrent', FITMZR:'tr04', MCMASS:1}, $ 
           {name:'onetwo', catalog:'kemclass_pz_specz_v1-2-0_field.fits', BINSET:'field', NINBIN:25, SM:'smcurrent', FITMZR:'tr04', MCMASS:1}] 
   
