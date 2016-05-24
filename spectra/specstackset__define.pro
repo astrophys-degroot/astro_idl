@@ -78,7 +78,7 @@ FUNCTION specstackset::getpresets, xpreset
 
   CASE xpreset OF               ;which stack settings to use
 
-     'smcurrent' : xpreset = {perturb:0, continuum:1, wavegrid:3, commongrid:2, $ ;cont next line
+     'smcurrent' : xpreset = {perturb:0, continuum:2, wavegrid:3, commongrid:2, $ ;cont next line
                               normalize:1, convolve:99, $                         ;cont next line
                               rejection:1, combination:4}                         ;present
 
@@ -146,7 +146,7 @@ FUNCTION specstackset::makestack, xmyspecs, xpre, ENV=env, SUBSET=subset, TEMPNA
      data = xmyspecs[chk]                                                                                              ;get subset if possible
      mystack = obj_new('specstack', TWAVEGRID=xpre.wavegrid, TCOMMONGRID=xpre.commongrid, TNORMALIZE=xpre.normalize, $ ;cont next line
                        TCONVOLVE=xpre.convolve, TREJECTION=xpre.rejection, TCOMBINATION=xpre.combination, $            ;cont next line
-                       TPERTURB=xpre.perturb, $                                                                        ;cont next line
+                       TPERTURB=xpre.perturb, TCONTINUUM=xpre.continuum, $                                             ;cont next line
                        MASSES=data.ph_lmass, OUTFILE=newout)                                                           ;create the object
      
      mystack.getprop, SSOBJVER=mystackver                                                      ;get version of code
