@@ -105,6 +105,35 @@ END
 ;========================================================================================================================
 
 
+;========================================================================================================================
+FUNCTION KULASCOMP, kulaswhich, fakexs
+
+
+  ;;;get the data
+  pubmzr = obj_new('kulas2013') ;create object
+  pubmzr.boxscore               ;load data from paper
+  pubmzr.getprop, MZRDATA=mymzr ;get data from paper
+  
+  ;;;add the trend as desired
+  CASE kulaswhich OF            ;how to add
+     1 : BEGIN
+        xerrors = transpose([[mymzr.xserrmodn],[mymzr.xserrmodp]])                   ;
+        yerrors = transpose([[mymzr.yserrn],[mymzr.yserrp]])                         ;
+        mzrtrend = errorplot(mymzr.xsmod, mymzr.ys, xerrors, yerrors, $              ;plot points
+                             'td', SYM_COLOR='purple', SYM_FILLED=0, SYM_SIZE=2.0, $ ;plot values
+                             ERRORBAR_COLOR='purple', $                              ;plot values
+                             SYM_THICK=2, /OVERPLOT, NAME=' Kulas 2013')             ;plot options
+     END
+     ELSE : BEGIN
+        print, 'WTF!!'
+     ENDELSE
+  ENDCASE
+
+  RETURN, mzrtrend
+END
+;========================================================================================================================
+
+
 
 ;========================================================================================================================
 function PLOT_MZR, mass, metalrule, CLMEM=clmem, NS=ns, $ ;, DEMETALLICITY=dmetallitcity, $
@@ -118,7 +147,7 @@ function PLOT_MZR, mass, metalrule, CLMEM=clmem, NS=ns, $ ;, DEMETALLICITY=dmeta
                    SHOWERB06PTS=showerb06pts, SHOWERB06TREND=showerb06trend, $
                    SHOWTR04=showtr04, $
                    SHOWST14TR=showst14tr, SHOWST14PT=showst14pt, $
-                   SHOWSA14PT=showsa14pt, $
+                   SHOWSA14PT=showsa14pt, SHOWKU13PT=showku13pt, $
                    SHOWMEAN=showmean, MEANMASS=meanmass, MEANN2=meann2, $ 
                    SHOWMED=showmed, MEDMASS=medmass, MEDN2=medn2, $ 
                    NULLVAL=nullval, OUTFILE=outfile, DOUTFILE=doutfile, VERBOSE=verbose
@@ -324,7 +353,7 @@ function PLOT_MZR, mass, metalrule, CLMEM=clmem, NS=ns, $ ;, DEMETALLICITY=dmeta
                         SYM_SIZE=1.0, /SYM_FILLED, SYM_COLOR=ficolor, $                                    ;plot options
                         MARGIN=[0.13,0.1,0.16,0.03], $                                                        ;plot options
                         FONT_SIZE=16, $                                                                    ;plot options
-                        NAME=strcompress('This work: ' + $                                         ;
+                        NAME=strcompress('This work (field): ' + $                                         ;
                                          strcompress('N=' + string(nfieldall) + $                          ;
                                                      '(' + string(n_elements(field)) + ')', /REMOVE_ALL))) ;plot options
 
@@ -428,7 +457,7 @@ function PLOT_MZR, mass, metalrule, CLMEM=clmem, NS=ns, $ ;, DEMETALLICITY=dmeta
 
   IF keyword_set(SHOWERB06PTS) THEN BEGIN ;show Erb 2006 points 
      mzrpoints = erbcomp(1)               ;add points
-     targets = [targets, mzrpoints]     ;add to legend targets
+     targets = [targets, mzrpoints]       ;add to legend targets
   ENDIF                                   ;end show Erb work
   
   IF keyword_set(SHOWERB06TREND) THEN BEGIN ;show Erb work
@@ -439,19 +468,25 @@ function PLOT_MZR, mass, metalrule, CLMEM=clmem, NS=ns, $ ;, DEMETALLICITY=dmeta
 
   IF keyword_set(SHOWST14PT) THEN BEGIN ;show Steidel work
      mzrpoints = steidelcomp(1)         ;comparison
-     targets = [targets, mzrpoints]   ;add to legend targets
+     targets = [targets, mzrpoints]     ;add to legend targets
   ENDIF                                 ;end show Steidel work
 
   IF keyword_set(SHOWST14TR) THEN BEGIN ;show Steidel work
      mzrtrend = steidelcomp(2, fakexs)  ;comparison
-     targets = [targets, mzrtrend]    ;add to legend targets
+     targets = [targets, mzrtrend]      ;add to legend targets
   ENDIF                                 ;end show Steidel work
 
   IF keyword_set(SHOWSA14PT) THEN BEGIN ;show Sanders work
      mzrpoints = sanderscomp(1)         ;comparison
-     targets = [targets, mzrpoints]   ;add to legend targets
+     targets = [targets, mzrpoints]     ;add to legend targets
   ENDIF                                 ;end show Sanders work
   
+  IF keyword_set(SHOWKU13PT) THEN BEGIN ;show Kulas work
+     mzrpoints = kulascomp(1)           ;comparison
+     targets = [targets, mzrpoints]     ;add to legend targets
+  ENDIF                                 ;end show Sanders work
+  
+
   
   IF keyword_set(FITINFO) THEN BEGIN                                                      ;fit info is provided
      CASE fitinfo.name OF                                                                 ;what is the fit that was performed
