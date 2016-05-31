@@ -121,7 +121,8 @@ END
 
 ;====================================================================================================
 FUNCTION specstack::readfiles, xspec, XDIR=xdir, KEYZ=keyz, KEYCLAMB=keyclamb, $
-                               KEYCX0=keycx0, KEYCDX0=keycdx0, KEYCX1=keycx1, KEYCDX1=keycdx1 
+                               KEYCX0=keycx0, KEYCDX0=keycdx0, KEYCX1=keycx1, KEYCDX1=keycdx1, $
+                               KEYHAC=keyhac 
   
 
 
@@ -131,6 +132,7 @@ FUNCTION specstack::readfiles, xspec, XDIR=xdir, KEYZ=keyz, KEYCLAMB=keyclamb, $
   IF keyword_set(KEYCDX0) THEN keycdx0 = string(keycdx0[0]) ELSE keycdx0 = self.keycdx0      ;set default
   IF keyword_set(KEYCX1) THEN keycx1 = string(keycx1[0]) ELSE keycx1 = self.keycx1           ;set default
   IF keyword_set(KEYCDX1) THEN keycdx1 = string(keycdx1[0]) ELSE keycdx1 = self.keycdx1      ;set default
+  IF keyword_set(KEYHAC) THEN keyhac = string(keyhac[0]) ELSE keyhac = self.keyhac      ;set default
 
   fullfile = *self.specnames                           ;print full file
   FOR xx=0, n_elements(fullfile)-1, 1 DO BEGIN         ;loop over specs
@@ -168,8 +170,12 @@ FUNCTION specstack::readfiles, xspec, XDIR=xdir, KEYZ=keyz, KEYCLAMB=keyclamb, $
         retfiles = 0                               ;remove previous
         retfiles = tmpstruc                        ;recapture
         mytagcdx1 = tagind(retfiles, keycdx1)      ;get tag index
-
-        retfiles = replicate(retfiles, self.nspec)              ;replicate structure        
+        add_tag, retfiles, keyhac, 0.0, tmpstruc   ;add tag
+        retfiles = 0                               ;remove previous
+        retfiles = tmpstruc                        ;recapture
+        mytaghac = tagind(retfiles, keyhac)        ;get tag index
+        
+        retfiles = replicate(retfiles, self.nspec) ;replicate structure        
      ENDELSE                    ;end if first spectrum
  
      retfiles[xx].(mytagz) = float(fxpar(hdr, keyz))         ;get redshift from header
@@ -178,8 +184,11 @@ FUNCTION specstack::readfiles, xspec, XDIR=xdir, KEYZ=keyz, KEYCLAMB=keyclamb, $
      retfiles[xx].(mytagcdx0) = float(fxpar(hdr, keycdx0))   ;get first constant error from header
      retfiles[xx].(mytagcx1) = float(fxpar(hdr, keycx1))     ;get second constant from header
      retfiles[xx].(mytagcdx1) = float(fxpar(hdr, keycdx1))   ;get second constant error from header
+     retfiles[xx].(mytaghac) = float(fxpar(hdr, keyhac))     ;get Halpha flux??? from header
   ENDFOR                                                     ;end loop over specs
 
+
+  help, retfiles, /STRUC
   RETURN, retfiles
 END
 ;====================================================================================================
@@ -503,6 +512,8 @@ FUNCTION specstack::commongrid, xwavegrid, xmyfiles, xmyout, TCOMMONGRID=tcommon
      
   ENDCASE 
 
+
+  help, xmyout, /STRUC
  
   RETURN, xmyout
 END
@@ -519,7 +530,7 @@ FUNCTION specstack::normalize, xmyout, TNORMALIZE=tnormalize, LAMBVAL=lambval
   CASE tnormalize OF
 
      1 : BEGIN                                                                                                  ;use Halpha peak flux for normalization
-        print, '   Using flux value at lambda=6563Ang to normalize the spectra'                                 ;print info
+        print, strcompress('   Using flux value at lambda=' + string(lambval) + 'Ang to normalize the spectra') ;print info
         self.normalize = 'HAFLUX'                                                                               ;store common grid info
         FOR xx=0, n_elements(xmyout)-1, 1  DO BEGIN                                                             ;loop over spectra
            IF (xx NE 0) THEN BEGIN                                                                              ;if not the first spectra
@@ -533,6 +544,19 @@ FUNCTION specstack::normalize, xmyout, TNORMALIZE=tnormalize, LAMBVAL=lambval
            xmyout[xx].spec1dwei = xmyout[xx].spec1dwei / xmyout[xx].spec1d[minind]                              ;recompute error
         ENDFOR                                                                                                  ;end loop over spectra
      END                                                                                                        ;end Halpha peak flux for normalization
+     2 : BEGIN                                                                                                  ;use Halpha peak flux for normalization
+        print, '   Using Ha flux to normalize'                                                                  ;print info
+                                ;help, xmyout, /STRUC
+                                ;print, xmyout.hac
+
+        FOR xx=0, n_elements(xmyout)-1, 1  DO BEGIN                     ;loop over spectra
+           xmyout[xx].spec1d = xmyout[xx].spec1d / xmyout[xx].hac       ;normalize
+           xmyout[xx].spec1dwei = xmyout[xx].spec1dwei / xmyout[xx].hac ;recompute error
+        ENDFOR                                                          ;end loop over spectra
+                                ;stop
+
+
+     END                        ;end Halpha peak flux for normalization
 
      99 : BEGIN                                                ;no normalization
         print, '   No normalization performed on the spectra.' ;print info
@@ -985,9 +1009,9 @@ PRO specstack::massanalysis, NOMLE=nomle
   mymass = *self.masses         ;grab them just because
 
   self.massave = mean(mymass)        ;average mass
-  print, '$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$'
-  print, mymass
-  print, mean(mymass)
+  ;print, '$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$'
+  ;print, mymass
+  ;print, mean(mymass)
   self.massmin = min(mymass, minind) ;minmass
   self.massmax = max(mymass, maxind) ;maxmass
   
@@ -1095,6 +1119,7 @@ FUNCTION specstack::init, TWAVEGRID=twavegrid, TCOMMONGRID=tcommongrid, TNORMALI
                           ERRFLOOR=errfloor, $
                           KEYZ=keyz, KEYCLAMB=keyclamb, $
                           KEYCX0=keycx0, KEYCDX0=keycdx0, KEYCX1=keycx1, KEYCDX1=keycdx1, $
+                          KEYHAC=keyhac, $
                           KEYMASS=keymass, MASSES=masses, $
                           OUTFILE=outfile
 
@@ -1116,6 +1141,7 @@ FUNCTION specstack::init, TWAVEGRID=twavegrid, TCOMMONGRID=tcommongrid, TNORMALI
   IF keyword_set(KEYCDX0) THEN self.keycdx0 = keycdx0[0] ELSE self.keycdx0 = 'DX0'                   ;set default
   IF keyword_set(KEYCX1) THEN self.keycx1 = keycx1[0] ELSE self.keycx1 = 'X1'                        ;set default
   IF keyword_set(KEYCDX1) THEN self.keycdx1 = keycdx1[0] ELSE self.keycdx1 = 'DX1'                   ;set default
+  IF keyword_set(KEYHAC) THEN self.keyhac = keyhac[0] ELSE self.keyhac = 'HAC'                       ;set default
   IF keyword_set(KEYMASS) THEN self.keymass = keymass[0] ELSE self.keymass = 'mass'                  ;set default
   IF keyword_set(MASSES) THEN self.masses = ptr_new(masses)                                          ;set default
   IF keyword_set(OUTFILE) THEN self.outfile = outfile[0] ELSE self.outfile = 'stacked_spectrum.fits' ;set default
@@ -1132,6 +1158,7 @@ PRO specstack__define
   void = {specstack, ssobjver:'A', nspec:0, specnames:ptr_new(), $
           masses:ptr_new(), massave:0.0, massmin:0.0, massmax:0.0, massmle:0.0, masssig:0.0, $
           keyz:'A', keyclamb:'A', keycx0:'A', keycdx0:'A', keycx1:'A', keycdx1:'A', $
+          keyhac:'A', $
           keymass:'A', $
           twavegrid:0, wavegrid:'A', minwave:0.0, maxwave:0.0, $
           tcommongrid:0, commongrid:'A', $
