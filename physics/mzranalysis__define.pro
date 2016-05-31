@@ -406,14 +406,27 @@ PRO mzranalysis::plotmzrindiv, ALLTOG=alltog, NSIGULIM=nsigulim, DIFFPLOT=diffpl
      IF (self.indlab2 NE -1) THEN label = strcompress(xdata.(self.indlab2) + ':' + xdata.(self.indlab1)) ;start label
   ENDIF                                                                                                  ;end label desired
 
+  IF keyword_set(ALLTOG) THEN BEGIN
+     yesst14pt = 1
+     yessa14pt = 1
+     yeserb06pt = 1
+     yesku13pt = 0
+  ENDIF ELSE BEGIN
+     yesst14pt = 0
+     yessa14pt = 0
+     yeserb06pt = 0
+     yesku13pt = 1
+  ENDELSE
+
   chk = plot_mzr(xdata.(self.indmass), 'N2', N2RULE='PP04', HAFLUX=xdata.(self.indhaflux), $ ;cont next line
                  NIIFLUX=xdata.(self.indniiflux), $                                          ;cont next line
                  CLMEM=clmems, $                                                             ;cont next line
                  TITLE = 0, $                                                                ;cont next line
                  ULIMS=ulims, LABEL=label, OUTFILE=fnplmzrindiv, DOUTFILE=fndmzrplot, $      ;cont next line
-                 SHOWST14PT=1, SHOWST14TR=0, $                                               ;cont next line
-                 SHOWSA14PT=1, $                                                             ;cont next line
-                 SHOWERB06PTS=1, SHOWERB06TREND=0, $                                         ;cont next line
+                 SHOWST14PT=yesst14pt, SHOWST14TR=0, $                                       ;cont next line
+                 SHOWSA14PT=yessa14pt, $                                                     ;cont next line
+                 SHOWKU13PT=yesku13pt, $                                                     ;cont next line
+                 SHOWERB06PTS=yeserb06pt, SHOWERB06TREND=0, $                                ;cont next line
                  SHOWTR04=1, $                                                               ;cont next line
                  DIFFPLOT=diffplot, SATURATE=1)                                              ;plot mzr
   
@@ -1424,14 +1437,14 @@ PRO mzranalysis::plotmzrstack, STACKDATA=stackdata, FNPLMZRSTACK=fnplmzrstack, I
                  CLMEM=clmem, $                                                    ;
                  EMASS=masserr, $                                                  ; 
                  NS=data.(self.indsninbin), $                                      ;
-                 ;TITLE = 'KEMCLASS ALL STACK', $                                   ;
-                 TITLE = 0, $                                                  ;
-                 ULIMS=ulims, LABEL=label, OUTFILE=fnplmzrstack, SATURATE=1, $     ;
-                 FITINFO=fitinfo, $                                                ;
-                 SHOWST14PT=1, SHOWST14TR=0, SHOWSA14=1, $                         ;
-                 SHOWMEAN=1, MEANMASS=meanmass, MEANN2=meann2, $                   ;
-                 SHOWMED=1, MEDMASS=medmass, MEDN2=medn2, $                        ;
-                 SHOWERB06PTS=1, SHOWERB06TREND=0, SHOWTR04=1)                     ;plot mzr
+                                ;TITLE = 'KEMCLASS ALL STACK', $                                   ;
+                 TITLE = 0, $   ;
+                 ULIMS=ulims, LABEL=label, OUTFILE=fnplmzrstack, SATURATE=1, $ ;
+                 FITINFO=fitinfo, $                                            ;
+                 SHOWST14PT=1, SHOWST14TR=0, SHOWSA14=1, SHOWKU13PT=1, $       ;
+                 SHOWMEAN=1, MEANMASS=meanmass, MEANN2=meann2, $               ;
+                 SHOWMED=1, MEDMASS=medmass, MEDN2=medn2, $                    ;
+                 SHOWERB06PTS=1, SHOWERB06TREND=0, SHOWTR04=1)                 ;plot mzr
 
 END
 ;====================================================================================================
