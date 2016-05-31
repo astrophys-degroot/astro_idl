@@ -313,6 +313,7 @@ function PLOT_MZR, mass, metalrule, CLMEM=clmem, NS=ns, $ ;, DEMETALLICITY=dmeta
      fieldul = [-1]             ;null array
   ENDELSE                       ;end if upper limits keyword not set
 
+
   ;;;plot data for field
   myplot1 = SCATTERPLOT(mass[field], metals[field], SYMBOL='o', $                                          ;plot values
                         TITLE=title, $                                                                     ;plot options
@@ -326,6 +327,27 @@ function PLOT_MZR, mass, metalrule, CLMEM=clmem, NS=ns, $ ;, DEMETALLICITY=dmeta
                         NAME=strcompress('This work: ' + $                                         ;
                                          strcompress('N=' + string(nfieldall) + $                          ;
                                                      '(' + string(n_elements(field)) + ')', /REMOVE_ALL))) ;plot options
+
+
+  ;;;plot mean, median data if desired, first
+  IF keyword_set(SHOWMEAN) THEN BEGIN                                                    ;show the mean points
+     myplot3 = SCATTERPLOT(meanmass, (8.9+0.57*alog10(meann2)), /OVERPLOT, SYMBOL='o', $ ;plot values
+                           SYM_SIZE=1.0, /SYM_FILLED, SYM_COLOR='orange', $              ;plot options
+                           NAME='mean_bins')                                             ;plot options
+  ENDIF                                                                                  ;end show the mean points
+  IF keyword_set(SHOWMED) THEN BEGIN                                                     ;show the med points
+     myplot3 = SCATTERPLOT(medmass, (8.9+0.57*alog10(medn2)), /OVERPLOT, SYMBOL='o', $   ;plot values
+                           SYM_SIZE=1.0, /SYM_FILLED, SYM_COLOR='magenta', $             ;plot options
+                           NAME='med_bins')                                              ;plot options
+  ENDIF                                                                                  ;end show the med points
+
+  ;;;put error bars second
+  IF keyword_set(STACK) THEN BEGIN                                                                              ;if error are put on each point
+     myerror = errorplot(mass, metals, emass, replicate([0.18],nspec)/ns^0.5, '.', THICK=2, /OVERPLOT)          ;plot errors
+     myplot1 = SCATTERPLOT(mass[field], metals[field], SYMBOL='o', /SYM_FILLED, SYM_COLOR=ficolor, /OVERPLOT, $ ;
+                           NAME='This work (stacked)')                                                          ;replot points so they are on top
+  ENDIF ELSE myerror = errorplot([xmax-0.3], [ymax-0.3], [0.1], [0.18], '.', THICK=2, /OVERPLOT)                ;sample error bar
+  
   IF (fieldul[0] NE -1) THEN BEGIN                                                                                  ;if field membership given
      FOR xx=0, n_elements(fieldul)-1, 1 DO BEGIN                                                                    ;loop over upper lims
         myarrow = arrow([mass[fieldul[xx]], mass[fieldul[xx]]], [metals[fieldul[xx]], metals[fieldul[xx]]-0.125], $ ;plot upper limits
@@ -333,7 +355,7 @@ function PLOT_MZR, mass, metalrule, CLMEM=clmem, NS=ns, $ ;, DEMETALLICITY=dmeta
                         HEAD_SIZE=0.4, HEAD_INDENT=0.0, LINE_THICK=1.5)                                             ;plot options
      ENDFOR                                                                                                         ;end loop 
   ENDIF 
-  
+  targets = [myplot1]
 
   ;;;plot data for group
   IF (group[0] NE -1) THEN BEGIN                                                                                              ;if cluster membership given
@@ -351,9 +373,9 @@ function PLOT_MZR, mass, metalrule, CLMEM=clmem, NS=ns, $ ;, DEMETALLICITY=dmeta
      ENDIF                                                                                                            ;end if group upper lims
 
      IF ~keyword_set(STACK) THEN targets = [myplot1, myplot2] ELSE targets = [] ;target list for legend
-  ENDIF ELSE BEGIN                                                              ;end cluster membership given
-     IF ~keyword_set(STACK) THEN targets = [myplot1] ELSE targets = []          ;target list for legend
-  ENDELSE                                                                       ;end cluster membership not given
+  ENDIF ;ELSE BEGIN                                                              ;end cluster membership given
+ ;    IF ~keyword_set(STACK) THEN targets = [myplot1] ELSE targets = []          ;target list for legend
+ ; ENDELSE                                                                       ;end cluster membership not given
   
   
   ;;;plot data for cl
@@ -372,9 +394,9 @@ function PLOT_MZR, mass, metalrule, CLMEM=clmem, NS=ns, $ ;, DEMETALLICITY=dmeta
      ENDIF                                                                                                ;end if cl upper lims
 
      IF ~keyword_set(STACK) THEN targets = [targets, myplot3] ELSE targets = [] ;target list for legend
-  ENDIF ELSE BEGIN                                                              ;end cluster membership given
-     IF ~keyword_set(STACK) THEN targets = [myplot1] ELSE targets = []          ;target list for legend
-  ENDELSE                                                                       ;end cluster membership not given
+  ENDIF ;ELSE BEGIN                                                              ;end cluster membership given
+  ;   IF ~keyword_set(STACK) THEN targets = [myplot1] ELSE targets = []          ;target list for legend
+  ;ENDELSE                                                                       ;end cluster membership not given
 
 
   ;;;plot labels
@@ -382,18 +404,6 @@ function PLOT_MZR, mass, metalrule, CLMEM=clmem, NS=ns, $ ;, DEMETALLICITY=dmeta
      mylabel = text(mass, metals, label, /DATA) ;label things
   ENDIF                                         ;end label keyword set
 
-
-  ;;;plot mean, median data if desired
-  IF keyword_set(SHOWMEAN) THEN BEGIN                                                    ;show the mean points
-     myplot3 = SCATTERPLOT(meanmass, (8.9+0.57*alog10(meann2)), /OVERPLOT, SYMBOL='o', $ ;plot values
-                           SYM_SIZE=1.0, /SYM_FILLED, SYM_COLOR='orange', $              ;plot options
-                           NAME='mean_bins')                                             ;plot options
-  ENDIF                                                                                  ;end show the mean points
-  IF keyword_set(SHOWMED) THEN BEGIN                                                     ;show the med points
-     myplot3 = SCATTERPLOT(medmass, (8.9+0.57*alog10(medn2)), /OVERPLOT, SYMBOL='o', $   ;plot values
-                           SYM_SIZE=1.0, /SYM_FILLED, SYM_COLOR='magenta', $             ;plot options
-                           NAME='med_bins')                                              ;plot options
-  ENDIF                                                                                  ;end show the med points
 
   ;;;plot published data
   targets3 = []
@@ -414,9 +424,8 @@ function PLOT_MZR, mass, metalrule, CLMEM=clmem, NS=ns, $ ;, DEMETALLICITY=dmeta
                      THICK=2, /OVERPLOT, NAME='Tremonti 2004') ;plot options
      targets3 = [targets3, mzrtrend]                           ;add to legend target
   ENDIF                                                        ;end show Steidel work
-
   
-  ;targets2 = []
+
   IF keyword_set(SHOWERB06PTS) THEN BEGIN ;show Erb 2006 points 
      mzrpoints = erbcomp(1)               ;add points
      targets = [targets, mzrpoints]     ;add to legend targets
@@ -442,12 +451,7 @@ function PLOT_MZR, mass, metalrule, CLMEM=clmem, NS=ns, $ ;, DEMETALLICITY=dmeta
      mzrpoints = sanderscomp(1)         ;comparison
      targets = [targets, mzrpoints]   ;add to legend targets
   ENDIF                                 ;end show Sanders work
-
-  IF keyword_set(STACK) THEN BEGIN                                                                     ;if error are put on each point
-     myerror = errorplot(mass, metals, emass, replicate([0.18],nspec)/ns^0.5, '.', THICK=2, /OVERPLOT) ;plot errors
-  ENDIF ELSE myerror = errorplot([xmax-0.3], [ymax-0.3], [0.1], [0.18], '.', THICK=2, /OVERPLOT)      ;sample error bar
   
-
   
   IF keyword_set(FITINFO) THEN BEGIN                                                      ;fit info is provided
      CASE fitinfo.name OF                                                                 ;what is the fit that was performed
@@ -461,10 +465,10 @@ function PLOT_MZR, mass, metalrule, CLMEM=clmem, NS=ns, $ ;, DEMETALLICITY=dmeta
                          [ys+fitinfo.pmpv,reverse(ys-fitinfo.nmpv),ys[0]+fitinfo.pmpv], $ ;plot options
                          COLOR='gray', TRANSPARENCY=100, $                                ;plot options
                          FILL_COLOR='gray', FILL_BACKGROUND=1, FILL_TRANSPARENCY=70, $    ;plot options
-                         NAME='This work', /OVERPLOT)                                     ;plot options
+                         NAME='This work (fit)', /OVERPLOT)                               ;plot options
         END                                                                               ;end tremonti
      ENDCASE                                                                              ;end which fit performed
-     targets = [targets, myplot]                                                          ;add to legend targets   
+     targets3 = [targets3, myplot]                                                          ;add to legend targets   
   ENDIF                                                                                   ;end fit info provided
   
 
