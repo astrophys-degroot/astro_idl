@@ -45,11 +45,13 @@
 ;-
 
 ;====================================================================================================
-PRO kulas2013::getprop, KU13OBJVER=ku13objver, N2DATA=n2data, MZRDATA=mzrdata
+PRO kulas2013::getprop, KU13OBJVER=ku13objver, N2CLDATA=n2cldata, N2FIELDDATA=n2fielddata, $
+                        MZRDATA=mzrdata
 
-  IF arg_present(KU13OBJVER) THEN ku13objver = self.ku13objver ;return the data
-  IF arg_present(N2DATA) THEN n2data = *self.ku13n2data        ;return the data
-  IF arg_present(MZRDATA) THEN mzrdata = *self.ku13mzrdata     ;return the data
+  IF arg_present(KU13OBJVER) THEN ku13objver = self.ku13objver         ;return the data
+  IF arg_present(N2CLDATA) THEN n2cldata = *self.ku13n2cldata          ;return the data
+  IF arg_present(N2FIELDDATA) THEN n2fielddata = *self.ku13n2fielddata ;return the data
+  IF arg_present(MZRDATA) THEN mzrdata = *self.ku13mzrdata             ;return the data
   
 
   RETURN
