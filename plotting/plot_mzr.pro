@@ -323,7 +323,7 @@ function PLOT_MZR, mass, metalrule, CLMEM=clmem, NS=ns, $ ;, DEMETALLICITY=dmeta
                         SYM_SIZE=1.0, /SYM_FILLED, SYM_COLOR=ficolor, $                                    ;plot options
                         MARGIN=[0.13,0.1,0.16,0.03], $                                                        ;plot options
                         FONT_SIZE=16, $                                                                    ;plot options
-                        NAME=strcompress('This work (field): ' + $                                         ;
+                        NAME=strcompress('This work: ' + $                                         ;
                                          strcompress('N=' + string(nfieldall) + $                          ;
                                                      '(' + string(n_elements(field)) + ')', /REMOVE_ALL))) ;plot options
   IF (fieldul[0] NE -1) THEN BEGIN                                                                                  ;if field membership given
@@ -416,10 +416,10 @@ function PLOT_MZR, mass, metalrule, CLMEM=clmem, NS=ns, $ ;, DEMETALLICITY=dmeta
   ENDIF                                                        ;end show Steidel work
 
   
-  targets2 = []
+  ;targets2 = []
   IF keyword_set(SHOWERB06PTS) THEN BEGIN ;show Erb 2006 points 
      mzrpoints = erbcomp(1)               ;add points
-     targets2 = [targets2, mzrpoints]     ;add to legend targets
+     targets = [targets, mzrpoints]     ;add to legend targets
   ENDIF                                   ;end show Erb work
   
   IF keyword_set(SHOWERB06TREND) THEN BEGIN ;show Erb work
@@ -430,17 +430,17 @@ function PLOT_MZR, mass, metalrule, CLMEM=clmem, NS=ns, $ ;, DEMETALLICITY=dmeta
 
   IF keyword_set(SHOWST14PT) THEN BEGIN ;show Steidel work
      mzrpoints = steidelcomp(1)         ;comparison
-     targets2 = [targets2, mzrpoints]   ;add to legend targets
+     targets = [targets, mzrpoints]   ;add to legend targets
   ENDIF                                 ;end show Steidel work
 
   IF keyword_set(SHOWST14TR) THEN BEGIN ;show Steidel work
      mzrtrend = steidelcomp(2, fakexs)  ;comparison
-     targets2 = [targets2, mzrtrend]    ;add to legend targets
+     targets = [targets, mzrtrend]    ;add to legend targets
   ENDIF                                 ;end show Steidel work
 
   IF keyword_set(SHOWSA14PT) THEN BEGIN ;show Sanders work
      mzrpoints = sanderscomp(1)         ;comparison
-     targets2 = [targets2, mzrpoints]   ;add to legend targets
+     targets = [targets, mzrpoints]   ;add to legend targets
   ENDIF                                 ;end show Sanders work
 
   IF keyword_set(STACK) THEN BEGIN                                                                     ;if error are put on each point
@@ -471,9 +471,9 @@ function PLOT_MZR, mass, metalrule, CLMEM=clmem, NS=ns, $ ;, DEMETALLICITY=dmeta
   ;;;legend stuff
   mylegend = legend(TARGET=targets, POSITION=[xmin+0.15,ymax-0.1], /DATA, $ ;legend
                     SHADOW=0, LINESTYLE=6, SAMPLE_WIDTH=0.0, FONT_SIZE=11)   ;legend options
-  mylegend = legend(TARGET=targets2, POSITION=[xmax-1.4,ymax-0.1], /DATA, $ ;legend
-                    SHADOW=0, LINESTYLE=6, SAMPLE_WIDTH=0.0, FONT_SIZE=11)   ;legend options
-  mylegend = legend(TARGET=targets3, POSITION=[xmin+0.15,ymax-0.27], /DATA, $ ;legend
+  ;mylegend = legend(TARGET=targets2, POSITION=[xmax-1.4,ymax-0.1], /DATA, $ ;legend
+  ;                  SHADOW=0, LINESTYLE=6, SAMPLE_WIDTH=0.0, FONT_SIZE=11)   ;legend options
+  mylegend = legend(TARGET=targets3, POSITION=[xmax-1.6,ymax-0.1], /DATA, $ ;legend
                     SHADOW=0, LINESTYLE=6, SAMPLE_WIDTH=0.075, FONT_SIZE=11)   ;legend options
   
 
