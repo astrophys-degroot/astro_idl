@@ -404,6 +404,19 @@ PRO degroot2015a::fitmzrtrend, which, OPTION=option
            ELSE : mzrdata = *thatart.ku13mzrdata
         ENDCASE
      END
+     'leja2013' : BEGIN
+        CASE OPTION OF
+           1 : mzrdata = *thatart.le13N2data
+           ELSE : mzrdata = *thatart.le13mzrdata
+        ENDCASE
+     END
+     'masters2014' : BEGIN
+        CASE OPTION OF
+           1 : mzrdata = *thatart.ma14N2data
+           2 : mzrdata = *thatart.ma14N2data
+           ELSE : mzrdata = *thatart.ma14mzrdata
+        ENDCASE
+     END
      'wuyts2014' : BEGIN
         CASE OPTION OF
            1 : mzrdata = *thatart.wu14N2data_z09
@@ -423,11 +436,18 @@ PRO degroot2015a::fitmzrtrend, which, OPTION=option
            ELSE : mzrdata = *thatart.cu15mzrdata
         ENDCASE
      END
-
     'tran2015' : BEGIN
         CASE OPTION OF
            1 : mzrdata = *thatart.tr15N2cldata
            ELSE : mzrdata = *thatart.tr15mzrdata
+        ENDCASE
+     END
+    'wuyts2016' : BEGIN
+        CASE OPTION OF
+           1 : mzrdata = *thatart.wu16N2data_z09
+           2 : mzrdata = *thatart.wu16N2data_z15
+           3 : mzrdata = *thatart.wu16N2data_z23
+           ELSE : mzrdata = *thatart.wu16N2data_z09
         ENDCASE
      END
 
@@ -464,16 +484,21 @@ PRO degroot2015a::mzrtrend, INCLUDEFIT=includefit, FITMETALS=fitmetals
           {name:'Yabe 12', xval:1.4, exvalm:0.2, exvalp:0.2, yval:-0.518, eyvalm:0.025, eyvalp:0.030, multiline:0, mzr:'N2', cl:0, field:0, all:1, symcolor:'tan'}, $
           {name:'Zahid 12', xval:0.78, exvalm:0.03, exvalp:0.04, yval:-0.475, eyvalm:0.05, eyvalp:0.05, multiline:1, mzr:'R23', cl:0, field:0, all:1, symcolor:'olive'}, $
           {name:'Zahid 12', xval:0.07, exvalm:0.03, exvalp:0.03, yval:0.05, eyvalm:0.05, eyvalp:0.05, multiline:1, mzr:'R23', cl:0, field:0, all:1, symcolor:'olive'}, $
-          {name:'Kulas 13', xval:2.3, exvalm:0.11, exvalp:0.20, yval:-0.655, eyvalm:0.072, eyvalp:0.075, multiline:1, mzr:'N2', cl:0, field:0, all:1, symcolor:'dark red'}, $
-          {name:'Sanders 14', xval:2.3, exvalm:0.21, exvalp:0.31, yval:-0.56, eyvalm:0.026, eyvalp:0.028, multiline:1, mzr:'N2', cl:0, field:0, all:1, symcolor:'magenta'}, $
-          {name:'Sanders 14', xval:2.3, exvalm:0.21, exvalp:0.31, yval:-0.67, eyvalm:0.023, eyvalp:0.025, multiline:1, mzr:'O3N2', cl:0, field:0, all:1, symcolor:'magenta'}, $
-          {name:'Steidel 14', xval:2.3, exvalm:0.35, exvalp:0.35, yval:-0.55, eyvalm:0.017, eyvalp:0.017, multiline:1, mzr:'N2', cl:0, field:0, all:1, symcolor:'orange'}, $
-          {name:'Steidel 14', xval:2.3, exvalm:0.35, exvalp:0.35, yval:-0.68, eyvalm:0.011, eyvalp:0.011, multiline:1, mzr:'O3N2', cl:0, field:0, all:1, symcolor:'orange'}, $
+          {name:'Kulas 13', xval:2.31, exvalm:0.11, exvalp:0.20, yval:-0.655, eyvalm:0.072, eyvalp:0.075, multiline:1, mzr:'N2', cl:0, field:0, all:1, symcolor:'dark red'}, $
+          {name:'Leja 13', xval:2.32, exvalm:0.2, exvalp:0.24, yval:-0.512, eyvalm:0.085, eyvalp:0.085, multiline:0, mzr:'N2', cl:0, field:0, all:1, symcolor:'chocolate'}, $
+          {name:'Sanders 14', xval:2.33, exvalm:0.21, exvalp:0.31, yval:-0.56, eyvalm:0.026, eyvalp:0.028, multiline:1, mzr:'N2', cl:0, field:0, all:1, symcolor:'magenta'}, $
+          {name:'Sanders 14', xval:2.33, exvalm:0.21, exvalp:0.31, yval:-0.67, eyvalm:0.023, eyvalp:0.025, multiline:1, mzr:'O3N2', cl:0, field:0, all:1, symcolor:'magenta'}, $
+          {name:'Steidel 14', xval:2.34, exvalm:0.35, exvalp:0.35, yval:-0.55, eyvalm:0.017, eyvalp:0.017, multiline:1, mzr:'N2', cl:0, field:0, all:1, symcolor:'orange'}, $
+          {name:'Steidel 14', xval:2.34, exvalm:0.35, exvalp:0.35, yval:-0.68, eyvalm:0.011, eyvalp:0.011, multiline:1, mzr:'O3N2', cl:0, field:0, all:1, symcolor:'orange'}, $
+          {name:'Masters 14', xval:1.85, exvalm:0.39, exvalp:0.39, yval:-0.34, eyvalm:0.18, eyvalp:0.022, multiline:0, mzr:'N2', cl:0, field:0, all:1, symcolor:'thistle'}, $
           {name:'Wuyts 14', xval:0.9, exvalm:0.15, exvalp:0.15, yval:-0.43, eyvalm:0.020, eyvalp:0.020, multiline:0, mzr:'N2', cl:0, field:0, all:1, symcolor:'deep sky blue'}, $
-          {name:'Wuyts 14', xval:2.3, exvalm:0.15, exvalp:0.15, yval:-0.63, eyvalm:0.022, eyvalp:0.022, multiline:0, mzr:'N2', cl:0, field:0, all:1, symcolor:'deep sky blue'}, $
+          {name:'Wuyts 14', xval:2.29, exvalm:0.15, exvalp:0.15, yval:-0.63, eyvalm:0.022, eyvalp:0.022, multiline:0, mzr:'N2', cl:0, field:0, all:1, symcolor:'deep sky blue'}, $
           {name:'Zahid 14', xval:1.55, exvalm:0.15, exvalp:0.15, yval:-0.45, eyvalm:0.008, eyvalp:0.01, multiline:1, mzr:'N2', cl:0, field:0, all:1, symcolor:'pink'}, $
           {name:'Cullen 15', xval:2.16, exvalm:0.16, exvalp:0.14, yval:-0.63, eyvalm:0.04, eyvalp:0.04, multiline:0, mzr:'R23', cl:0, field:0, all:1, symcolor:'red'}, $
           {name:'Tran 15', xval:1.6233, exvalm:0.0115, exvalp:0.0115, yval:-0.50, eyvalm:0.05, eyvalp:0.055, multiline:1, mzr:'N2', cl:1, field:0, all:0, symcolor:'salmon'}, $
+          {name:'Wuyts 16', xval:0.9, exvalm:0.3, exvalp:0.2, yval:-0.425, eyvalm:0.022, eyvalp:0.027, multiline:1, mzr:'N2', cl:0, field:0, all:1, symcolor:'navy'}, $
+          {name:'Wuyts 16', xval:1.5, exvalm:0.2, exvalp:0.2, yval:-0.51, eyvalm:0.06, eyvalp:0.077, multiline:1, mzr:'N2', cl:0, field:0, all:1, symcolor:'navy'}, $
+          {name:'Wuyts 16', xval:2.28, exvalm:0.4, exvalp:0.4, yval:-0.57, eyvalm:0.020, eyvalp:0.020, multiline:1, mzr:'N2', cl:0, field:0, all:1, symcolor:'navy'}, $
           {name:'This Work', xval:1.62, exvalm:0.3, exvalp:0.1, yval:-0.39, eyvalm:0.016, eyvalp:0.017, multiline:0, mzr:'N2', cl:0, field:0, all:1, symcolor:'green'}]
                                 ;print, data
 
@@ -734,12 +759,12 @@ PRO degroot2015a::runmzranalysis, xsubset
 
 
   IF xsubset.binset EQ 'all' THEN alltog = 1 ELSE alltog = 0
-  stackdata = mrdfits('/Users/adegroot/research/clusters/combination/spectroscopy/stacks/' + $
-                      'clfour/smcurrent/all/highq/MOSFIRE_compsum_clfour_smcurrent_all_highq_v3-6-1.fits', 1, hdr)
+  ;stackdata = mrdfits('/Users/adegroot/research/clusters/combination/spectroscopy/stacks/' + $
+  ;                    'clfour/smcurrent/all/highq/MOSFIRE_compsum_clfour_smcurrent_all_highq_v3-6-1.fits', 1, hdr)
   ;stackdata = mrdfits('/Users/adegroot/research/clusters/combination/spectroscopy/stacks/' + $
   ;                    'clfour/smcurrent/envtwo/highq/cluster/MOSFIRE_compsum_clfour_smcurrent_envtwo_highq_v3-6-1.fits', 1, hdr)
-  ;stackdata = mrdfits('/Users/adegroot/research/clusters/combination/spectroscopy/stacks/' + $
-  ;                    'clfour/smcurrent/envtwo/highq/field/MOSFIRE_compsum_clfour_smcurrent_envtwo_highq_v3-6-1.fits', 1, hdr)
+  stackdata = mrdfits('/Users/adegroot/research/clusters/combination/spectroscopy/stacks/' + $
+                      'clfour/smcurrent/envtwo/highq/field/MOSFIRE_compsum_clfour_smcurrent_envtwo_highq_v3-6-1.fits', 1, hdr)
   
   run = obj_new('mzranalysis', CURCAT=xsubset.catalog, WORKING=xsubset.name)                    ;make analysis object
   run.readcat, xsubset.catalog, INDIR='/Users/adegroot/research/clusters/combination/catalogs/' ;read in data 
@@ -754,23 +779,29 @@ PRO degroot2015a::runmzranalysis, xsubset
   run.findstats                                              ;find stats for bins
   ;run.specstack, SM=xsubset.sm                               ;stack spectra
   run.collatespecstack, /STACKSPEC                           ;stack spectra
-  run.readstack, STACKFILE=0                                 ;read in the mzr stack data
-                                ;run.readstack, STACKFILE = 'MOSFIRE_comp_clfour_smcurrent_envtwo_highq_v3-6-1_each.fits' ;read in the mzr stack data
-  run.findstacktags             ;find all the tags we need
-                                ;run.buildperturb
-                                ;run.plotspecstack, USEFULLERR=0                          ;plot the stacked spectra
-  run.plotspecstack, USEFULLERR=xsubset.usefullerr, SUBSET=['B','D','F']      ;plot the stacked spectra
-                                ;run.plotspecstack, USEFULLERR=1, SUBSET=['A','C','E','G','I','K'] ;plot the stacked spectra
+                                ;run.readstack, STACKFILE=0                                 ;read in the mzr stack data
+  run.readstack, STACKFILE = 'MOSFIRE_comp_clfour_smcurrent_envtwo_highq_v3-6-1_each.fits' ;read in the mzr stack data
+  run.findstacktags                                                                        ;find all the tags we need
+  IF xsubset.usefullerr NE 0 THEN run.buildperturb
+  CASE xsubset.binset OF
+     'all': thissubset = 0
+     'cluster': thissubset = ['B','D','F']
+     'field': thissubset = ['A','C','E','G','I','K']
+     ELSE : BEGIN
+        print, 'WARNING!! Something has gone horribly wrong!!'
+     ENDELSE
+  ENDCASE
+  run.plotspecstack, USEFULLERR=xsubset.usefullerr, SUBSET=thissubset         ;plot the stacked spectra
   run.fitmzrstack, WHICH=xsubset.fitmzr, /SAVE, /STARTOVER                    ;fit the stack measured MZR
-  run.plotmzrstack, SHOWFIT=1, SHOWMED=1, SHOWMEAN=1, SHOWENV=xsubset.environ ;plot the stacked MZR
-                                ;run.plotmzrstack, STACKDATA=stackdata, PERTURB=1          ;plot the stacked MZR
+  run.plotmzrstack, SHOWFIT=1, SHOWMED=0, SHOWMEAN=0, SHOWENV=xsubset.environ ;plot the stacked MZR
+  run.plotmzrstack, STACKDATA=stackdata, PERTURB=1, SHOWENV=xsubset.environ   ;plot the stacked MZR perturbed points
 
-  FOR ww=1, xsubset.mcmass-1, 1 DO BEGIN                       ;loop over monte carlo mass errors
-     run.storenew, MASSES=newmass[*,ww]                        ;set in new masses
-     run.specsort                                              ;sort data into bins
-     run.binbootstrap, xsubset.ninbin                          ;bootstrap resample each mass bin
-     run.specstack, SM=xsubset.sm, /BOOTSTRAP, /PERTURB        ;stack spectra
-     run.collatespecstack, /ACTUALSPEC, /STACKSPEC, /SUMMATION ;stack spectra
+  FOR ww=1, xsubset.mcmass-1, 1 DO BEGIN                                               ;loop over monte carlo mass errors
+     run.storenew, MASSES=newmass[*,ww]                                                ;set in new masses
+     run.specsort                                                                      ;sort data into bins
+     run.binbootstrap, xsubset.ninbin                                                  ;bootstrap resample each mass bin
+     run.specstack, SM=xsubset.sm, /BOOTSTRAP, /PERTURB                                ;stack spectra
+     run.collatespecstack, /ACTUALSPEC, /STACKSPEC, /SUMMATION, STARTADD=thissubset[0] ;stack spectra
                                 ;run.readstack                                             ;read in the mzr stack data
                                 ;run.findstacktags                                         ;find all the tags we need
                                 ;run.fitmzrstack, WHICH=xsubset.fitmzr, /SAVE              ;fit the stack measured MZR
@@ -804,8 +835,9 @@ PRO degroot2015a::workingon, subset, CATALOG=catalog, BINSET=binset
           {name:'eight', catalog:'kemclass_pz_specz_v0-8-3.fits', BINSET:'field', NINBIN:20, SM:'smcurrent', FITMZR:'tr04', MCMASS:1, ENVIRON:0, USEFULLERR:0}, $
           {name:'nine', catalog:'kemclass_pz_specz_v0-8-3.fits', BINSET:'cluster', NINBIN:14, SM:'smcurrent', FITMZR:'tr04', MCMASS:1, ENVIRON:0, USEFULLERR:0}, $ 
           {name:'onezero', catalog:'kemclass_pz_specz_v1-2-0.fits', BINSET:'all', NINBIN:25, SM:'smcurrent', FITMZR:'tr04', MCMASS:1, ENVIRON:0, USEFULLERR:0}, $ 
-          {name:'oneone', catalog:'kemclass_pz_specz_v1-2-0_cl.fits', BINSET:'cluster', NINBIN:16, SM:'smcurrent', FITMZR:'tr04', MCMASS:1, ENVIRON:1, USEFULLERR:0}, $ 
-          {name:'onetwo', catalog:'kemclass_pz_specz_v1-2-0_field.fits', BINSET:'field', NINBIN:25, SM:'smcurrent', FITMZR:'tr04', MCMASS:1, ENVIRON:1, USEFULLERR:0}] 
+          {name:'oneone', catalog:'kemclass_pz_specz_v1-2-0_cl.fits', BINSET:'cluster', NINBIN:16, SM:'smcurrent', FITMZR:'tr04', MCMASS:1, ENVIRON:1, USEFULLERR:1}, $ 
+          {name:'onetwo', catalog:'kemclass_pz_specz_v1-2-0_field.fits', BINSET:'field', NINBIN:25, SM:'smcurrent', FITMZR:'tr04', MCMASS:1, ENVIRON:1, USEFULLERR:1}, $ 
+          {name:'onethree', catalog:'kemclass_pz_specz_v1-2-0.fits', BINSET:'field', NINBIN:25, SM:'smcurrent', FITMZR:'tr04', MCMASS:1, ENVIRON:1, USEFULLERR:0}] 
   
 
   chk = where(sets.name EQ strlowcase(string(subset[0])))
