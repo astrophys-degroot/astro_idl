@@ -93,6 +93,15 @@ FUNCTION mzranalysis::workingon, dirsort, sortcat, compcat, compsumcat, bootcat,
         ver = '1-0'             ;which version
         self.group = 'envtwo'   ;name of group
      END                        ;end last permutation
+     'onethree' : BEGIN         ;last permuation we worked on
+        cls = 'clfour'          ;how many clusters
+        sm = 'smcurrent'        ;which stacking method
+        sp = 'envtwo'           ;which sample
+        qu = 'highq'            ;which quality
+        binby = ''              ;which quality
+        ver = '1-0'             ;which version
+        self.group = 'envtwo'   ;name of group
+     END                        ;end last permutation
      
 
 
@@ -411,11 +420,13 @@ PRO mzranalysis::plotmzrindiv, ALLTOG=alltog, NSIGULIM=nsigulim, DIFFPLOT=diffpl
      yessa14pt = 1
      yeserb06pt = 1
      yesku13pt = 0
+     yestr15pt = 0
   ENDIF ELSE BEGIN
      yesst14pt = 0
      yessa14pt = 0
      yeserb06pt = 0
      yesku13pt = 1
+     yestr15pt = 1
   ENDELSE
 
   chk = plot_mzr(xdata.(self.indmass), 'N2', N2RULE='PP04', HAFLUX=xdata.(self.indhaflux), $ ;cont next line
@@ -426,6 +437,7 @@ PRO mzranalysis::plotmzrindiv, ALLTOG=alltog, NSIGULIM=nsigulim, DIFFPLOT=diffpl
                  SHOWST14PT=yesst14pt, SHOWST14TR=0, $                                       ;cont next line
                  SHOWSA14PT=yessa14pt, $                                                     ;cont next line
                  SHOWKU13PT=yesku13pt, $                                                     ;cont next line
+                 SHOWTR15PT=yestr15pt, $                                                     ;cont next line
                  SHOWERB06PTS=yeserb06pt, SHOWERB06TREND=0, $                                ;cont next line
                  SHOWTR04=1, $                                                               ;cont next line
                  DIFFPLOT=diffplot, SATURATE=1)                                              ;plot mzr
@@ -1027,8 +1039,9 @@ END
 
 ;====================================================================================================
 PRO mzranalysis::collatespecstack, STACKSPEC=stackspec, ACTUALSPEC=actualspec, SUMMATION=summation, $
-                                   VERSION=version
+                                   STARTADD=startadd, VERSION=version
 
+  IF keyword_set(STARTADD) THEN startadd = string(startadd[0]) ELSE startadd = 'A' ;set default
   IF keyword_set(VERSION) THEN version = string(version[0]) ELSE version = 'v3-6-1' ;set default
 
   IF keyword_set(STACKSPEC) THEN BEGIN
@@ -1074,7 +1087,7 @@ PRO mzranalysis::collatespecstack, STACKSPEC=stackspec, ACTUALSPEC=actualspec, S
            addthis = {bin:checking[ii], lambdas:keepdata.lambdas, spec1d:keepdata.spec1d, $
                       spec1dwei:keepdata.spec1dwei, spec1dflag:keepdata.spec1dflag}
            
-           IF checking[ii] NE 'A' THEN BEGIN
+           IF checking[ii] NE startadd THEN BEGIN
               added = [added, addthis]
            ENDIF ELSE BEGIN
               added = [addthis]
@@ -1354,7 +1367,7 @@ END
 PRO mzranalysis::plotmzrstack, STACKDATA=stackdata, FNPLMZRSTACK=fnplmzrstack, ISERROR=iserror, $
                                PERTURB=perturb, $
                                LABEL=label, SHOWMEAN=showmean, SHOWMED=showmed, SHOWFIT=showfit, $
-                               HELP=help
+                               SHOWENV=showenv, HELP=help
 
   
   IF keyword_set(ISERROR) THEN iserror = string(iserror) ELSE iserror = 0 ;set default value
@@ -1431,6 +1444,22 @@ PRO mzranalysis::plotmzrstack, STACKDATA=stackdata, FNPLMZRSTACK=fnplmzrstack, I
      stack = 0
   ENDIF ELSE stack = 1
 
+  ;;;if its the environmental splits
+  IF keyword_set(SHOWENV) THEN BEGIN
+     yesst14pt = 0
+     yessa14pt = 0
+     yeserb06pt = 0
+     yesku13pt = 1
+     yestr15pt = 1
+  ENDIF ELSE BEGIN
+     yesst14pt = 1
+     yessa14pt = 1
+     yeserb06pt = 1
+     yesku13pt = 0
+     yestr15pt = 0
+  ENDELSE
+
+
   chk = plot_mzr(data.(self.indsmass), 'N2', N2RULE='PP04', $                      ;cont next line
                  HAFLUX=data.(self.indshaflux), NIIFLUX=data.(self.indsniiflux), $ ;
                  STACK=stack, $                                                    ;set to 0 if you want to look at perturbation results
@@ -1441,10 +1470,13 @@ PRO mzranalysis::plotmzrstack, STACKDATA=stackdata, FNPLMZRSTACK=fnplmzrstack, I
                  TITLE = 0, $   ;
                  ULIMS=ulims, LABEL=label, OUTFILE=fnplmzrstack, SATURATE=1, $ ;
                  FITINFO=fitinfo, $                                            ;
-                 SHOWST14PT=1, SHOWST14TR=0, SHOWSA14=1, SHOWKU13PT=1, $       ;
+                 SHOWST14PT=yesst14pt, SHOWST14TR=0, $
+                 SHOWSA14=yessa14pt, $
+                 SHOWKU13PT=yesku13pt, $ 
+                 SHOWTR15PT=yestr15pt, $ 
+                 SHOWERB06PTS=yeserb06pt, SHOWERB06TREND=0, SHOWTR04=1, $ ;
                  SHOWMEAN=1, MEANMASS=meanmass, MEANN2=meann2, $               ;
-                 SHOWMED=1, MEDMASS=medmass, MEDN2=medn2, $                    ;
-                 SHOWERB06PTS=1, SHOWERB06TREND=0, SHOWTR04=1)                 ;plot mzr
+                 SHOWMED=1, MEDMASS=medmass, MEDN2=medn2 )                     ;plot mzr
 
 END
 ;====================================================================================================
