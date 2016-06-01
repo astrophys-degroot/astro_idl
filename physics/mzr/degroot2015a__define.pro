@@ -746,6 +746,7 @@ PRO degroot2015a::runmzranalysis, xsubset
   run.findtags                                                                                  ;find all the tags we need
   IF xsubset.mcmass GT 1 THEN newmass = run.mcmass(xsubset.mcmass, WHICH=2)                     ;get perturbed masses
   run.plotmzrindiv, ALLTOG=alltog, LABEL=0                                                      ;plot individual points
+;  stop
                                 ;run.plotbpt, /NOIRAGN         ;plot sudo-BPT points, run with v1-0-1 of catalog!!!
                                 ;run.plotiragn                                              ;plot Donley 2012 IR AGN selection, run with v1-0-0 of catalog!!!
   run.makebins, BINSET=xsubset.binset, NINBIN=xsubset.ninbin ;find mass bin sizes
@@ -757,12 +758,12 @@ PRO degroot2015a::runmzranalysis, xsubset
                                 ;run.readstack, STACKFILE = 'MOSFIRE_comp_clfour_smcurrent_envtwo_highq_v3-6-1_each.fits' ;read in the mzr stack data
   run.findstacktags             ;find all the tags we need
                                 ;run.buildperturb
-  run.plotspecstack, USEFULLERR=0                          ;plot the stacked spectra
-                                ;run.plotspecstack, USEFULLERR=1, SUBSET=['B','D','F']    ;plot the stacked spectra
+                                ;run.plotspecstack, USEFULLERR=0                          ;plot the stacked spectra
+  run.plotspecstack, USEFULLERR=xsubset.usefullerr, SUBSET=['B','D','F']      ;plot the stacked spectra
                                 ;run.plotspecstack, USEFULLERR=1, SUBSET=['A','C','E','G','I','K'] ;plot the stacked spectra
-  run.fitmzrstack, WHICH=xsubset.fitmzr, /SAVE, /STARTOVER ;fit the stack measured MZR
-  run.plotmzrstack, SHOWFIT=1, SHOWMED=1, SHOWMEAN=1        ;plot the stacked MZR
-  ;run.plotmzrstack, STACKDATA=stackdata, PERTURB=1          ;plot the stacked MZR
+  run.fitmzrstack, WHICH=xsubset.fitmzr, /SAVE, /STARTOVER                    ;fit the stack measured MZR
+  run.plotmzrstack, SHOWFIT=1, SHOWMED=1, SHOWMEAN=1, SHOWENV=xsubset.environ ;plot the stacked MZR
+                                ;run.plotmzrstack, STACKDATA=stackdata, PERTURB=1          ;plot the stacked MZR
 
   FOR ww=1, xsubset.mcmass-1, 1 DO BEGIN                       ;loop over monte carlo mass errors
      run.storenew, MASSES=newmass[*,ww]                        ;set in new masses
@@ -793,18 +794,18 @@ END
 PRO degroot2015a::workingon, subset, CATALOG=catalog, BINSET=binset
 
   
-  sets = [{name:'one', catalog:'kemclass_pz_specz_v0-8-1.fits', BINSET:'all', NINBIN:17, SM:'smcurrent', FITMZR:'tr04', MCMASS:1}, $
-          {name:'two', catalog:'kemclass_pz_specz_v0-8-2.fits', BINSET:'all', NINBIN:20, SM:'smcurrent', FITMZR:'tr04', MCMASS:1}, $
-          {name:'three', catalog:'kemclass_pz_specz_v0-8-3.fits', BINSET:'all', NINBIN:20, SM:'smcurrent', FITMZR:'tr04', MCMASS:1}, $
-          {name:'four', catalog:'kemclass_pz_specz_v0-8-1.fits', BINSET:'field', NINBIN:26, SM:'smcurrent', FITMZR:'tr04', MCMASS:1}, $
-          {name:'five', catalog:'kemclass_pz_specz_v0-8-1.fits', BINSET:'cluster', NINBIN:8, SM:'smcurrent', FITMZR:'tr04', MCMASS:1}, $ 
-          {name:'six', catalog:'kemclass_pz_specz_v0-8-2.fits', BINSET:'field', NINBIN:20, SM:'smcurrent', FITMZR:'tr04', MCMASS:1}, $
-          {name:'seven', catalog:'kemclass_pz_specz_v0-8-2.fits', BINSET:'cluster', NINBIN:14, SM:'smcurrent', FITMZR:'tr04', MCMASS:1}, $ 
-          {name:'eight', catalog:'kemclass_pz_specz_v0-8-3.fits', BINSET:'field', NINBIN:20, SM:'smcurrent', FITMZR:'tr04', MCMASS:1}, $
-          {name:'nine', catalog:'kemclass_pz_specz_v0-8-3.fits', BINSET:'cluster', NINBIN:14, SM:'smcurrent', FITMZR:'tr04', MCMASS:1}, $ 
-          {name:'onezero', catalog:'kemclass_pz_specz_v1-2-0.fits', BINSET:'all', NINBIN:25, SM:'smcurrent', FITMZR:'tr04', MCMASS:1}, $ 
-          {name:'oneone', catalog:'kemclass_pz_specz_v1-2-0.fits', BINSET:'cluster', NINBIN:16, SM:'smcurrent', FITMZR:'tr04', MCMASS:1}, $ 
-          {name:'onetwo', catalog:'kemclass_pz_specz_v1-2-0_field.fits', BINSET:'field', NINBIN:25, SM:'smcurrent', FITMZR:'tr04', MCMASS:1}] 
+  sets = [{name:'one', catalog:'kemclass_pz_specz_v0-8-1.fits', BINSET:'all', NINBIN:17, SM:'smcurrent', FITMZR:'tr04', MCMASS:1, ENVIRON:0, USEFULLERR:0}, $
+          {name:'two', catalog:'kemclass_pz_specz_v0-8-2.fits', BINSET:'all', NINBIN:20, SM:'smcurrent', FITMZR:'tr04', MCMASS:1, ENVIRON:0, USEFULLERR:0}, $
+          {name:'three', catalog:'kemclass_pz_specz_v0-8-3.fits', BINSET:'all', NINBIN:20, SM:'smcurrent', FITMZR:'tr04', MCMASS:1, ENVIRON:0, USEFULLERR:0}, $
+          {name:'four', catalog:'kemclass_pz_specz_v0-8-1.fits', BINSET:'field', NINBIN:26, SM:'smcurrent', FITMZR:'tr04', MCMASS:1, ENVIRON:0, USEFULLERR:0}, $
+          {name:'five', catalog:'kemclass_pz_specz_v0-8-1.fits', BINSET:'cluster', NINBIN:8, SM:'smcurrent', FITMZR:'tr04', MCMASS:1, ENVIRON:0, USEFULLERR:0}, $ 
+          {name:'six', catalog:'kemclass_pz_specz_v0-8-2.fits', BINSET:'field', NINBIN:20, SM:'smcurrent', FITMZR:'tr04', MCMASS:1, ENVIRON:0, USEFULLERR:0}, $
+          {name:'seven', catalog:'kemclass_pz_specz_v0-8-2.fits', BINSET:'cluster', NINBIN:14, SM:'smcurrent', FITMZR:'tr04', MCMASS:1, ENVIRON:0, USEFULLERR:0}, $ 
+          {name:'eight', catalog:'kemclass_pz_specz_v0-8-3.fits', BINSET:'field', NINBIN:20, SM:'smcurrent', FITMZR:'tr04', MCMASS:1, ENVIRON:0, USEFULLERR:0}, $
+          {name:'nine', catalog:'kemclass_pz_specz_v0-8-3.fits', BINSET:'cluster', NINBIN:14, SM:'smcurrent', FITMZR:'tr04', MCMASS:1, ENVIRON:0, USEFULLERR:0}, $ 
+          {name:'onezero', catalog:'kemclass_pz_specz_v1-2-0.fits', BINSET:'all', NINBIN:25, SM:'smcurrent', FITMZR:'tr04', MCMASS:1, ENVIRON:0, USEFULLERR:0}, $ 
+          {name:'oneone', catalog:'kemclass_pz_specz_v1-2-0_cl.fits', BINSET:'cluster', NINBIN:16, SM:'smcurrent', FITMZR:'tr04', MCMASS:1, ENVIRON:1, USEFULLERR:0}, $ 
+          {name:'onetwo', catalog:'kemclass_pz_specz_v1-2-0_field.fits', BINSET:'field', NINBIN:25, SM:'smcurrent', FITMZR:'tr04', MCMASS:1, ENVIRON:1, USEFULLERR:0}] 
   
 
   chk = where(sets.name EQ strlowcase(string(subset[0])))
