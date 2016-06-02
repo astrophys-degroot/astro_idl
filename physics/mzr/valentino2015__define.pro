@@ -83,54 +83,54 @@ END
 PRO valentino2015::boxscore
 
 
-  self.va15sampsize = 37                         ;sample size
-  self.va15clsampsize = 6                       ;sample size
-  self.va15fieldsampsize = 31                    ;sample size
-  self.va15IMF = ''                  ;IMF choice
-  self.va15SEDfit = ''                  ;
-  self.va15SEDmodels = ''                    ;
-  self.va15mzrtype = 'N2'                        ;MZR conversion type
-  self.va15mzrconvert = 'pp04'                   ;converted to O/H by
-  self.va15selection = ''                    ;sample selection
-  self.va15zcl = 1.99                            ;minimum redshift
-  self.va15zclmin = 2.2840                       ;minimum redshift
-  self.va15zclmax = 2.3096                       ;minimum redshift
-  self.va15z = 1.92                              ;redshift
-  self.va15zmin = 1.92                           ;minimum redshift
-  self.va15zmax = 2.50                           ;maximum redshift
+  self.va15sampsize = 37        ;sample size
+  self.va15clsampsize = 6       ;sample size
+  self.va15fieldsampsize = 31   ;sample size
+  self.va15IMF = 'salpeter1955' ;IMF choice
+  self.va15SEDfit = 'FAST'      ;
+  self.va15SEDmodels = 'bc03'   ;
+  self.va15mzrtype = 'N2'       ;MZR conversion type
+  self.va15mzrconvert = 'pp04'  ;converted to O/H by
+  self.va15selection = ''       ;sample selection
+  self.va15zcl = 1.99           ;minimum redshift
+  self.va15zclmin = 1.987      ;minimum redshift
+  self.va15zclmax = 2.001      ;minimum redshift
+  self.va15z = 1.92             ;redshift
+  self.va15zmin = 1.92          ;minimum redshift
+  self.va15zmax = 2.50          ;maximum redshift
 
-  self.va15N2cldata = ptr_new({xsmod:[10.47], $        ;
-                               xserrmodn:[0.42], $    ;
-                               xserrmodp:[0.17], $    ;
-                               xserrmod:[0.029], $     ;
-                               ys:[8.261], $           ;
-                               yserrn:[0.083], $       ;
-                               yserrp:[0.083], $       ;
-                               yserr:[0.083], $        ;
-                               ul:[0], $          ;
-                               ngal:[6] })        ;
-  self.va15N2fielddata = ptr_new({xsmod:[10.57], $     ;
+  self.va15N2cldata = ptr_new({xsmod:[10.47], $      ;
+                               xserrmodn:[0.42], $   ;
+                               xserrmodp:[0.17], $   ;
+                               xserrmod:[0.29], $   ;
+                               ys:[8.261], $         ;
+                               yserrn:[0.083], $     ;
+                               yserrp:[0.083], $     ;
+                               yserr:[0.083], $      ;
+                               ul:[0], $             ;
+                               ngal:[6] })           ;
+  self.va15N2fielddata = ptr_new({xsmod:[10.57], $   ;
                                   xserrmodn:[1.0], $ ;
                                   xserrmodp:[0.7], $ ;
-                                  xserrmod:[0.85], $  ;
-                                  ys:[8.514], $        ;
-                                  yserrn:[0.025], $    ;
-                                  yserrp:[0.025], $    ;
-                                  yserr:[0.025], $     ;
-                                  ul:[0], $       ;
-                                  ngal:[31] })    ;
+                                  xserrmod:[0.85], $ ;
+                                  ys:[8.514], $      ;
+                                  yserrn:[0.025], $  ;
+                                  yserrp:[0.025], $  ;
+                                  yserr:[0.025], $   ;
+                                  ul:[0], $          ;
+                                  ngal:[31] })       ;
 
-  self.va15mzrdata = ptr_new({xsmod:[10.47,10.57], $        ;
-                               xserrmodn:[0.42,1.0], $    ;
-                               xserrmodp:[0.17,0.7], $    ;
-                               xserrmod:[0.029,0.85], $     ;
-                               ys:[8.261,8.514], $           ;
-                               yserrn:[0.083,0.025], $       ;
-                               yserrp:[0.083,0.025], $       ;
-                               yserr:[0.083,0.025], $        ;
-                               ul:[0,0], $          ;
-                               cl:[1,0], $          ;
-                               ngal:[6,31] })   ;
+  self.va15mzrdata = ptr_new({xsmod:[10.47,10.57], $    ;
+                              xserrmodn:[0.42,1.0], $   ;
+                              xserrmodp:[0.17,0.7], $   ;
+                              xserrmod:[0.29,0.85], $  ;
+                              ys:[8.261,8.514], $       ;
+                              yserrn:[0.083,0.025], $   ;
+                              yserrp:[0.083,0.025], $   ;
+                              yserr:[0.083,0.025], $    ;
+                              ul:[0,0], $               ;
+                              cl:[1,0], $               ;
+                              ngal:[6,31] })            ;
   
   
 END
