@@ -396,6 +396,12 @@ PRO degroot2015a::fitmzrtrend, which, OPTION=option
            ELSE : mzrdata = *thatart.za12mzrdata
         ENDCASE
      END
+     'henry2013' : BEGIN
+        CASE OPTION OF
+           1 : mzrdata = *thatart.he13R23data
+           ELSE : mzrdata = *thatart.he13mzrdata
+        ENDCASE
+     END
      'kulas2013' : BEGIN
         CASE OPTION OF
            1 : mzrdata = *thatart.ku13N2cldata
@@ -410,10 +416,16 @@ PRO degroot2015a::fitmzrtrend, which, OPTION=option
            ELSE : mzrdata = *thatart.le13mzrdata
         ENDCASE
      END
+     'yuan2013' : BEGIN
+        CASE OPTION OF
+           1 : mzrdata = *thatart.yu13N2data
+           ELSE : mzrdata = *thatart.yu13mzrdata
+        ENDCASE
+     END
      'masters2014' : BEGIN
         CASE OPTION OF
            1 : mzrdata = *thatart.ma14N2data
-           2 : mzrdata = *thatart.ma14N2data
+           2 : mzrdata = *thatart.ma14R23data
            ELSE : mzrdata = *thatart.ma14mzrdata
         ENDCASE
      END
@@ -441,6 +453,14 @@ PRO degroot2015a::fitmzrtrend, which, OPTION=option
            1 : mzrdata = *thatart.tr15N2cldata
            ELSE : mzrdata = *thatart.tr15mzrdata
         ENDCASE
+     END
+    'valentino2015' : BEGIN
+       CASE OPTION OF
+          1 : mzrdata = *thatart.va15N2cldata
+          2 : mzrdata = *thatart.va15N2fielddata
+          3 : mzrdata = *thatart.va15mzrdata
+          ELSE : mzrdata = *thatart.va15mzrdata
+       ENDCASE
      END
     'wuyts2016' : BEGIN
         CASE OPTION OF
@@ -473,33 +493,49 @@ END
 
 
 ;====================================================================================================
-PRO degroot2015a::mzrtrend, INCLUDEFIT=includefit, FITMETALS=fitmetals
+PRO degroot2015a::mzrtrend, INCLUDEFIT=includefit, FITMETALS=fitmetals, WHICHENV=whichenv
 
+
+  IF keyword_set(WHICHENV) THEN whichenv = string(whichenv[0]) ELSE whichenv = 'all'
 
   universeage = 13.8
-  data = [{name:'This Work', xval:1.62, exvalm:0.3, exvalp:0.1, yval:-0.39, eyvalm:0.016, eyvalp:0.017, multiline:0, mzr:'N2', cl:0, field:0, all:1, symcolor:'green'}, $
-          {name:'Tremonti 04', xval:0.00001, exvalm:0.00001, exvalp:0.00001, yval:0.0, eyvalm:0.01, eyvalp:0.01, multiline:1, mzr:'R23', cl:0, field:0, all:1, symcolor:'black'}, $
-          {name:'Erb 06', xval:2.26, exvalm:0.17, exvalp:0.17, yval:-0.56, eyvalm:0.028, eyvalp:0.027, multiline:0, mzr:'N2', cl:0, field:0, all:1, symcolor:'aquamarine'}, $
-          {name:'Maiolino 08', xval:3.35, exvalm:0.35, exvalp:0.35, yval:-0.76, eyvalm:0.25, eyvalp:0.30, multiline:1, mzr:'R23', cl:0, field:0, all:1, symcolor:'blue'}, $
-          {name:'Yabe 12', xval:1.4, exvalm:0.2, exvalp:0.2, yval:-0.518, eyvalm:0.025, eyvalp:0.030, multiline:0, mzr:'N2', cl:0, field:0, all:1, symcolor:'tan'}, $
-          {name:'Zahid 12', xval:0.78, exvalm:0.03, exvalp:0.04, yval:-0.475, eyvalm:0.05, eyvalp:0.05, multiline:1, mzr:'R23', cl:0, field:0, all:1, symcolor:'olive'}, $
-          {name:'Zahid 12', xval:0.07, exvalm:0.03, exvalp:0.03, yval:0.05, eyvalm:0.05, eyvalp:0.05, multiline:1, mzr:'R23', cl:0, field:0, all:1, symcolor:'olive'}, $
-          {name:'Kulas 13', xval:2.31, exvalm:0.11, exvalp:0.20, yval:-0.655, eyvalm:0.072, eyvalp:0.075, multiline:1, mzr:'N2', cl:0, field:0, all:1, symcolor:'dark red'}, $
-          {name:'Leja 13', xval:2.32, exvalm:0.2, exvalp:0.24, yval:-0.512, eyvalm:0.085, eyvalp:0.085, multiline:0, mzr:'N2', cl:0, field:0, all:1, symcolor:'chocolate'}, $
-          {name:'Sanders 14', xval:2.33, exvalm:0.21, exvalp:0.31, yval:-0.56, eyvalm:0.026, eyvalp:0.028, multiline:1, mzr:'N2', cl:0, field:0, all:1, symcolor:'magenta'}, $
-          {name:'Sanders 14', xval:2.33, exvalm:0.21, exvalp:0.31, yval:-0.67, eyvalm:0.023, eyvalp:0.025, multiline:1, mzr:'O3N2', cl:0, field:0, all:1, symcolor:'magenta'}, $
-          {name:'Steidel 14', xval:2.34, exvalm:0.35, exvalp:0.35, yval:-0.55, eyvalm:0.017, eyvalp:0.017, multiline:1, mzr:'N2', cl:0, field:0, all:1, symcolor:'orange'}, $
-          {name:'Steidel 14', xval:2.34, exvalm:0.35, exvalp:0.35, yval:-0.68, eyvalm:0.011, eyvalp:0.011, multiline:1, mzr:'O3N2', cl:0, field:0, all:1, symcolor:'orange'}, $
-          {name:'Masters 14', xval:1.85, exvalm:0.39, exvalp:0.39, yval:-0.34, eyvalm:0.18, eyvalp:0.022, multiline:0, mzr:'N2', cl:0, field:0, all:1, symcolor:'thistle'}, $
-          {name:'Wuyts 14', xval:0.9, exvalm:0.15, exvalp:0.15, yval:-0.43, eyvalm:0.020, eyvalp:0.020, multiline:0, mzr:'N2', cl:0, field:0, all:1, symcolor:'deep sky blue'}, $
-          {name:'Wuyts 14', xval:2.29, exvalm:0.15, exvalp:0.15, yval:-0.63, eyvalm:0.022, eyvalp:0.022, multiline:0, mzr:'N2', cl:0, field:0, all:1, symcolor:'deep sky blue'}, $
-          {name:'Zahid 14', xval:1.55, exvalm:0.15, exvalp:0.15, yval:-0.45, eyvalm:0.008, eyvalp:0.01, multiline:1, mzr:'N2', cl:0, field:0, all:1, symcolor:'pink'}, $
-          {name:'Cullen 15', xval:2.16, exvalm:0.16, exvalp:0.14, yval:-0.63, eyvalm:0.04, eyvalp:0.04, multiline:0, mzr:'R23', cl:0, field:0, all:1, symcolor:'red'}, $
-          {name:'Tran 15', xval:1.6233, exvalm:0.0115, exvalp:0.0115, yval:-0.50, eyvalm:0.05, eyvalp:0.055, multiline:1, mzr:'N2', cl:1, field:0, all:0, symcolor:'salmon'}, $
-          {name:'Wuyts 16', xval:0.9, exvalm:0.3, exvalp:0.2, yval:-0.425, eyvalm:0.022, eyvalp:0.027, multiline:1, mzr:'N2', cl:0, field:0, all:1, symcolor:'navy'}, $
-          {name:'Wuyts 16', xval:1.5, exvalm:0.2, exvalp:0.2, yval:-0.51, eyvalm:0.06, eyvalp:0.077, multiline:1, mzr:'N2', cl:0, field:0, all:1, symcolor:'navy'}, $
-          {name:'Wuyts 16', xval:2.28, exvalm:0.4, exvalp:0.4, yval:-0.57, eyvalm:0.020, eyvalp:0.020, multiline:1, mzr:'N2', cl:0, field:0, all:1, symcolor:'navy'}, $
-          {name:'This Work', xval:1.62, exvalm:0.3, exvalp:0.1, yval:-0.39, eyvalm:0.016, eyvalp:0.017, multiline:0, mzr:'N2', cl:0, field:0, all:1, symcolor:'green'}]
+  data = [ {name:'This Work', xval:1.62, exvalm:0.3, exvalp:0.1, yval:-0.39, eyvalm:0.016, eyvalp:0.017, multiline:0, mzr:'N2', cl:0, field:0, all:1, symcolor:'green'}, $
+           {name:'Tremonti 04', xval:0.00001, exvalm:0.00001, exvalp:0.00001, yval:0.0, eyvalm:0.01, eyvalp:0.01, multiline:1, mzr:'R23', cl:0, field:0, all:1, symcolor:'black'}, $
+           {name:'Erb 06', xval:2.26, exvalm:0.17, exvalp:0.17, yval:-0.56, eyvalm:0.028, eyvalp:0.027, multiline:0, mzr:'N2', cl:0, field:0, all:1, symcolor:'aquamarine'}, $
+           {name:'Maiolino 08', xval:3.35, exvalm:0.35, exvalp:0.35, yval:-0.76, eyvalm:0.25, eyvalp:0.30, multiline:1, mzr:'R23', cl:0, field:0, all:1, symcolor:'blue'}, $
+           {name:'Yabe 12', xval:1.4, exvalm:0.2, exvalp:0.2, yval:-0.518, eyvalm:0.025, eyvalp:0.030, multiline:0, mzr:'N2', cl:0, field:0, all:1, symcolor:'tan'}, $
+           {name:'Zahid 12', xval:0.78, exvalm:0.03, exvalp:0.04, yval:-0.475, eyvalm:0.05, eyvalp:0.05, multiline:1, mzr:'R23', cl:0, field:0, all:1, symcolor:'olive'}, $
+           {name:'Zahid 12', xval:0.07, exvalm:0.03, exvalp:0.03, yval:0.05, eyvalm:0.05, eyvalp:0.05, multiline:1, mzr:'R23', cl:0, field:0, all:1, symcolor:'olive'}, $
+           {name:'Henry 13', xval:1.77, exvalm:0.43, exvalp:0.53, yval:-0.293, eyvalm:0.107, eyvalp:0.113, multiline:1, mzr:'R23', cl:0, field:0, all:1, symcolor:'lime'}, $
+
+           {name:'Kulas 13', xval:2.31, exvalm:0.11, exvalp:0.20, yval:-0.655, eyvalm:0.072, eyvalp:0.075, multiline:1, mzr:'N2', cl:0, field:0, all:1, symcolor:'dark red'}, $
+           {name:'Kulas 13', xval:2.30, exvalm:0.0160, exvalp:0.01, yval:-0.638, eyvalm:0.10, eyvalp:0.105, multiline:1, mzr:'N2', cl:1, field:0, all:0, symcolor:'dark red'}, $
+           {name:'Kulas 13', xval:2.31, exvalm:0.11, exvalp:0.20, yval:-0.673, eyvalm:0.105, eyvalp:0.105, multiline:1, mzr:'N2', cl:0, field:1, all:0, symcolor:'dark red'}, $
+
+           {name:'Leja 13', xval:2.32, exvalm:0.2, exvalp:0.24, yval:-0.512, eyvalm:0.085, eyvalp:0.085, multiline:0, mzr:'N2', cl:0, field:0, all:1, symcolor:'chocolate'}, $
+           {name:'Yuan 13', xval:1.91, exvalm:0.63, exvalp:0.63, yval:-0.512, eyvalm:0.113, eyvalp:0.118, multiline:0, mzr:'N2', cl:0, field:0, all:1, symcolor:'spring green'}, $
+           {name:'Sanders 14', xval:2.33, exvalm:0.21, exvalp:0.31, yval:-0.56, eyvalm:0.026, eyvalp:0.028, multiline:1, mzr:'N2', cl:0, field:0, all:1, symcolor:'magenta'}, $
+           {name:'Sanders 14', xval:2.33, exvalm:0.21, exvalp:0.31, yval:-0.67, eyvalm:0.023, eyvalp:0.025, multiline:1, mzr:'O3N2', cl:0, field:0, all:1, symcolor:'magenta'}, $
+           {name:'Steidel 14', xval:2.34, exvalm:0.35, exvalp:0.35, yval:-0.55, eyvalm:0.017, eyvalp:0.017, multiline:1, mzr:'N2', cl:0, field:0, all:1, symcolor:'orange'}, $
+           {name:'Steidel 14', xval:2.34, exvalm:0.35, exvalp:0.35, yval:-0.68, eyvalm:0.011, eyvalp:0.011, multiline:1, mzr:'O3N2', cl:0, field:0, all:1, symcolor:'orange'}, $
+           {name:'Masters 14', xval:1.845, exvalm:0.39, exvalp:0.39, yval:-0.34, eyvalm:0.18, eyvalp:0.21, multiline:1, mzr:'N2', cl:0, field:0, all:1, symcolor:'thistle'}, $
+           {name:'Masters 14', xval:1.855, exvalm:0.39, exvalp:0.39, yval:-0.51, eyvalm:0.18, eyvalp:0.21, multiline:1, mzr:'R23', cl:0, field:0, all:1, symcolor:'thistle'}, $
+           {name:'Wuyts 14', xval:0.9, exvalm:0.15, exvalp:0.15, yval:-0.43, eyvalm:0.020, eyvalp:0.020, multiline:0, mzr:'N2', cl:0, field:0, all:1, symcolor:'deep sky blue'}, $
+           {name:'Wuyts 14', xval:2.29, exvalm:0.15, exvalp:0.15, yval:-0.63, eyvalm:0.022, eyvalp:0.022, multiline:0, mzr:'N2', cl:0, field:0, all:1, symcolor:'deep sky blue'}, $
+           {name:'Zahid 14', xval:1.55, exvalm:0.15, exvalp:0.15, yval:-0.45, eyvalm:0.008, eyvalp:0.01, multiline:1, mzr:'N2', cl:0, field:0, all:1, symcolor:'pink'}, $
+           {name:'Cullen 15', xval:2.16, exvalm:0.16, exvalp:0.14, yval:-0.63, eyvalm:0.04, eyvalp:0.04, multiline:0, mzr:'R23', cl:0, field:0, all:1, symcolor:'red'}, $
+
+           {name:'Tran 15', xval:1.6233, exvalm:0.0115, exvalp:0.0115, yval:-0.50, eyvalm:0.05, eyvalp:0.055, multiline:1, mzr:'N2', cl:0, field:0, all:1, symcolor:'salmon'}, $
+           {name:'Tran 15', xval:1.6233, exvalm:0.0115, exvalp:0.0115, yval:-0.50, eyvalm:0.05, eyvalp:0.055, multiline:1, mzr:'N2', cl:1, field:0, all:0, symcolor:'salmon'}, $
+           
+           {name:'Valentino 15', xval:1.92, exvalm:0.2, exvalp:0.2, yval:-0.617, eyvalm:0.027, eyvalp:0.040, multiline:1, mzr:'N2', cl:0, field:0, all:1, symcolor:'goldenrod'}, $
+           {name:'Valentino 15', xval:1.99, exvalm:0.003, exvalp:0.011, yval:-0.785, eyvalm:0.095, eyvalp:0.098, multiline:1, mzr:'N2', cl:1, field:0, all:0, symcolor:'goldenrod'}, $
+           {name:'Valentino 15', xval:1.92, exvalm:0.2, exvalp:0.2, yval:-0.602, eyvalm:0.075, eyvalp:0.185, multiline:1, mzr:'N2', cl:0, field:1, all:0, symcolor:'goldenrod'}, $
+
+           {name:'Wuyts 16', xval:0.9, exvalm:0.3, exvalp:0.2, yval:-0.425, eyvalm:0.022, eyvalp:0.027, multiline:1, mzr:'N2', cl:0, field:0, all:1, symcolor:'navy'}, $
+           {name:'Wuyts 16', xval:1.5, exvalm:0.2, exvalp:0.2, yval:-0.51, eyvalm:0.06, eyvalp:0.077, multiline:1, mzr:'N2', cl:0, field:0, all:1, symcolor:'navy'}, $
+           {name:'Wuyts 16', xval:2.28, exvalm:0.4, exvalp:0.4, yval:-0.57, eyvalm:0.020, eyvalp:0.020, multiline:1, mzr:'N2', cl:0, field:0, all:1, symcolor:'navy'}, $
+           {name:'This Work', xval:1.62, exvalm:0.3, exvalp:0.1, yval:-0.39, eyvalm:0.016, eyvalp:0.017, multiline:0, mzr:'N2', cl:0, field:0, all:1, symcolor:'green'}]
                                 ;print, data
 
   ;;;plot attributes
@@ -509,6 +545,20 @@ PRO degroot2015a::mzrtrend, INCLUDEFIT=includefit, FITMETALS=fitmetals
   ymin = min(offsets)
   ymax = max(offsets)
   
+
+  ;;;only all points right now
+  CASE whichenv OF 
+     'all' : chk = where(data.all EQ 1)
+     'cl' :  chk = where(data.cl EQ 1)
+     'field' :  chk = where(data.field EQ 1)
+     'bothenv' :  chk = where(data.field EQ 1 OR (data.cl EQ 1))
+     ELSE : BEGIN
+        print, 'WARNING!! Choice of WHICHENV not valid!!'
+        print, '  Allowed choices are: all, cl, field or bothenv'
+     ENDELSE
+  ENDCASE
+  IF chk[0] NE -1 THEN data = data[chk]
+
 
   ;;;fit the data
   IF keyword_set(INCLUDEFIT) THEN BEGIN
@@ -525,7 +575,7 @@ PRO degroot2015a::mzrtrend, INCLUDEFIT=includefit, FITMETALS=fitmetals
      ENDFOR
      exval = alog10(1.0 + xdata.xval+exval) - xval
      bayesian_linear_xyerr, xval, xdata.yval, exval, eyval, $
-                            INTMIN=-0.05, INTMAX=0.05, INTBIN=0.001, $
+                            INTMIN=-0.10, INTMAX=0.15, INTBIN=0.003, $
                             SLPMIN=-1.4, SLPMAX=-0.8, SLPBIN=0.005, $
                             TXMIN=-1.0, TXMAX=1.0, TXBIN=0.05, $
                             /PLOTFIT, /PLOTDATA, /PLOTFULL, OUTPUT=myoutput
@@ -556,6 +606,14 @@ PRO degroot2015a::mzrtrend, INCLUDEFIT=includefit, FITMETALS=fitmetals
   notmove = 0
   ;;;create the plot
   FOR xx=0, n_elements(data)-1, 1 DO BEGIN
+     IF data[xx].name EQ 'This Work' THEN BEGIN
+        symsize = 2.0
+        symthick = 3.0
+     ENDIF ELSE BEGIN
+        symsize = 1.0
+        symthick = 1.0
+     ENDELSE
+                                ;IF keyword_set(WHICHENV)
      CASE data[xx].mzr OF
         'N2' : symbol = 's' 
         'R23' : symbol='o'
@@ -575,7 +633,8 @@ PRO degroot2015a::mzrtrend, INCLUDEFIT=includefit, FITMETALS=fitmetals
                         YSTYLE=1, $
                         FONT_SIZE=12.0, $
                         FONT_STYLE=1, $
-                        SYM_SIZE=1.5, $
+                        SYM_SIZE=symsize, $
+                        SYM_THICK=symthick, $
                         SYMBOL=symbol, $
                         SYM_COLOR= data[xx].symcolor, $
                         SYM_FILL_COLOR= data[xx].symcolor, $
@@ -614,8 +673,8 @@ PRO degroot2015a::mzrtrend, INCLUDEFIT=includefit, FITMETALS=fitmetals
         
         
      ENDIF
-     IF xx LE 12 THEN BEGIN
-        xval = 0.75 
+     IF xx LE 10 THEN BEGIN
+        xval = 0.77 
      ENDIF ELSE BEGIN 
         xval = 0.20
      ENDELSE
@@ -761,10 +820,10 @@ PRO degroot2015a::runmzranalysis, xsubset
   IF xsubset.binset EQ 'all' THEN alltog = 1 ELSE alltog = 0
   ;stackdata = mrdfits('/Users/adegroot/research/clusters/combination/spectroscopy/stacks/' + $
   ;                    'clfour/smcurrent/all/highq/MOSFIRE_compsum_clfour_smcurrent_all_highq_v3-6-1.fits', 1, hdr)
-  ;stackdata = mrdfits('/Users/adegroot/research/clusters/combination/spectroscopy/stacks/' + $
-  ;                    'clfour/smcurrent/envtwo/highq/cluster/MOSFIRE_compsum_clfour_smcurrent_envtwo_highq_v3-6-1.fits', 1, hdr)
   stackdata = mrdfits('/Users/adegroot/research/clusters/combination/spectroscopy/stacks/' + $
-                      'clfour/smcurrent/envtwo/highq/field/MOSFIRE_compsum_clfour_smcurrent_envtwo_highq_v3-6-1.fits', 1, hdr)
+                      'clfour/smcurrent/envtwo/highq/cluster/MOSFIRE_compsum_clfour_smcurrent_envtwo_highq_v3-6-1.fits', 1, hdr)
+  ;stackdata = mrdfits('/Users/adegroot/research/clusters/combination/spectroscopy/stacks/' + $
+  ;                    'clfour/smcurrent/envtwo/highq/field/MOSFIRE_compsum_clfour_smcurrent_envtwo_highq_v3-6-1.fits', 1, hdr)
   
   run = obj_new('mzranalysis', CURCAT=xsubset.catalog, WORKING=xsubset.name)                    ;make analysis object
   run.readcat, xsubset.catalog, INDIR='/Users/adegroot/research/clusters/combination/catalogs/' ;read in data 
@@ -779,8 +838,8 @@ PRO degroot2015a::runmzranalysis, xsubset
   run.findstats                                              ;find stats for bins
   ;run.specstack, SM=xsubset.sm                               ;stack spectra
   run.collatespecstack, /STACKSPEC                           ;stack spectra
-                                ;run.readstack, STACKFILE=0                                 ;read in the mzr stack data
-  run.readstack, STACKFILE = 'MOSFIRE_comp_clfour_smcurrent_envtwo_highq_v3-6-1_each.fits' ;read in the mzr stack data
+  run.readstack, STACKFILE=0                                 ;read in the mzr stack data
+                                ;run.readstack, STACKFILE = 'MOSFIRE_comp_clfour_smcurrent_envtwo_highq_v3-6-1_each.fits' ;read in the mzr stack data
   run.findstacktags                                                                        ;find all the tags we need
   IF xsubset.usefullerr NE 0 THEN run.buildperturb
   CASE xsubset.binset OF
