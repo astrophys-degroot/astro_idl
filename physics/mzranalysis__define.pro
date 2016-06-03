@@ -98,7 +98,7 @@ FUNCTION mzranalysis::workingon, dirsort, sortcat, compcat, compsumcat, bootcat,
         sm = 'smcurrent'        ;which stacking method
         sp = 'envtwo'           ;which sample
         qu = 'highq'            ;which quality
-        binby = ''              ;which quality
+        binby = 'cluster'       ;which quality
         ver = '1-0'             ;which version
         self.group = 'envtwo'   ;name of group
      END                        ;end last permutation
@@ -165,15 +165,15 @@ FUNCTION mzranalysis::workingon, dirsort, sortcat, compcat, compsumcat, bootcat,
         self.group = 'envtwo'   ;name of group
      END                        ;end last permutation
      
-     'seven' : BEGIN              ;permuation we worked on
-        cls = 'clthree'           ;how many clusters
-        sm = 'smcurrent'          ;which stacking method
-        sp = 'envtwo'             ;which sample
-        qu = 'medq'               ;which quality
-        binby = 'bincl'           ;which quality
-        ver = '1-0'               ;which version
-        self.group = 'envtwo'     ;name of group
-     END                          ;end last permutation
+     'seven' : BEGIN            ;permuation we worked on
+        cls = 'clthree'         ;how many clusters
+        sm = 'smcurrent'        ;which stacking method
+        sp = 'envtwo'           ;which sample
+        qu = 'medq'             ;which quality
+        binby = 'bincl'         ;which quality
+        ver = '1-0'             ;which version
+        self.group = 'envtwo'   ;name of group
+     END                        ;end last permutation
      
      'eight' : BEGIN              ;last permuation we worked on
         cls = 'clthree'           ;how many clusters
@@ -262,12 +262,13 @@ PRO mzranalysis::readstack, STACKFILE=stackfile, INDIR=indir, FILEUNIT=fileunit
 
   print, indir
   print, stackfile
-  fullname = strcompress(indir + stackfile, /REMOVE_ALL)                        ;full path to file
-  data = mrdfits(fullname, fileunit, hdr)                                       ;read in file
-  self.nstackdata =  n_elements(data.(0))                                       ;store info
-  self.stackdata = ptr_new(data)                                                ;store info
-  self.stackhdr = ptr_new(hdr)                                                  ;store info
-  IF keyword_set(HELP) THEN help, data, /STRUC                                  ;structure help
+  fullname = strcompress(indir + stackfile, /REMOVE_ALL) ;full path to file
+  data = mrdfits(fullname, fileunit, hdr)                ;read in file
+  help, data, /STRUC
+  self.nstackdata =  n_elements(data.(0))      ;store info
+  self.stackdata = ptr_new(data)               ;store info
+  self.stackhdr = ptr_new(hdr)                 ;store info
+  IF keyword_set(HELP) THEN help, data, /STRUC ;structure help
   
   RETURN
 END
@@ -279,7 +280,7 @@ PRO mzranalysis::findtags
 
 
   xdata = *self.compdata        ;grab data
-  ;help, xdata, /STRUC
+                                ;help, xdata, /STRUC
 
   ;;;find the necessary tags
   tags = {tgra:['blurb','MRA', 'RA', 'RAJ2000'], $         ;possible tags
@@ -295,17 +296,17 @@ PRO mzranalysis::findtags
           tgclmem:['AN_SHIGAP','AN_ADAPKER','AN_CLMEM'], $ ;possible tags
           tglab1:['SP_M_OBJ'], $                           ;possible tags
           tglab2:['SP_M_MASK'], $                          ;possible tags
-          ;tgch1flux:['PH_IRAC1FLUX'], $                    ;possible tags
-          ;tgch2flux:['PH_IRAC2FLUX'], $                    ;possible tags
-          ;tgch3flux:['PH_IRAC3FLUX'], $                    ;possible tags
-          ;tgch4flux:['PH_IRAC4FLUX'], $                    ;possible tags
-          tgiragn:['AN_AGND12']}                           ;possible tags
+                                ;tgch1flux:['PH_IRAC1FLUX'], $                    ;possible tags
+                                ;tgch2flux:['PH_IRAC2FLUX'], $                    ;possible tags
+                                ;tgch3flux:['PH_IRAC3FLUX'], $                    ;possible tags
+                                ;tgch4flux:['PH_IRAC4FLUX'], $                    ;possible tags
+          tgiragn:['AN_AGND12']} ;possible tags
 
 
 
 
-  nametags = tag_names(tags)                               ;get key names
-  selftags = tag_names(self)                               ;get key names
+  nametags = tag_names(tags)    ;get key names
+  selftags = tag_names(self)    ;get key names
 
                                 ;IF keyword_set(TGMFLAG) THEN self.tgmflag = string(tgmflag[0]) ELSE self.tgmflag = 'MFLAG'                    ;set default
                                 ;IF keyword_set(TGAGN) THEN self.tgagn = string(tgagn[0]) ELSE self.tgagn = 'AN_AGND12'                        ;set default
@@ -516,13 +517,13 @@ PRO mzranalysis::plotbpt, NOIRAGN=noiragn, $
   model3 = kewley_2006(2)       ;get [NII] composite related models
 
   ;;;make the plot
-  w = window(LOCATION=[100+50*self.nwin,-25+25*self.nwin])         ;window
-  bptplot = plot([1.0], [1.0], '.', /CURRENT, /NODATA, $           ;plot data
-                 XTITLE='log([NII]$\lambda$6585/H$\alpha$)', $                  ;plot options
-                 XRANGE=[self.bptxmin,self.bptxmax], $             ;plot options
-                 YTITLE='log([OIII]$\lambda$5007/H$\beta$)', $                  ;plot options
-                 YRANGE=[self.bptymin,self.bptymax], $             ;plot options
-                 FONT_SIZE=16, FONT_STYLE=0)                       ;plot options
+  w = window(LOCATION=[100+50*self.nwin,-25+25*self.nwin])     ;window
+  bptplot = plot([1.0], [1.0], '.', /CURRENT, /NODATA, $       ;plot data
+                 XTITLE='log([NII]$\lambda$6585/H$\alpha$)', $ ;plot options
+                 XRANGE=[self.bptxmin,self.bptxmax], $         ;plot options
+                 YTITLE='log([OIII]$\lambda$5007/H$\beta$)', $ ;plot options
+                 YRANGE=[self.bptymin,self.bptymax], $         ;plot options
+                 FONT_SIZE=16, FONT_STYLE=0)                   ;plot options
 
   bptplot1 = plot(model.lmixxs, model.lmixys, '-', /OVERPLOT, $            ;plot model
                   THICK=2, color='green')                                  ;plot options
@@ -580,9 +581,9 @@ PRO mzranalysis::plotbpt, NOIRAGN=noiragn, $
                     SHADOW=0, LINESTYLE=6, FONT_SIZE=11, SAMPLE_WIDTH=0)   ;legend options
 
   
-  ;bptplot.save, fnbptplot, RESOLUTION=600 ;save plot
-  ;self.bptmade = 1                        ;set as plot made this call
-  ;self.nwin = self.nwin + 1               ;up window number
+                                ;bptplot.save, fnbptplot, RESOLUTION=600 ;save plot
+                                ;self.bptmade = 1                        ;set as plot made this call
+                                ;self.nwin = self.nwin + 1               ;up window number
 
 
 END
@@ -603,7 +604,7 @@ PRO mzranalysis::plotiragn, FNIRAGNPLOT=fniragnplot
 
   ;;;read catalog and fine appropriate data
   xdata = *self.compdata        ;grab data
- 
+  
 
   ;;;find subsets and fill subset arrarys
   IF (self.indspz1 NE 0) THEN BEGIN                                                                     ;
@@ -623,7 +624,7 @@ PRO mzranalysis::plotiragn, FNIRAGNPLOT=fniragnplot
                   (xs GE 0.08) AND (ys GE 0.15) AND $
                   (ys GE ((1.21*xs)-0.27)) AND $
                   (ys LE ((1.21*xs)+0.27))) 
-           
+  
   IF yesagn[0] NE -1 THEN agn[yesagn] = 1
   
 
@@ -659,7 +660,7 @@ PRO mzranalysis::plotiragn, FNIRAGNPLOT=fniragnplot
                                 ;print, hist2d
                                 ;print, ''
                                 ;hist2d = congrid(hist2d, MAX(xs[nospecz]), MAX(ys[nospecz]))
-  ;hist2d = (ALOG10(hist2d > 1))
+                                ;hist2d = (ALOG10(hist2d > 1))
                                 ;stop
                                 ;help, xs[nospecz]
                                 ;help, ys[nospecz]
@@ -673,8 +674,8 @@ PRO mzranalysis::plotiragn, FNIRAGNPLOT=fniragnplot
 
   targets = []
   ;;;plot it all
-  model1 = donley_2012(1)                                                ;get region populated by AGNs
-  w = window(LOCATION=[100+50*self.nwin,-25+25*self.nwin])               ;window
+  model1 = donley_2012(1)                                  ;get region populated by AGNs
+  w = window(LOCATION=[100+50*self.nwin,-25+25*self.nwin]) ;window
 
 
   ct = COLORTABLE(0, /REVERSE)
@@ -693,7 +694,7 @@ PRO mzranalysis::plotiragn, FNIRAGNPLOT=fniragnplot
   limit1 = plot(model1.xs, model1.ys, '-', /OVERPLOT, THICK=2, $         ;plot options
                 NAME = 'Donley 2012')                                    ;plot model
   targets = [targets, limit1]
- 
+  
   points = plot(xs[specz], ys[specz], 'go', /OVERPLOT, /SYM_FILLED, SYM_SIZE=0.6, $
                 NAME = 'IR non-AGN')
   targets = [targets, points]
@@ -701,7 +702,7 @@ PRO mzranalysis::plotiragn, FNIRAGNPLOT=fniragnplot
                 NAME = 'IR AGN')
   targets = [targets, points]
 
-  ;IF (self.indspz1 NE -1) THEN BEGIN
+                                ;IF (self.indspz1 NE -1) THEN BEGIN
                                 ;     IF nospecz[0] NE -1 THEN nozpoints = plot(xs[nospecz], ys[nospecz], 'o', /OVERPLOT, $
                                 ;                                               COLOR='gray', /SYM_FILLED, SYM_SIZE=0.3) 
                                 ;     IF (qspzind NE -1) THEN BEGIN
@@ -742,15 +743,15 @@ PRO mzranalysis::plotiragn, FNIRAGNPLOT=fniragnplot
                                 ;     agn = plot(xs[elagnyes], ys[elagnyes], 'tu', /OVERPLOT, COLOR = 'red', /SYM_FILLED, SYM_SIZE=1.25)
                                 ;ENDIF
 
-  mylegend = legend(TARGET=targets, $                                          ;legend
+  mylegend = legend(TARGET=targets, $                                           ;legend
                     POSITION=[self.iragnxmin+0.08,self.iragnymax-0.2], /DATA, $ ;legend options
-                    SHADOW=0, LINESTYLE=6, FONT_SIZE=10, $                     ;legend options
-                    SAMPLE_WIDTH=0.1)                                          ;legend options
+                    SHADOW=0, LINESTYLE=6, FONT_SIZE=10, $                      ;legend options
+                    SAMPLE_WIDTH=0.1)                                           ;legend options
   
 
-  ;iragnplot.save, fniragnplot, RESOLUTION=600 ;save plot
-  ;self.iragnmade = 1                          ;set as plot made this call
-  ;self.nwin = self.nwin + 1                   ;up window number
+                                ;iragnplot.save, fniragnplot, RESOLUTION=600 ;save plot
+                                ;self.iragnmade = 1                          ;set as plot made this call
+                                ;self.nwin = self.nwin + 1                   ;up window number
 
 END
 ;====================================================================================================
@@ -764,17 +765,17 @@ FUNCTION mzranalysis::mcmass, howmany, WHICH=which, DMASSFILE=dmassfile
   ;;;get the data and sort out what we have
   xdata = *self.compdata        ;grab data
 
-  masses = xdata.(self.indmass)                           ;get masses
-  IF mean(xdata.(self.indemassi)) GT 4.0 THEN BEGIN       ;not actual mass errors
-     emassi = masses - xdata.(self.indemassi)             ;get real errors
-  ENDIF ELSE emassi = xdata.(self.indemassi)              ;actual mass errors
-  chk = where(emassi EQ 0.0 OR emassi NE emassi)          ;if nonsensical errors
-  IF chk[0] NE -1 THEN emassi[chk] = 0.05                 ;set to default error
-  IF mean(xdata.(self.indemassa)) GT 4.0 THEN BEGIN       ;actual mass errors
-     emassa = xdata.(self.indemassa) - masses             ;actual mass errors
-  ENDIF ELSE emassa = xdata.(self.indemassa)              ;actual mass errors
-  chk = where(emassa EQ 0.0 OR emassa NE emassa)          ;if nonsensical errors
-  IF chk[0] NE -1 THEN emassa[chk] = 0.05                 ;set to default error
+  masses = xdata.(self.indmass)                     ;get masses
+  IF mean(xdata.(self.indemassi)) GT 4.0 THEN BEGIN ;not actual mass errors
+     emassi = masses - xdata.(self.indemassi)       ;get real errors
+  ENDIF ELSE emassi = xdata.(self.indemassi)        ;actual mass errors
+  chk = where(emassi EQ 0.0 OR emassi NE emassi)    ;if nonsensical errors
+  IF chk[0] NE -1 THEN emassi[chk] = 0.05           ;set to default error
+  IF mean(xdata.(self.indemassa)) GT 4.0 THEN BEGIN ;actual mass errors
+     emassa = xdata.(self.indemassa) - masses       ;actual mass errors
+  ENDIF ELSE emassa = xdata.(self.indemassa)        ;actual mass errors
+  chk = where(emassa EQ 0.0 OR emassa NE emassa)    ;if nonsensical errors
+  IF chk[0] NE -1 THEN emassa[chk] = 0.05           ;set to default error
   nmasses = n_elements(masses)
   allmasses = fltarr(howmany,nmasses)
   seed = 12345
@@ -847,7 +848,7 @@ PRO mzranalysis::storenew, MASSES=masses
 
   IF keyword_set(MASSES) THEN xdata.(self.indmass) = masses ;set in new values
 
- 
+  
 END
 ;====================================================================================================
 
@@ -886,8 +887,8 @@ PRO mzranalysis::specsort, GROUP=group
   
   xdata = *self.compdata                                                                                  ;grab data
   massbins = *self.massbins                                                                               ;grab data  
-  ;print, massbins
-  zbins = [1.2,1.8]                                                                                       ;sanity 
+                                ;print, massbins
+  zbins = [1.2,1.8]             ;sanity 
   passing = [self.tglab1, self.tglab2, self.tghaflux, self.tgniiflux]                                     ;structure tag info to put in output
   CASE group OF                                                                                           ;which group are we working with ;
      'all' : densebins = [-0.5, 3.5]                                                                      ;need this ;
@@ -904,16 +905,16 @@ PRO mzranalysis::specsort, GROUP=group
 
   
   ;;;now make the source
-  mysort = obj_new('sortdata', xdata, self.tgspz1, zbins, $   ;call the sort data object
-                   NAME2=self.tgmass, BINS2=massbins, $       ;object input
-                   NAME3=self.tgclmem, BINS3=densebins, $     ;object input
-                   TOPASS=passing, DITCHFIRST=1)              ;object input
-  mysort.getprop, SRDOBJVER=myver, BINNAMES=mybins            ;verify its working
-  passchk = mysort.chknames()                                 ;
-  passchk = mysort.chkbins(MIN2=7.0)                          ;
-  passchk = mysort.chkorder()                                 ;
-  mysort.prepouts, FILL2=massbins[0], FILL3=densebins[0]      ;
-  mysort.fillouts, DIRECTORY=self.tglab2                      ;
+  mysort = obj_new('sortdata', xdata, self.tgspz1, zbins, $ ;call the sort data object
+                   NAME2=self.tgmass, BINS2=massbins, $     ;object input
+                   NAME3=self.tgclmem, BINS3=densebins, $   ;object input
+                   TOPASS=passing, DITCHFIRST=1)            ;object input
+  mysort.getprop, SRDOBJVER=myver, BINNAMES=mybins          ;verify its working
+  passchk = mysort.chknames()                               ;
+  passchk = mysort.chkbins(MIN2=7.0)                        ;
+  passchk = mysort.chkorder()                               ;
+  mysort.prepouts, FILL2=massbins[0], FILL3=densebins[0]    ;
+  mysort.fillouts, DIRECTORY=self.tglab2                    ;
   print, self.sortcat
   
   mysort.writeouts, OUTFILE=self.sortcat, DIROUT=self.dirsort ;
@@ -938,7 +939,7 @@ PRO mzranalysis::binbootstrap, perbin, VERSION=version
   metadata = mrdfits(self.dirsort + self.sortcat, 1, hdr)
   keys = metadata.key
   key_values = keys[UNIQ(keys, SORT(keys))]
-  ;print, key_values
+                                ;print, key_values
 
   ;;;the bootstrap
   print, '  Boostrapping...setup....'
@@ -946,23 +947,23 @@ PRO mzranalysis::binbootstrap, perbin, VERSION=version
   ;;;same values for the low mass bin every time. no idea why yet. 
 
   seedval = (systime(/SECONDS)*2.0 mod (3279))
-  ;print, seedval
+                                ;print, seedval
   fullurands = uniformran(perbin, n_elements(key_values), SEED=seedval)
-  ;help, fullurands
+                                ;help, fullurands
                                 ;print, urands
 
   FOR ii=0, n_elements(key_values)-1, 1 DO BEGIN
      
      these = where(metadata.key EQ key_values[ii], nthese)
-     ;print, nthese
+                                ;print, nthese
      split = double(1.0/nthese)
-     ;print, split
+                                ;print, split
 
      urands = fullurands[*,ii]
-     ;help, urands
+                                ;help, urands
                                 ;FOR ii=0, perbin-1, 1 DO BEGIN
      repick = fix(urands/split)
-     ;print, repick
+                                ;print, repick
      temp = metadata[these[repick]]
      IF ii NE 0 THEN BEGIN
         outdata = [outdata, temp]
@@ -1013,22 +1014,26 @@ END
 
 
 ;====================================================================================================
-PRO mzranalysis::specstack, SUBSETS=subsets, SM=sm, BOOTSTRAP=bootstrap, PERTURB=perturb
+PRO mzranalysis::specstack, SUBSETS=subsets, SM=sm, BOOTSTRAP=bootstrap, PERTURB=perturb, $
+                            SPECVER=specver, NEWSPECVER=newspecver, JUSTFIT=justfit
 
-
-  IF keyword_set(SUBSETS) THEN subsets = (string(subsets)) ELSE subsets = *self.subset ;set default
-  IF keyword_set(SM) THEN sm = strlowcase(string(sm[0])) ELSE sm = 'smcurrent'         ;set default
-  IF keyword_set(BOOTSTRAP) THEN thisfile = self.bootcat ELSE thisfile = self.sortcat  ;set default
-  IF keyword_set(PERTURB) THEN perturb = 1 ELSE perturb = 0                            ;set default
+  IF keyword_set(SUBSETS) THEN subsets = (string(subsets)) ELSE subsets = *self.subset          ;set default
+  IF keyword_set(SM) THEN sm = strlowcase(string(sm[0])) ELSE sm = 'smcurrent'                  ;set default
+  IF keyword_set(BOOTSTRAP) THEN thisfile = self.bootcat ELSE thisfile = self.sortcat           ;set default
+  IF keyword_set(PERTURB) THEN perturb = 1 ELSE perturb = 0                                     ;set default
+  IF keyword_set(SPECVER) THEN specver = string(specver[0]) ELSE specver = 'v3-6-0'             ;set default
+  IF keyword_set(NEWSPECVER) THEN newspecver = string(newspecver[0]) ELSE newspecver = 'v3-6-1' ;set default
+  IF keyword_set(JUSTFIT) THEN justfit = fix(justfit[0]) ELSE justfit = 0                       ;set default
   
-  FOR xx=n_elements(subsets)-1, 0, -1 DO BEGIN                                                ;loop over subsets to stack
-     mystkset = obj_new('specstackset', PRESET=sm)                                            ;initiate object
-     mystkset.getprop, PRESET=presets                                                         ;get property
-     myspecs = mystkset.readfile(thisfile, INDIR=self.dirsort)                                ;read the file
-     mypresets = mystkset.getpresets(presets)                                                 ;read the file
-     mypresets.perturb = perturb                                                              ;modify the perturb setting as necessary
-     status = mystkset.makestack(myspecs, mypresets, OUTDIR=self.dirsort, ENV=self.tgclmem, $ ;cont next line
-                                 SUBSET=subsets[xx], SPECVER='v3-6-0', NEWSPECVER='v3-6-1')   ;make the stacks   
+  FOR xx=n_elements(subsets)-1, 0, -1 DO BEGIN                                                 ;loop over subsets to stack
+     mystkset = obj_new('specstackset', PRESET=sm)                                             ;initiate object
+     mystkset.getprop, PRESET=presets                                                          ;get property
+     myspecs = mystkset.readfile(thisfile, INDIR=self.dirsort)                                 ;read the file
+     mypresets = mystkset.getpresets(presets)                                                  ;read the file
+     IF justfit EQ 0 THEN mypresets.perturb = perturb                                          ;modify the perturb setting as necessary
+     status = mystkset.makestack(myspecs, mypresets, OUTDIR=self.dirsort, ENV=self.tgclmem, $  ;cont next line
+                                 SUBSET=subsets[xx], SPECVER=specver, NEWSPECVER=newspecver, $ ;cont next line
+                                 JUSTFIT=justfit)                                              ;make the stacks   
      obj_destroy, mystkset
   ENDFOR
 
@@ -1041,8 +1046,8 @@ END
 PRO mzranalysis::collatespecstack, STACKSPEC=stackspec, ACTUALSPEC=actualspec, SUMMATION=summation, $
                                    STARTADD=startadd, VERSION=version
 
-  IF keyword_set(STARTADD) THEN startadd = string(startadd[0]) ELSE startadd = 'A' ;set default
-  IF keyword_set(VERSION) THEN version = string(version[0]) ELSE version = 'v3-6-1' ;set default
+  IF keyword_set(STARTADD) THEN startadd = string(startadd[0]) ELSE startadd = 'A'  ;set default
+  IF keyword_set(VERSION) THEN version = string(version[0]) ELSE version = 'v3-6-2' ;set default
 
   IF keyword_set(STACKSPEC) THEN BEGIN
      compcat = strcompress(self.dirsort + self.compcat,  /REMOVE_ALL)                          ;file name
@@ -1132,9 +1137,9 @@ PRO mzranalysis::buildperturb, PERTRUBFILE=perturbfile, PERTURBHOW=perturbhow, I
      strreplace, bit, '???', checking[xx]                            ;replace the wildcard
      bit = strcompress(indir + bit, /REMOVE_ALL)                     ;remove whitespace
      chk = file_test(bit)                                            ;see if file exists
-     IF chk EQ 1 THEN BEGIN ;if the file exists
+     IF chk EQ 1 THEN BEGIN                                          ;if the file exists
         data = mrdfits(bit, 1, hdr, /SILENT)
-        ;help, data, /STRUC
+                                ;help, data, /STRUC
         these = where(perturbdata.bin EQ checking[xx])
         IF these[0] NE -1 THEN BEGIN
            fullerr = data.lambdas
@@ -1165,7 +1170,7 @@ PRO mzranalysis::buildperturb, PERTRUBFILE=perturbfile, PERTURBHOW=perturbhow, I
                                 ;stop
            ENDFOR
            chktag = tag_exist(data, 'SPEC1DFULLWEI')
-           ;print, chktag
+                                ;print, chktag
            IF chktag  EQ 0 THEN BEGIN
               add_tag, data, 'SPEC1DFULLWEI', fltarr(n_elements(fullerr)), newdata
            ENDIF ELSE BEGIN
@@ -1173,20 +1178,18 @@ PRO mzranalysis::buildperturb, PERTRUBFILE=perturbfile, PERTURBHOW=perturbhow, I
            ENDELSE
            newdata.spec1dfullwei = fullerr
 
-           ;print, newdata.spec1dfullwei
-           ;help, newdata, /STRUC
+                                ;print, newdata.spec1dfullwei
+                                ;help, newdata, /STRUC
 
            mwrfits, newdata, bit, hdr, /CREATE
 
-           ;stop
+                                ;stop
         ENDIF
 
      ENDIF                      ;end file exists
-  ENDFOR                                                             ;end loop over subsets
+  ENDFOR                        ;end loop over subsets
 
   
-
-
 END
 ;====================================================================================================
 
@@ -1340,7 +1343,7 @@ PRO mzranalysis::fitmzrstack, WHICH=which, ISERROR=iserror, $
      IF (xx EQ 0) THEN outresult = result ELSE outresult = [outresult, result] ;store it up
   ENDFOR                                                                       ;end loop over sets to fit
 
-   self.fitinfo = ptr_new(result) ;store fit result
+  self.fitinfo = ptr_new(result) ;store fit result
 
   IF keyword_set(SAVE) THEN BEGIN                                                     ;if we want to save file
      filechk = file_test(strcompress(self.dirsort + self.fnmzrfit))                   ;check if file exists
@@ -1371,9 +1374,9 @@ PRO mzranalysis::plotmzrstack, STACKDATA=stackdata, FNPLMZRSTACK=fnplmzrstack, I
 
   
   IF keyword_set(ISERROR) THEN iserror = string(iserror) ELSE iserror = 0 ;set default value
- 
+  
   ;;;set default values
-  print, '  Stacked points MZR plot...'      ;print info
+  print, '  Stacked points MZR plot...'                                                                          ;print info
   IF keyword_set(FNPLMZRSTACK) THEN fnplmzrstack = string(fnplmzrstack[0]) ELSE fnplmzrstack = self.fnplmzrstack ;set default value
   fnplmzrstack = strcompress(self.dirsort + fnplmzrstack)                                                        ;append directory
 
@@ -1423,19 +1426,23 @@ PRO mzranalysis::plotmzrstack, STACKDATA=stackdata, FNPLMZRSTACK=fnplmzrstack, I
   masserr = transpose([[emassi], [emassa]])                 ;
 
   ;;;deal with upper limits
-  ulims = intarr(n_elements(data.(self.indsmass)))                                                ;create array 
-  IF (self.indsniiflag NE -1) THEN BEGIN                                                          ; 
-     chk = where(data.(self.indsniiflag) GE self.niiflagul)                                       ; 
-     IF (ulims[0] EQ -1) THEN ulims[chk] = 1                                                      ;
-  ENDIF ELSE BEGIN                                                                                ;find upper limit points
-     ulims = 0                                                                                    ;if no upper limits
-  ENDELSE                                                                                         ;
+  ulims = intarr(n_elements(data.(self.indsmass)))          ;create array 
+  IF (self.indsniiflag NE -1) THEN BEGIN                    ; 
+     chk = where(data.(self.indsniiflag) GE self.niiflagul) ; 
+     IF (ulims[0] EQ -1) THEN ulims[chk] = 1                ;
+                                ;ulims[0] = 1 ;manually set the lowest
+                                ;mass bin to an upper limit
+  ENDIF ELSE BEGIN                    ;find upper limit points
+     ulims = 0                        ;if no upper limits
+  ENDELSE                             ;
+  IF total(ulims) EQ 0 THEN ulims = 0 ;check if an upper limits exists
+  
+
   IF keyword_set(LABEL) THEN BEGIN                                                                ;if label is desired
      IF (lab1ind NE -1) THEN label = data.(self.indlab1)                                          ;start label
      IF (lab2ind NE -1) THEN label = strcompress(data.(self.indlab2) + ':' + data.(self.indlab1)) ;start label
   ENDIF                                                                                           ;end label desired
-  IF total(ulims) EQ 0 THEN ulims = 0                                                             ;check if an upper limits exists
- 
+  
 
   ;;;deal with cluster membership flag
   clmem = data.(self.indsclmem)
@@ -1475,8 +1482,8 @@ PRO mzranalysis::plotmzrstack, STACKDATA=stackdata, FNPLMZRSTACK=fnplmzrstack, I
                  SHOWKU13PT=yesku13pt, $ 
                  SHOWTR15PT=yestr15pt, $ 
                  SHOWERB06PTS=yeserb06pt, SHOWERB06TREND=0, SHOWTR04=1, $ ;
-                 SHOWMEAN=1, MEANMASS=meanmass, MEANN2=meann2, $               ;
-                 SHOWMED=1, MEDMASS=medmass, MEDN2=medn2 )                     ;plot mzr
+                 SHOWMEAN=1, MEANMASS=meanmass, MEANN2=meann2, $          ;
+                 SHOWMED=1, MEDMASS=medmass, MEDN2=medn2 )                ;plot mzr
 
 END
 ;====================================================================================================

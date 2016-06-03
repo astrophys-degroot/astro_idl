@@ -55,7 +55,7 @@ PRO restframe_analyze1d::getprop, OBJVER=objver, DATAHDR=datahdr, INITGSS=initgs
   IF arg_present(OBJVER) THEN objver = self.rfrobjver  ;return the data
   IF arg_present(DATAHDR) THEN datahdr = *self.datahdr ;return the data
   IF arg_present(INITGSS) THEN initgss = *self.initgss ;return the data
-  IF arg_present(FMCRUNS) THEN fmcruns = self.mcruns  ;return the data
+  IF arg_present(FMCRUNS) THEN fmcruns = self.mcruns   ;return the data
 
   RETURN
 END
@@ -64,7 +64,7 @@ END
 
 ;====================================================================================================
 PRO restframe_analyze1d::prep, mciters, BASENAME=basename, FITTO=fitto, FITTOWL=fittowl, $
-                             OLDVER=oldver, NEWVER=newver, ITERSTORE=iterstore
+                               OLDVER=oldver, NEWVER=newver, ITERSTORE=iterstore
 
   IF keyword_set(BASENAME) THEN basename = string(basename) ELSE basename = self.basename ;default values
   IF keyword_set(FITTO) THEN fitto = string(fitto) ELSE fitto = *self.fitto               ;default values
@@ -125,15 +125,21 @@ FUNCTION restframe_analyze1d::prepmcdata, xdata, xmciters, MCDATA=mcdata, NXS=nx
   
 
   IF keyword_set(NXS) THEN nxs = ulong(nxs) ELSE nxs = 500UL ;set default value  
- 
+  
 
   ;;;the data and errors
-  actdata = xdata.spec1d                                       ;grab data
-  actdataerr = xdata.spec1dwei                                 ;grab errors
-
+  actdata = xdata.spec1d        ;grab data
+  print, self.justfit
+  CASE self.justfit OF
+     1 : actdataerr = xdata.spec1dwei
+     2 : actdataerr = xdata.spec1dfullwei
+     ELSE :  actdataerr = xdata.spec1dwei
+  ENDCASE
+    
+  
   ;;;structures to fill
-  mcdata = {mcspec1d:fltarr(n_elements(actdata))}              ;structure
-  mcdata = replicate(mcdata, xmciters+1)                       ;replicate structure
+  mcdata = {mcspec1d:fltarr(n_elements(actdata))} ;structure
+  mcdata = replicate(mcdata, xmciters+1)          ;replicate structure
 
   ;;;random generator
   seed = ulong(systime(0, /SECONDS) mod 32766)                 ;get a seed 
@@ -260,18 +266,18 @@ FUNCTION restframe_analyze1d::readfiles, xwhich, ERRFAC=errfac
 
   CASE strlowcase(xwhich) OF    ;which file to read
      
-     'data' : BEGIN                                                                ;main 1d spectrum
-        print, strcompress(self.indir + self.epsfileod, /REMOVE_ALL)
-        content = mrdfits(strcompress(self.indir + self.epsfileod, /REMOVE_ALL), 1, hdr, /SILENT) ;read in file
-        ;;;;;;;;;;;;may need to change in the future
+     'data' : BEGIN             ;main 1d spectrum
+        thisfile = strcompress(self.indir + self.epsfileod, /REMOVE_ALL)
+        content = mrdfits(thisfile, 1, hdr, /SILENT) ;read in file
+        ;;;;;;;;;;;;may need to change the next line sin the future
                                 ;content.spec1dwei = content.spec1dwei^0.5 ;from variance to sigma
 
-        self.data = ptr_new(content)                                               ;store data
-        self.datahdr = ptr_new(hdr)                                                ;store data header
-        IF (self.help EQ 1) THEN BEGIN                                             ;help requested
-           help, content, /STRUC                                                   ;structur help
-           print, hdr                                                              ;print info
-        ENDIF                                                                      ;help reqested
+        self.data = ptr_new(content)   ;store data
+        self.datahdr = ptr_new(hdr)    ;store data header
+        IF (self.help EQ 1) THEN BEGIN ;help requested
+           help, content, /STRUC       ;structur help
+           print, hdr                  ;print info
+        ENDIF                          ;help reqested
      END
 
      'waveresid' : BEGIN                                              ;wavelength residual file
@@ -351,7 +357,7 @@ FUNCTION restframe_analyze1d::getsub, xdata, xflg
 
   COMPILE_OPT IDL2
   
-  bits = where(xflg EQ 1, nbits)                            ;flagged for use
+  bits = where(xflg EQ 1, nbits) ;flagged for use
 
   IF (bits[0] NE -1) THEN BEGIN                                ;if something
      newxdata = {start:'start'}                                ;start structure
@@ -450,9 +456,9 @@ END
 
 ;====================================================================================================
 FUNCTION restframe_analyze1d::fitspec, xdata, NEWDATA=newdata, $
-                                     DRYRUN=dryrun, GETVARY=getvary, VARIES=varies, $
-                                     FITTO=fitto, BORDER=border, $
-                                     INITGSS=initgss, PRIORS=priors, PLOTIT=plotit
+                                       DRYRUN=dryrun, GETVARY=getvary, VARIES=varies, $
+                                       FITTO=fitto, BORDER=border, $
+                                       INITGSS=initgss, PRIORS=priors, PLOTIT=plotit
 
 
   IF keyword_set(NEWDATA) THEN fitdata = newdata ELSE fitdata = xdata.spec1d          ;set default value
@@ -461,11 +467,16 @@ FUNCTION restframe_analyze1d::fitspec, xdata, NEWDATA=newdata, $
   IF keyword_set(INITGSS) THEN initgss = string(initgss) ELSE initgss = *self.initgss ;set default value
   IF keyword_set(PRIORS) THEN priors = fix(priors[0]) ELSE priors = *self.priors      ;set default value
   
-  
+  CASE self.justfit OF
+     1 : actdataerr = xdata.spec1dwei
+     2 : actdataerr = xdata.spec1dfullwei
+     ELSE :  actdataerr = xdata.spec1dwei
+  ENDCASE
+
   ;;;get step sizes
   IF keyword_set(GETVARY) THEN BEGIN                                                        ;just want step size
      print, '  Now determining appropriate step ...'                                        ;print info 
-     bayesian_rfspectral, xdata.lambdas, fitdata, xdata.spec1dwei, $                        ;cont next line
+     bayesian_rfspectral, xdata.lambdas, fitdata, actdataerr, $                             ;cont next line
                           FEATURES=fitto, BORDER=border, GUESSES=initgss, VARYHOW=myvary, $ ;cont next line
                           PRIORS=priors, CALL=self.object, FITVALS=fitvalsb, PFIT=plotit    ;run fitting
      RETURN, myvary                                                                         ;return step sizes
@@ -474,14 +485,14 @@ FUNCTION restframe_analyze1d::fitspec, xdata, NEWDATA=newdata, $
      ;;;Fit emission line(s) and continuum 
      IF (~keyword_set(DRYRUN)) THEN BEGIN                                                          ;if not a dry run
         print, '  Now fitting spectrum as requested...'                                            ;print info 
-        bayesian_rfspectral, xdata.lambdas, fitdata, xdata.spec1dwei, $                            ;cont next line
+        bayesian_rfspectral, xdata.lambdas, fitdata, actdataerr, $                                 ;cont next line
                              FEATURES=fitto, BORDER=border, GUESSES=initgss, VARIES=varies, $      ;cont next line
                              PRIORS=priors, CALL=self.object, PDATA=pdata, $                       ;cont next line
                              PLOTFIT=self.fitfile, PLOTPARAM=self.fitdistfile, FITVALS=fitvalsb, $ ;cont next line
                              PFIT=plotit                                                           ;run fitting
      ENDIF ELSE BEGIN                                                                              ;if a dry run
         print, '  Now performing a dry run of fitting the spectrum...'                             ;print info 
-        bayesian_rfspectral, xdata.lambdas, fitdata, xdata.spec1dwei, $                            ;cont next line
+        bayesian_rfspectral, xdata.lambdas, fitdata, actdataerr, $                                 ;cont next line
                              FEATURES=fitto, BORDER=border, GUESSES=initgss, VARIES=varies, $      ;cont next line
                              PRIORS=priors, CALL=self.object, FITVALS=fitvalsb, PFIT=plotit        ;run fitting
      ENDELSE                                                                                       ;end if a dry run
@@ -501,7 +512,7 @@ FUNCTION restframe_analyze1d::fitbrkdwn, xfitvals, xborder, WLINERR=wlinerr
 
   IF keyword_set(WLINERR) THEN wlinerr = float(wlinerr[0]) ELSE wlinerr = 3.0 ;set default
 
- 
+  
   xdatahdr = *self.datahdr      ;dereference header
   xfitto = *self.fitto          ;dereference lines
   nfitto = n_elements(xfitto)   ;how many lines were fit
@@ -620,21 +631,21 @@ FUNCTION restframe_analyze1d::fitbrkdwn, xfitvals, xborder, WLINERR=wlinerr
         print, outline                                                       ;print info
         
         ;;;MC analysis
-        mybeers = obj_new('beers1990', curval)                              ;create object
-        mcval = mybeers.biweight()                                          ;find biweight estimate MLE err
-        obj_destroy, mybeers                                                ;destroy object
-        mcerr = sigma(curval)                                               ;MC error
-        tag1mc = strcompress(tag1 + 'MC', /REMOVE_ALL)                      ;new tag name
-        tag2mc = strcompress(tag2 + 'MC', /REMOVE_ALL)                      ;new tag name
-        add_tag, store, tag1mc, mcval, tmpstruc                             ;add tag
-        store = 0                                                           ;reset variable
-        store = tmpstruc                                                    ;recapture
-        add_tag, store, tag2mc, mcerr, tmpstruc                             ;add tag
-        store = 0                                                           ;reset variable
-        store = tmpstruc                                                    ;recapture
-        outline = strcompress(' MC ' + tag1 + ': ' + string(mcval) + $      ;cont next line
-                              ' +/- ' + string(mcerr))                      ;line to print
-        print, outline                                                      ;print info
+        mybeers = obj_new('beers1990', curval)                         ;create object
+        mcval = mybeers.biweight()                                     ;find biweight estimate MLE err
+        obj_destroy, mybeers                                           ;destroy object
+        mcerr = sigma(curval)                                          ;MC error
+        tag1mc = strcompress(tag1 + 'MC', /REMOVE_ALL)                 ;new tag name
+        tag2mc = strcompress(tag2 + 'MC', /REMOVE_ALL)                 ;new tag name
+        add_tag, store, tag1mc, mcval, tmpstruc                        ;add tag
+        store = 0                                                      ;reset variable
+        store = tmpstruc                                               ;recapture
+        add_tag, store, tag2mc, mcerr, tmpstruc                        ;add tag
+        store = 0                                                      ;reset variable
+        store = tmpstruc                                               ;recapture
+        outline = strcompress(' MC ' + tag1 + ': ' + string(mcval) + $ ;cont next line
+                              ' +/- ' + string(mcerr))                 ;line to print
+        print, outline                                                 ;print info
 
      ENDIF                      ;end if data exists
   ENDFOR                        ;end loop background
@@ -747,7 +758,7 @@ FUNCTION restframe_analyze1d::fitbrkdwn, xfitvals, xborder, WLINERR=wlinerr
 
      ;;;propagate the errors
      wl = emissionlines(xfitto[xx])                 ;, ZZ=xfitvals[0].redshift)                                               ;get observed wavelength
-     const = (-1.0 * cmpv * sigmpv * (0.5*!pi)^0.5)                                                        ;constant
+     const = (-1.0 * cmpv * sigmpv * (0.5*!pi)^0.5) ;constant
      flux = const * (erf((-wlinerr*sigmpv) / (1.14214*sigmpv)) - erf((wlinerr*sigmpv) / (1.14214*sigmpv))) ;definite integral
      fluxerr = flux * ((cmleerr/cmpv)^2 + (sigmleerr/sigmpv)^2)^0.5                                        ;lines flux err
      there =  (wl-xfitvals[0].medxs)                                                                       ;from emission line to fit origin
@@ -806,10 +817,10 @@ FUNCTION restframe_analyze1d::flagging, xzs, xfitbrk, NSIGNEG=nsigneg, TAGNOSKY=
   xhdr = *self.datahdr           ;dereference data
   xnosky = fxpar(xhdr, tagnosky) ;grab value
   
-  flags = {start:0}                              ;start structure
-  FOR xx=0, n_elements(xfitto)-1, 1 DO BEGIN     ;loop over lines
-     flag = 0                                    ;start with no flag value
-     wl = emissionlines(xfitto[xx])              ;, ZZ=xzs.zmle) ;get observed wavelength
+  flags = {start:0}                          ;start structure
+  FOR xx=0, n_elements(xfitto)-1, 1 DO BEGIN ;loop over lines
+     flag = 0                                ;start with no flag value
+     wl = emissionlines(xfitto[xx])          ;, ZZ=xzs.zmle) ;get observed wavelength
 
      ;;;determine if there is a negative pixel within n-sigma
      tag = strcompress(xfitto[xx] + 'WML', /REMOVE_ALL) ;tag name
@@ -854,7 +865,7 @@ END
 
 ;====================================================================================================
 FUNCTION restframe_analyze1d::updatehdr, whichupdate, FITVALS=fitvals, ZVALS=zvals, FITBRK=fitbrk, $
-                                       FLGVALS=flgvals
+                                         FLGVALS=flgvals
   
 
 
@@ -868,18 +879,18 @@ FUNCTION restframe_analyze1d::updatehdr, whichupdate, FITVALS=fitvals, ZVALS=zva
   FOR xx=0, n_elements(whichupdate)-1, 1 DO BEGIN ;loop over header update
      CASE whichupdate[xx] OF                      ;which header update
 
-        'basic' : BEGIN                                                                                   ;the basic info
-           spawn, 'whoami', whoami                                                                        ;get who ran this code
-           fxaddpar, xdatahdr, 'ZANAUTH', whoami[0], 'Who performed redshift analysis'                    ;add to header
-           time = SYSTIME()                                                                               ;get the date
-           fxaddpar, xdatahdr, 'ZANDATE', time, 'Date of redshift analysis.'                              ;add to header
-           fxaddpar, xdatahdr, 'VZAN', self.rfrobjver, 'Version of rest frame redshift analysis code'     ;add to header
-           fxaddpar, xdatahdr, 'ZANLAL', self.lal, 'Lower wavelength for contiuum fit, [Ang]'             ;add to header
-           fxaddpar, xdatahdr, 'ZANLAU', self.lau, 'Upper wavelength for contiuum fit, [Ang]'             ;add to header
+        'basic' : BEGIN                                                                               ;the basic info
+           spawn, 'whoami', whoami                                                                    ;get who ran this code
+           fxaddpar, xdatahdr, 'ZANAUTH', whoami[0], 'Who performed redshift analysis'                ;add to header
+           time = SYSTIME()                                                                           ;get the date
+           fxaddpar, xdatahdr, 'ZANDATE', time, 'Date of redshift analysis.'                          ;add to header
+           fxaddpar, xdatahdr, 'VZAN', self.rfrobjver, 'Version of rest frame redshift analysis code' ;add to header
+           fxaddpar, xdatahdr, 'ZANLAL', self.lal, 'Lower wavelength for contiuum fit, [Ang]'         ;add to header
+           fxaddpar, xdatahdr, 'ZANLAU', self.lau, 'Upper wavelength for contiuum fit, [Ang]'         ;add to header
                                 ;IF strcompress(self.xwhich, /REMOVE_ALL) EQ 'N' THEN mobval = 0 ELSE mobval = 1                ;determine value
                                 ;fxaddpar, xdatahdr, 'ZANMOBJ', mobval, 'Multiple objects for reshift analysis?'                ;add value 
                                 ;fxaddpar, xdatahdr, 'ZQFLAG', fix(self.zqflag), 'Quality of redshift, higher=bad, negative=NA' ;add value 
-        END                                                                                               ;end the basic info
+        END                     ;end the basic info
 
         'run' : BEGIN                                                                                       ;run parameters
            fxaddpar, xdatahdr, 'NOFITSKY', self.nofitsky, 'Were regions of sky lines included in fit? 1=no' ;add value
@@ -893,8 +904,8 @@ FUNCTION restframe_analyze1d::updatehdr, whichupdate, FITVALS=fitvals, ZVALS=zva
            ENDFOR                                                                                           ;end loop over priors
         END                                                                                                 ;end run parameters
 
-        'fit' : BEGIN                                                                                      ;add the fit param values
-           IF keyword_set(FITVALS) THEN BEGIN                                                              ;parameter values given
+        'fit' : BEGIN                                                                                       ;add the fit param values
+           IF keyword_set(FITVALS) THEN BEGIN                                                               ;parameter values given
               fxaddpar, xdatahdr, 'ZANMEDX', fitvals.medxs, 'Wavelength at origin for continuum fit, [Ang]' ;add to header
 
               FOR yy=0, self.border-1, 1 DO BEGIN                                          ;loop over continuum params
@@ -948,14 +959,14 @@ FUNCTION restframe_analyze1d::updatehdr, whichupdate, FITVALS=fitvals, ZVALS=zva
               print, '  Fit parameter values not passed!'                   ;print info
            ENDELSE                                                          ;end parameters not given
         END                                                                 ;end add fit param values
- 
-        'postrun' : BEGIN                                                        ;add the post run analysis param values
-           IF keyword_set(ZVALS) THEN BEGIN                                      ;if values were passed
+        
+        'postrun' : BEGIN                                                             ;add the post run analysis param values
+           IF keyword_set(ZVALS) THEN BEGIN                                           ;if values were passed
               fxaddpar, xdatahdr, 'ZANZMLE', zvals.zmle, 'MLE Redshift value'         ;add value 
               fxaddpar, xdatahdr, 'ZANDZMLE', zvals.dzmle, 'MLE Redshift error value' ;add value 
-              fxaddpar, xdatahdr, 'ZANZMC', zvals.zmc, 'MC Redshift value'          ;add value 
-              fxaddpar, xdatahdr, 'ZANDZMC', zvals.dzmc, 'MC Redshift error value'  ;add value 
-           ENDIF                                                                 ;end if values were passed
+              fxaddpar, xdatahdr, 'ZANZMC', zvals.zmc, 'MC Redshift value'            ;add value 
+              fxaddpar, xdatahdr, 'ZANDZMC', zvals.dzmc, 'MC Redshift error value'    ;add value 
+           ENDIF                                                                      ;end if values were passed
 
            IF keyword_set(FITBRK) THEN BEGIN                                                                  ;if values were passed
               chk = tag_exist(fitbrk, 'x0', INDEX=tagind1)                                                    ;check tag name
@@ -1061,7 +1072,7 @@ FUNCTION restframe_analyze1d::writefile, DRYRUN=dryrun
   IF (test EQ 1) THEN BEGIN                                                              ;if test passes
      strreplace, outfile, self.oldver, self.newver                                       ;replace name
      outfile = strcompress(self.outdir + outfile, /REMOVE_ALL)                           ;write file
-     print, outfile ;REMOVAL
+     print, outfile                                                                      ;REMOVAL
      IF (~keyword_set(DRYRUN)) THEN mwrfits, *self.data, outfile, *self.datahdr, /CREATE ;write out new
      RETURN, 1                                                                           ;return
   ENDIF ELSE BEGIN                                                                       ;end test passes
@@ -1083,7 +1094,12 @@ PRO restframe_analyze1d::displayoned, xmylambflg, NEWDATA=newdata ;, SPEC=spec
   bit = where(xmylambflg EQ 1)                                            ;find points to use
   xxs = xdata.lambdas[bit]                                                ;data to plot spectrum
   IF keyword_set(NEWDATA) THEN xys = newdata ELSE xys = xdata.spec1d[bit] ;data to plot spectrum
-  yerr = xdata.spec1dwei[bit]                                             ;data to plot spectrum
+  CASE self.justfit OF
+     1 : actdataerr = xdata.spec1dwei
+     2 : actdataerr = xdata.spec1dfullwei
+     ELSE :  actdataerr = xdata.spec1dwei
+  ENDCASE
+  yerr = actdataerr[bit]        ;data to plot spectrum
 
   
   IF keyword_set(PAD) THEN pad = pad[0] ELSE pad = 0.02                                   ;sets new value
@@ -1254,12 +1270,12 @@ END
 
 ;====================================================================================================
 FUNCTION restframe_analyze1d::init, xbasename, xobj, $
-                                  DRYRUN=dryrun, NOFITSKY=nofitsky, INITGSS=initgss, PRIORS=priors, $
-                                  FITTO=fitto, LAL=lal, LAU=lau, YL=yl, YU=yu, $
-                                  BORDER=border, OLDVER=oldver, NEWVER=newver, XWHICH=xwhich, $
-                                  ZQFLAG=zqflag, KEYSKY=keysky, $
-                                  INDIR=indir, OUTDIR=outdir, VERBOSE=verbose, HELP=help
-                                  
+                                    DRYRUN=dryrun, NOFITSKY=nofitsky, INITGSS=initgss, PRIORS=priors, $
+                                    FITTO=fitto, LAL=lal, LAU=lau, YL=yl, YU=yu, $
+                                    BORDER=border, OLDVER=oldver, NEWVER=newver, XWHICH=xwhich, $
+                                    ZQFLAG=zqflag, KEYSKY=keysky, JUSTFIT=justfit, $
+                                    INDIR=indir, OUTDIR=outdir, VERBOSE=verbose, HELP=help
+  
   
 
   self.rfrobjver = 'v1-0-0'     ;code version
@@ -1287,6 +1303,7 @@ FUNCTION restframe_analyze1d::init, xbasename, xobj, $
                                 ;  IF keyword_set(XWHICH) THEN self.xwhich = xwhich ELSE self.xwhich = 'N'                 ;sets new value
                                 ;  IF keyword_set(ZQFLAG) THEN self.zqflag = zqflag ELSE self.zqflag = '-128'              ;sets new value
   IF keyword_set(KEYSKY) THEN self.keysky = keysky ELSE self.keysky = 'NOSKY'  ;sets new value
+  IF keyword_set(JUSTFIT) THEN self.justfit = justfit ELSE self.justfit = 0    ;sets new value
   IF keyword_set(INDIR) THEN self.indir = indir[0] ELSE self.indir = ' '       ;set default
   IF keyword_set(OUTDIR) THEN self.outdir = outdir[0] ELSE self.outdir = ' '   ;set default
   IF keyword_set(VERBOSE) THEN self.verbose = verbose[0] ELSE self.verbose = 2 ;set default
@@ -1309,7 +1326,7 @@ PRO restframe_analyze1d__define
           initgss:ptr_new(), priors:ptr_new(), nofitsky:0, dryrun:0, $
           fitto:ptr_new(), fittowl:ptr_new(), lal:0.0, lau:0.0, yl:0.0, yu:0.0, $
           border:0, oldver:'A', newver:'A', $ ;, xwhich:'A', zqflag:0, $
-          keysky:'A', $
+          keysky:'A', justfit:0, $
           indir:'A', outdir:'A', verbose:0, help:'A'}
 
   RETURN

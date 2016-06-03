@@ -188,7 +188,7 @@ FUNCTION specstack::readfiles, xspec, XDIR=xdir, KEYZ=keyz, KEYCLAMB=keyclamb, $
   ENDFOR                                                     ;end loop over specs
 
 
-  help, retfiles, /STRUC
+  ;help, retfiles, /STRUC
   RETURN, retfiles
 END
 ;====================================================================================================
@@ -511,9 +511,6 @@ FUNCTION specstack::commongrid, xwavegrid, xmyfiles, xmyout, TCOMMONGRID=tcommon
      ENDELSE
      
   ENDCASE 
-
-
-  help, xmyout, /STRUC
  
   RETURN, xmyout
 END
@@ -850,8 +847,8 @@ END
 
 ;====================================================================================================
 FUNCTION specstack::measure, basename, subsetname, SPECVER=specver, NEWSPECVER=newspecver, $
+                             JUSTFIT=justfit, $
                              MCITERS=mciters, INDIR=indir, OUTDIR=outdir
-
 
   subsetname = string(subsetname[0])                                        ;ensure correct format
   IF keyword_set(SPECVER) THEN specver = specver[0]                         ;ensure nonarray
@@ -886,13 +883,13 @@ FUNCTION specstack::measure, basename, subsetname, SPECVER=specver, NEWSPECVER=n
   IF tag_exist(anset, 'zqflag', /QUIET) THEN zqflag = anset.zqflag ELSE zqflag = 0         ;if value is defined
 
 
-  print, indir, outdir
+  ;print, indir, outdir
   myanyl = obj_new('restframe_analyze1d', basename, subsetname, INDIR=indir, OUTDIR=outdir, $ ;cont next line
                    LAL=lal, LAU=lau, $                                                        ;cont next line
                    NOFITSKY=nofitsky, DRYRUN=dryrun, $                                        ;cont next line                          
                    FITTO=fitto, YL=yl, YU=yu, $                                               ;cont next line
                    BORDER=border, INITGSS=initgss, PRIORS=priors, $                           ;cont next line
-                   OLDVER=specver, NEWVER=newspecver)                                         ;, $ ;cont next line
+                   OLDVER=specver, NEWVER=newspecver, JUSTFIT=justfit)                        ;, $ ;cont next line
                                 ;XWHICH=xwhich, ZQFLAG=zqflag)                                                    ;call analyze 1d object
   
 

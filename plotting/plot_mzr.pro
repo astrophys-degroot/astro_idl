@@ -120,9 +120,58 @@ FUNCTION KULASCOMP, kulaswhich, fakexs
         xerrors = transpose([[mymzr.xserrmodn],[mymzr.xserrmodp]])                   ;
         yerrors = transpose([[mymzr.yserrn],[mymzr.yserrp]])                         ;
         mzrtrend = errorplot(mymzr.xsmod, mymzr.ys, xerrors, yerrors, $              ;plot points
-                             'td', SYM_COLOR='purple', SYM_FILLED=0, SYM_SIZE=2.0, $ ;plot values
-                             ERRORBAR_COLOR='purple', $                              ;plot values
+                             'td', SYM_COLOR='magenta', SYM_FILLED=0, SYM_SIZE=2.0, $ ;plot values
+                             ERRORBAR_COLOR='magenta', $                              ;plot values
                              SYM_THICK=2, /OVERPLOT, NAME=' Kulas 2013')             ;plot options
+     END
+     2 : BEGIN
+        cls = where(mymzr.cl EQ 1, COMPLEMENT=fgs) ;
+        print, cls
+        IF cls[0] NE -1 THEN BEGIN
+           xerrors = transpose([[mymzr.xserrmodn[cls]],[mymzr.xserrmodp[cls]]])          ;
+           yerrors = transpose([[mymzr.yserrn[cls]],[mymzr.yserrp[cls]]])                ;
+           mzrtrend = errorplot(mymzr.xsmod[cls], mymzr.ys[cls], xerrors, yerrors, $     ;plot points
+                                'td', SYM_COLOR='magenta', SYM_FILLED=0, SYM_SIZE=2.0, $ ;plot values
+                                ERRORBAR_COLOR='magenta', $                              ;plot values
+                                SYM_THICK=2, /OVERPLOT, NAME=' Kulas 2013')              ;plot options
+        ENDIF
+        IF fgs[0] NE -1 THEN BEGIN
+           xerrors = transpose([[mymzr.xserrmodn[fgs]],[mymzr.xserrmodp[fgs]]])       ;
+           yerrors = transpose([[mymzr.yserrn[fgs]],[mymzr.yserrp[fgs]]])             ;
+           mzrtrend = errorplot(mymzr.xsmod[fgs], mymzr.ys[fgs], xerrors, yerrors, $  ;plot points
+                                'td', SYM_COLOR='teal', SYM_FILLED=0, SYM_SIZE=2.0, $ ;plot values
+                                ERRORBAR_COLOR='teal', $                              ;plot values
+                                SYM_THICK=2, /OVERPLOT, NAME=' Kulas 2013')           ;plot options
+        ENDIF
+     END
+     ELSE : BEGIN
+        print, 'WTF!!'
+     ENDELSE
+  ENDCASE
+
+  RETURN, mzrtrend
+END
+;========================================================================================================================
+
+
+;========================================================================================================================
+FUNCTION TRANCOMP, tranwhich, fakexs
+
+
+  ;;;get the data
+  pubmzr = obj_new('tran2015')  ;create object
+  pubmzr.boxscore               ;load data from paper
+  pubmzr.getprop, MZRDATA=mymzr ;get data from paper
+  
+  ;;;add the trend as desired
+  CASE tranwhich OF             ;how to add
+     1 : BEGIN
+        xerrors = transpose([[mymzr.xserrmodn],[mymzr.xserrmodp]])                   ;
+        yerrors = transpose([[mymzr.yserrn],[mymzr.yserrp]])                         ;
+        mzrtrend = errorplot(mymzr.xsmod, mymzr.ys, xerrors, yerrors, $              ;plot points
+                             'S', SYM_COLOR='magenta', SYM_FILLED=0, SYM_SIZE=2.0, $  ;plot values
+                             ERRORBAR_COLOR='magenta', $                              ;plot values
+                             SYM_THICK=2, /OVERPLOT, NAME=' Tran 2015')              ;plot options
      END
      ELSE : BEGIN
         print, 'WTF!!'
@@ -147,7 +196,7 @@ function PLOT_MZR, mass, metalrule, CLMEM=clmem, NS=ns, $ ;, DEMETALLICITY=dmeta
                    SHOWERB06PTS=showerb06pts, SHOWERB06TREND=showerb06trend, $
                    SHOWTR04=showtr04, $
                    SHOWST14TR=showst14tr, SHOWST14PT=showst14pt, $
-                   SHOWSA14PT=showsa14pt, SHOWKU13PT=showku13pt, $
+                   SHOWSA14PT=showsa14pt, SHOWKU13PT=showku13pt, SHOWTR15PT=showtr15pt, $
                    SHOWMEAN=showmean, MEANMASS=meanmass, MEANN2=meann2, $ 
                    SHOWMED=showmed, MEDMASS=medmass, MEDN2=medn2, $ 
                    NULLVAL=nullval, OUTFILE=outfile, DOUTFILE=doutfile, VERBOSE=verbose
@@ -388,6 +437,12 @@ function PLOT_MZR, mass, metalrule, CLMEM=clmem, NS=ns, $ ;, DEMETALLICITY=dmeta
 
   ;;;plot data for group
   IF (group[0] NE -1) THEN BEGIN                                                                                              ;if cluster membership given
+     IF ~keyword_set(STACK) THEN BEGIN
+        thisname = strcompress('This work (group): ' + $
+                               strcompress('N=' + string(nclall) + '(' + string(n_elements(cl)) + ')', /REMOVE_ALL))
+     ENDIF ELSE BEGIN
+        thisname = strcompress('This work (group)')     
+     ENDELSE                                                               ;target list for legend     
      myplot2 = SCATTERPLOT(mass[group], metals[group], /OVERPLOT, SYMBOL='o', $                                               ;plot values
                            SYM_SIZE=1.0, /SYM_FILLED, SYM_COLOR=grcolor, $                                                    ;plot options
                            NAME=strcompress('This work (group): '+ $
@@ -401,20 +456,25 @@ function PLOT_MZR, mass, metalrule, CLMEM=clmem, NS=ns, $ ;, DEMETALLICITY=dmeta
         ENDFOR                                                                                                        ;end loop 
      ENDIF                                                                                                            ;end if group upper lims
 
-     IF ~keyword_set(STACK) THEN targets = [myplot1, myplot2] ELSE targets = [] ;target list for legend
+     targets = [myplot1, myplot2] ;target list for legend
   ENDIF ;ELSE BEGIN                                                              ;end cluster membership given
  ;    IF ~keyword_set(STACK) THEN targets = [myplot1] ELSE targets = []          ;target list for legend
  ; ENDELSE                                                                       ;end cluster membership not given
   
   
   ;;;plot data for cl
-  IF (cl[0] NE -1) THEN BEGIN                                                                                           ;if cluster membership given
-     myplot3 = SCATTERPLOT(mass[cl], metals[cl], /OVERPLOT, SYMBOL='o', $                                               ;plot values
-                           SYM_SIZE=1.0, /SYM_FILLED, SYM_COLOR=clcolor, $                                              ;plot options
-                           NAME=strcompress('This work (cluster): ' + $
-                                            strcompress('N=' + string(nclall) + '(' + string(n_elements(cl)) + ')', /REMOVE_ALL))) ;plot options
+  IF (cl[0] NE -1) THEN BEGIN   ;if cluster membership given
+     IF ~keyword_set(STACK) THEN BEGIN
+        thisname = strcompress('This work (cluster): ' + $
+                               strcompress('N=' + string(nclall) + '(' + string(n_elements(cl)) + ')', /REMOVE_ALL))
+     ENDIF ELSE BEGIN
+        thisname = strcompress('This work (cluster)')     
+     ENDELSE                                                               ;target list for legend     
+     myplot3 = SCATTERPLOT(mass[cl], metals[cl], /OVERPLOT, SYMBOL='o', $  ;plot values
+                           SYM_SIZE=1.0, /SYM_FILLED, SYM_COLOR=clcolor, $ ;plot options
+                           NAME=thisname)                                  ;plot options
 
-     IF (clul[0] NE -1) THEN BEGIN                                                                        ;if cluster membership given
+     IF (clul[0] NE -1) THEN BEGIN                                                                         ;if cluster membership given
         FOR xx=0, n_elements(clul)-1, 1 DO BEGIN                                                          ;loop over upper lims
            myarrow = arrow([mass[clul[xx]], mass[clul[xx]]], [metals[clul[xx]], metals[clul[xx]]-0.125], $ ;plot upper limits
                            COLOR=clcolor, /DATA, /CURRENT, $                                              ;plot options
@@ -422,7 +482,8 @@ function PLOT_MZR, mass, metalrule, CLMEM=clmem, NS=ns, $ ;, DEMETALLICITY=dmeta
         ENDFOR                                                                                            ;end loop 
      ENDIF                                                                                                ;end if cl upper lims
 
-     IF ~keyword_set(STACK) THEN targets = [targets, myplot3] ELSE targets = [] ;target list for legend
+     
+     targets = [targets, myplot3] ;target list for legend
   ENDIF ;ELSE BEGIN                                                              ;end cluster membership given
   ;   IF ~keyword_set(STACK) THEN targets = [myplot1] ELSE targets = []          ;target list for legend
   ;ENDELSE                                                                       ;end cluster membership not given
@@ -482,10 +543,14 @@ function PLOT_MZR, mass, metalrule, CLMEM=clmem, NS=ns, $ ;, DEMETALLICITY=dmeta
   ENDIF                                 ;end show Sanders work
   
   IF keyword_set(SHOWKU13PT) THEN BEGIN ;show Kulas work
-     mzrpoints = kulascomp(1)           ;comparison
+     mzrpoints = kulascomp(2)           ;comparison
      targets = [targets, mzrpoints]     ;add to legend targets
   ENDIF                                 ;end show Sanders work
   
+  IF keyword_set(SHOWTR15PT) THEN BEGIN ;show Tran 2015 work
+     mzrpoints = trancomp(1)            ;comparison
+     targets = [targets, mzrpoints]     ;add to legend targets
+  ENDIF                                 ;end show Sanders work
 
   
   IF keyword_set(FITINFO) THEN BEGIN                                                      ;fit info is provided

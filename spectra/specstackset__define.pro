@@ -104,10 +104,12 @@ END
 
 ;====================================================================================================
 FUNCTION specstackset::makestack, xmyspecs, xpre, ENV=env, SUBSET=subset, TEMPNAME=tempname, $
-                                  SPECVER=specver, NEWSPECVER=newspecver, OUTDIR=outdir
+                                  SPECVER=specver, NEWSPECVER=newspecver, JUSTFIT=justfit, $
+                                  OUTDIR=outdir
 
   COMPILE_OPT idl2
 
+  
   IF keyword_set(SUBSETS) THEN subsets = subsets ELSE subsets = ['A']                                       ;set default value
   IF keyword_set(TEMPNAME) THEN tempname = tempname[0] ELSE tempname = 'compos_spectstk_1d_bin***_???.fits' ;set default value
   IF keyword_set(BASENAME) THEN basename = basename[0] ELSE basename = 'compos_spectstk'                    ;set default value
@@ -149,26 +151,31 @@ FUNCTION specstackset::makestack, xmyspecs, xpre, ENV=env, SUBSET=subset, TEMPNA
                        TPERTURB=xpre.perturb, TCONTINUUM=xpre.continuum, $                                             ;cont next line
                        MASSES=data.ph_lmass, OUTFILE=newout)                                                           ;create the object
      
-     mystack.getprop, SSOBJVER=mystackver                                                      ;get version of code
-     print, 'Using spectra_stack object: ', mystackver                                         ;print info
-     mystack.findfiles, data.file, XDIR=data.directory                                         ;find files
-     myfiles = mystack.readfiles(data.file, XDIR=data.directory)                               ;read those files
-     myfiles = mystack.perturb(myfiles)                                                        ;perturb the spectra
-     myfiles = mystack.continuum(myfiles)                                                      ;handle spectra continuum
-     myfiles = mystack.normalize(myfiles)                                                          ;normalize the spectra
-                                ;stop
-     mygrid = mystack.wavegrid(TWAVEGRID=wavegrid, MINLAMB=5400, MAXLAMB=7100, DELTALAMB=0.62) ;create wavelength grid
-     myout = mystack.prepout(mygrid)                                                           ;get output sample to fill
-     myout = mystack.commongrid(mygrid, myfiles, myout, /LSQUADRATIC)                          ;everything on common wavelength grid
-     myout = mystack.convolve(myout)                                                           ;convolve to common velocity dispersion
-     myout = mystack.rejection(myout)                                                          ;reject points
-     mystacked = mystack.combination(myout)                                                    ;combine into a stack
-     mystack.massanalysis                                                                      ;analyze the masses in this stack
-     mystack.display, mystacked, myout                                                         ;plot the stacked, indiv spectra
-     myhdr = mystack.header(myout, CLMEMS=envi)                                                ;create the stack header
-     mystack.save, mystacked, myhdr, OUTDIR=outdir                                             ;write the file
+
+     ;;;the stacking of the spectra
+     IF justfit EQ 0 THEN BEGIN
+        mystack.getprop, SSOBJVER=mystackver                                                   ;get version of code
+        print, 'Using spectra_stack object: ', mystackver                                      ;print info
+        mystack.findfiles, data.file, XDIR=data.directory                                      ;find files
+        myfiles = mystack.readfiles(data.file, XDIR=data.directory)                            ;read those files
+        myfiles = mystack.perturb(myfiles)                                                     ;perturb the spectra
+        myfiles = mystack.continuum(myfiles)                                                   ;handle spectra continuum
+        myfiles = mystack.normalize(myfiles)                                                   ;normalize the spectra
+        mygrid = mystack.wavegrid(TWAVEGRID=wavegrid, MINLAMB=5400, MAXLAMB=7100, DELTALAMB=0.62) ;create wavelength grid
+        myout = mystack.prepout(mygrid)                                                           ;get output sample to fill
+        myout = mystack.commongrid(mygrid, myfiles, myout, /LSQUADRATIC)                          ;everything on common wavelength grid
+        myout = mystack.convolve(myout)                                                           ;convolve to common velocity dispersion
+        myout = mystack.rejection(myout)                                                          ;reject points
+        mystacked = mystack.combination(myout)                                                    ;combine into a stack
+        mystack.massanalysis                                                                      ;analyze the masses in this stack
+        mystack.display, mystacked, myout                                                         ;plot the stacked, indiv spectra
+        myhdr = mystack.header(myout, CLMEMS=envi)                                                ;create the stack header
+        mystack.save, mystacked, myhdr, OUTDIR=outdir                                             ;write the file
+     ENDIF
+
+     ;;;the fitting of the spectrum
      status = mystack.measure(basename, 'bin'+subset, INDIR=outdir, OUTDIR=outdir, $           ;cont next line
-                              SPECVER=specver, NEWSPECVER=newspecver)                          ;meaure the spectra
+                              SPECVER=specver, NEWSPECVER=newspecver, JUSTFIT=justfit)         ;meaure the spectra
   ENDIF                                                                                        ;end if subset exists
 
 
@@ -207,7 +214,7 @@ END
 ;====================================================================================================
 PRO specstackset__define
 
-  void = {specstackset, inherits specstack, objver:'A', preset:'A' }
+  void = {specstackset, inherits specstack, objver:'A', preset:'A'}
 
   RETURN
 END

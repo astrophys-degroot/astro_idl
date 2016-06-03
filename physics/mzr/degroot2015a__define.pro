@@ -986,16 +986,16 @@ PRO degroot2015a::runmzranalysis, xsubset
                                 ;run.plotmzrindiv, ALLTOG=alltog, LABEL=0                                                      ;plot individual points
                                 ;run.plotbpt, /NOIRAGN         ;plot sudo-BPT points, run with v1-0-1 of catalog!!!
                                 ;run.plotiragn                                              ;plot Donley 2012 IR AGN selection, run with v1-0-0 of catalog!!!
-  run.makebins, BINSET=xsubset.binset, NINBIN=xsubset.ninbin  ;find mass bin sizes
-  run.specsort                                                ;sort data into bins
-  run.findstats                                               ;find stats for bins
-  ;run.specstack, SM=xsubset.sm                                ;stack spectra
-  IF xsubset.usefullerr NE 0 THEN run.buildperturb            ;build the full error spectrum
-  run.specstack, SM=xsubset.sm, JUSTFIT=1                     ;just refit the stacked spectra
-  run.collatespecstack, /STACKSPEC                            ;stack spectra
-  run.readstack, STACKFILE=0                                  ;read in the mzr stack data
+  run.makebins, BINSET=xsubset.binset, NINBIN=xsubset.ninbin                     ;find mass bin sizes
+  run.specsort                                                                   ;sort data into bins
+  run.findstats                                                                  ;find stats for bins
+                                ;run.specstack, SM=xsubset.sm                                ;stack spectra
+  IF xsubset.usefullerr NE 0 THEN run.buildperturb                               ;build the full error spectrum
+  run.specstack, SM=xsubset.sm, JUSTFIT=2, SPECVER='v3-6-1', NEWSPECVER='v3-6-2' ;just refit the stacked spectra
+  run.collatespecstack, /STACKSPEC                                               ;stack spectra
+  run.readstack, STACKFILE=0                                                     ;read in the mzr stack data
                                 ;run.readstack, STACKFILE = 'MOSFIRE_comp_clfour_smcurrent_envtwo_highq_v3-6-1_each.fits' ;read in the mzr stack data
-  run.findstacktags                                                                        ;find all the tags we need
+  run.findstacktags             ;find all the tags we need
   CASE xsubset.binset OF
      'all': thissubset = 0
      'cluster': thissubset = ['B','D','F']
