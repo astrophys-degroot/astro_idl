@@ -442,6 +442,12 @@ PRO degroot2015a::fitmzrtrend, which, OPTION=option
            ELSE : mzrdata = *thatart.wu14mzrdata_09
         ENDCASE
      END
+     'yabe2014' : BEGIN
+        CASE OPTION OF
+           1 : mzrdata = *thatart.ya14N2data
+           ELSE : mzrdata = *thatart.ya14mzrdata
+        ENDCASE
+     END
      'zahid2014' : BEGIN
         CASE OPTION OF
            1 : mzrdata = *thatart.za14N2data
@@ -452,6 +458,13 @@ PRO degroot2015a::fitmzrtrend, which, OPTION=option
         CASE OPTION OF
            1 : mzrdata = *thatart.cu15R23data
            ELSE : mzrdata = *thatart.cu15mzrdata
+        ENDCASE
+     END
+    'kacprzak2015' : BEGIN
+        CASE OPTION OF
+           1 : mzrdata = *thatart.ka15N2cldata
+           2 : mzrdata = *thatart.ka15N2fielddata
+           ELSE : mzrdata = *thatart.ka15mzrdata
         ENDCASE
      END
      'shimakawa2015' : BEGIN
@@ -516,7 +529,7 @@ PRO degroot2015a::mzrtrend, INCLUDEFIT=includefit, FITMETALS=fitmetals, WHICHENV
            {name:'Tremonti 04', xval:0.00001, exvalm:0.00001, exvalp:0.00001, yval:0.0, eyvalm:0.01, eyvalp:0.01, multiline:1, mzr:'R23', cl:0, field:0, all:1, symcolor:'black'}, $
            {name:'Erb 06', xval:2.26, exvalm:0.17, exvalp:0.17, yval:-0.56, eyvalm:0.028, eyvalp:0.027, multiline:0, mzr:'N2', cl:0, field:0, all:1, symcolor:'aquamarine'}, $
            {name:'Maiolino 08', xval:3.35, exvalm:0.35, exvalp:0.35, yval:-0.76, eyvalm:0.25, eyvalp:0.30, multiline:1, mzr:'R23', cl:0, field:0, all:1, symcolor:'blue'}, $
-           {name:'Yabe 12', xval:1.4, exvalm:0.2, exvalp:0.2, yval:-0.518, eyvalm:0.025, eyvalp:0.030, multiline:0, mzr:'N2', cl:0, field:0, all:1, symcolor:'tan'}, $
+           {name:'Yabe 12', xval:1.39, exvalm:0.2, exvalp:0.2, yval:-0.518, eyvalm:0.025, eyvalp:0.030, multiline:0, mzr:'N2', cl:0, field:0, all:1, symcolor:'tan'}, $
            {name:'Zahid 12', xval:0.78, exvalm:0.03, exvalp:0.04, yval:-0.475, eyvalm:0.05, eyvalp:0.05, multiline:1, mzr:'R23', cl:0, field:0, all:1, symcolor:'olive'}, $
            {name:'Zahid 12', xval:0.07, exvalm:0.03, exvalp:0.03, yval:0.05, eyvalm:0.05, eyvalp:0.05, multiline:1, mzr:'R23', cl:0, field:0, all:1, symcolor:'olive'}, $
            {name:'Henry 13', xval:1.77, exvalm:0.43, exvalp:0.53, yval:-0.293, eyvalm:0.107, eyvalp:0.113, multiline:1, mzr:'R23', cl:0, field:0, all:1, symcolor:'lime'}, $
@@ -536,8 +549,13 @@ PRO degroot2015a::mzrtrend, INCLUDEFIT=includefit, FITMETALS=fitmetals, WHICHENV
            {name:'Masters 14', xval:1.855, exvalm:0.39, exvalp:0.39, yval:-0.51, eyvalm:0.18, eyvalp:0.21, multiline:1, mzr:'R23', cl:0, field:0, all:1, symcolor:'thistle'}, $
            {name:'Wuyts 14', xval:0.9, exvalm:0.15, exvalp:0.15, yval:-0.43, eyvalm:0.020, eyvalp:0.020, multiline:0, mzr:'N2', cl:0, field:0, all:1, symcolor:'deep sky blue'}, $
            {name:'Wuyts 14', xval:2.29, exvalm:0.15, exvalp:0.15, yval:-0.63, eyvalm:0.022, eyvalp:0.022, multiline:0, mzr:'N2', cl:0, field:0, all:1, symcolor:'deep sky blue'}, $
+           {name:'Yabe 14', xval:1.41, exvalm:0.2, exvalp:0.2, yval:-0.500, eyvalm:0.015, eyvalp:0.018, multiline:1, mzr:'N2', cl:0, field:0, all:1, symcolor:'dark slate gray'}, $
            {name:'Zahid 14', xval:1.55, exvalm:0.15, exvalp:0.15, yval:-0.45, eyvalm:0.008, eyvalp:0.01, multiline:1, mzr:'N2', cl:0, field:0, all:1, symcolor:'pink'}, $
            {name:'Cullen 15', xval:2.16, exvalm:0.16, exvalp:0.14, yval:-0.63, eyvalm:0.04, eyvalp:0.04, multiline:0, mzr:'R23', cl:0, field:0, all:1, symcolor:'red'}, $
+
+           {name:'Kacprzak 15', xval:2.195, exvalm:0.083, exvalp:0.083, yval:-0.54, eyvalm:0.027, eyvalp:0.027, multiline:0, mzr:'N2', cl:0, field:0, all:1, symcolor:'dark orange'}, $
+           {name:'Kacprzak 15', xval:2.095, exvalm:0.004, exvalp:0.004, yval:-0.53, eyvalm:0.042, eyvalp:0.045, multiline:0, mzr:'N2', cl:1, field:0, all:0, symcolor:'dark orange'}, $
+           {name:'Kacprzak 15', xval:2.195, exvalm:0.083, exvalp:0.083, yval:-0.55, eyvalm:0.032, eyvalp:0.037, multiline:0, mzr:'N2', cl:0, field:1, all:0, symcolor:'dark orange'}, $
  
            {name:'Shimakawa 15', xval:2.34, exvalm:0.18, exvalp:0.18, yval:-0.52, eyvalm:0.053, eyvalp:0.055, multiline:0, mzr:'N2', cl:0, field:0, all:1, symcolor:'brown'}, $
            {name:'Shimakawa 15', xval:2.34, exvalm:0.18, exvalp:0.18, yval:-0.52, eyvalm:0.053, eyvalp:0.055, multiline:0, mzr:'N2', cl:1, field:0, all:0, symcolor:'brown'}, $
@@ -552,6 +570,7 @@ PRO degroot2015a::mzrtrend, INCLUDEFIT=includefit, FITMETALS=fitmetals, WHICHENV
            {name:'Wuyts 16', xval:0.9, exvalm:0.3, exvalp:0.2, yval:-0.425, eyvalm:0.022, eyvalp:0.027, multiline:1, mzr:'N2', cl:0, field:0, all:1, symcolor:'navy'}, $
            {name:'Wuyts 16', xval:1.5, exvalm:0.2, exvalp:0.2, yval:-0.51, eyvalm:0.06, eyvalp:0.077, multiline:1, mzr:'N2', cl:0, field:0, all:1, symcolor:'navy'}, $
            {name:'Wuyts 16', xval:2.28, exvalm:0.4, exvalp:0.4, yval:-0.57, eyvalm:0.020, eyvalp:0.020, multiline:1, mzr:'N2', cl:0, field:0, all:1, symcolor:'navy'}, $
+
            {name:'This Work', xval:1.62, exvalm:0.3, exvalp:0.1, yval:-0.39, eyvalm:0.016, eyvalp:0.017, multiline:0, mzr:'N2', cl:0, field:0, all:1, symcolor:'green'}]
                                 ;print, data
 
@@ -694,11 +713,27 @@ PRO degroot2015a::mzrtrend, INCLUDEFIT=includefit, FITMETALS=fitmetals, WHICHENV
         
         
      ENDIF
-     IF xx LE 10 THEN BEGIN
-        xval = 0.77 
-     ENDIF ELSE BEGIN 
-        xval = 0.20
-     ENDELSE
+     CASE 1 OF 
+        (xx-notmove LE 7) : BEGIN
+           xval = 0.76
+           yval = 0.82-0.030*(xx-notmove)
+        END
+        (xx-notmove LE 20) : BEGIN
+           xval = 0.20
+           yval = 0.82-0.030*(xx-notmove)
+        END
+        (xx-notmove LE 90) : BEGIN
+           xval = 0.36
+           yval = 1.00-0.030*(xx-notmove)
+        END
+        ELSE : print, 'WARNING!! Something is going crazy!!'
+     ENDCASE
+
+     ;IF xx LE 10 THEN BEGIN
+     ;   xval = 0.77 
+     ;ENDIF ELSE BEGIN 
+     ;   xval = 0.20
+     ;ENDELSE
      IF xx EQ 0 THEN BEGIN
         lastname = data[xx].name 
         doit = 1
@@ -711,7 +746,7 @@ PRO degroot2015a::mzrtrend, INCLUDEFIT=includefit, FITMETALS=fitmetals, WHICHENV
      ENDELSE
      IF xx EQ n_elements(data)-1 THEN doit = 0
 
-     IF doit EQ 1 THEN t = TEXT(xval, 0.82-0.030*(xx-notmove), data[xx].name, $
+     IF doit EQ 1 THEN t = TEXT(xval, yval, data[xx].name, $
                                 FONT_SIZE=11, $
                                 FONT_COLOR=data[xx].symcolor)
 
@@ -921,7 +956,7 @@ PRO degroot2015a::datatable, INFILE=infile, INDIR=indir
      string1 = string(N2, FORMAT='(f13.3)')
      N2errn = N2 - alog10((data[xx].niir_flux-data[xx].niir_fluxerr) / (data[xx].ha_flux+data[xx].ha_fluxerr)) 
      string2 = '$_{-' + string(N2errn, FORMAT='(f13.3)') + '}'
-     N2errp =alog10((data[xx].niir_flux+data[xx].niir_fluxerr) / (data[xx].ha_flux-data[xx].ha_fluxerr)) - N2
+     N2errp = alog10((data[xx].niir_flux+data[xx].niir_fluxerr) / (data[xx].ha_flux-data[xx].ha_fluxerr)) - N2
      string3 = '^{+' + string(N2errp, FORMAT='(f13.3)') + '}$'
      line = line + strcompress(string1 + string2 + string3, /REMOVE_ALL) + ' & '
      oxygen = 8.90 + 0.57 * alog10(data[xx].niir_flux / data[xx].ha_flux)
@@ -989,7 +1024,7 @@ PRO degroot2015a::runmzranalysis, xsubset
   run.makebins, BINSET=xsubset.binset, NINBIN=xsubset.ninbin                     ;find mass bin sizes
   run.specsort                                                                   ;sort data into bins
   run.findstats                                                                  ;find stats for bins
-                                ;run.specstack, SM=xsubset.sm                                ;stack spectra
+  run.specstack, SM=xsubset.sm                                                   ;stack spectra
   IF xsubset.usefullerr NE 0 THEN run.buildperturb                               ;build the full error spectrum
   run.specstack, SM=xsubset.sm, JUSTFIT=2, SPECVER='v3-6-1', NEWSPECVER='v3-6-2' ;just refit the stacked spectra
   run.collatespecstack, /STACKSPEC                                               ;stack spectra
