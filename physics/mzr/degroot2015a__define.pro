@@ -416,6 +416,12 @@ PRO degroot2015a::fitmzrtrend, which, OPTION=option
            ELSE : mzrdata = *thatart.le13mzrdata
         ENDCASE
      END
+     'stott2013' : BEGIN
+        CASE OPTION OF
+           1 : mzrdata = *thatart.st13N2data
+           ELSE : mzrdata = *thatart.st13mzrdata
+        ENDCASE
+     END
      'yuan2013' : BEGIN
         CASE OPTION OF
            1 : mzrdata = *thatart.yu13N2data
@@ -446,6 +452,13 @@ PRO degroot2015a::fitmzrtrend, which, OPTION=option
         CASE OPTION OF
            1 : mzrdata = *thatart.cu15R23data
            ELSE : mzrdata = *thatart.cu15mzrdata
+        ENDCASE
+     END
+     'shimakawa2015' : BEGIN
+        CASE OPTION OF
+           1 : mzrdata = *thatart.sh15N2cl1data
+           2 : mzrdata = *thatart.sh15N2cl2data
+           ELSE : mzrdata = *thatart.sh15mzrdata
         ENDCASE
      END
     'tran2015' : BEGIN
@@ -513,6 +526,7 @@ PRO degroot2015a::mzrtrend, INCLUDEFIT=includefit, FITMETALS=fitmetals, WHICHENV
            {name:'Kulas 13', xval:2.33, exvalm:0.11, exvalp:0.20, yval:-0.673, eyvalm:0.105, eyvalp:0.105, multiline:1, mzr:'N2', cl:0, field:1, all:0, symcolor:'dark red'}, $
 
            {name:'Leja 13', xval:2.32, exvalm:0.2, exvalp:0.24, yval:-0.512, eyvalm:0.085, eyvalp:0.085, multiline:0, mzr:'N2', cl:0, field:0, all:1, symcolor:'chocolate'}, $
+           {name:'Stott 13', xval:1.15, exvalm:0.31, exvalp:0.32, yval:-0.35, eyvalm:0.04, eyvalp:0.04, multiline:0, mzr:'N2', cl:0, field:0, all:1, symcolor:'dark violet'}, $
            {name:'Yuan 13', xval:1.91, exvalm:0.63, exvalp:0.63, yval:-0.512, eyvalm:0.113, eyvalp:0.118, multiline:0, mzr:'N2', cl:0, field:0, all:1, symcolor:'spring green'}, $
            {name:'Sanders 14', xval:2.33, exvalm:0.21, exvalp:0.31, yval:-0.56, eyvalm:0.026, eyvalp:0.028, multiline:1, mzr:'N2', cl:0, field:0, all:1, symcolor:'magenta'}, $
            {name:'Sanders 14', xval:2.33, exvalm:0.21, exvalp:0.31, yval:-0.67, eyvalm:0.023, eyvalp:0.025, multiline:1, mzr:'O3N2', cl:0, field:0, all:1, symcolor:'magenta'}, $
@@ -524,6 +538,9 @@ PRO degroot2015a::mzrtrend, INCLUDEFIT=includefit, FITMETALS=fitmetals, WHICHENV
            {name:'Wuyts 14', xval:2.29, exvalm:0.15, exvalp:0.15, yval:-0.63, eyvalm:0.022, eyvalp:0.022, multiline:0, mzr:'N2', cl:0, field:0, all:1, symcolor:'deep sky blue'}, $
            {name:'Zahid 14', xval:1.55, exvalm:0.15, exvalp:0.15, yval:-0.45, eyvalm:0.008, eyvalp:0.01, multiline:1, mzr:'N2', cl:0, field:0, all:1, symcolor:'pink'}, $
            {name:'Cullen 15', xval:2.16, exvalm:0.16, exvalp:0.14, yval:-0.63, eyvalm:0.04, eyvalp:0.04, multiline:0, mzr:'R23', cl:0, field:0, all:1, symcolor:'red'}, $
+ 
+           {name:'Shimakawa 15', xval:2.34, exvalm:0.18, exvalp:0.18, yval:-0.52, eyvalm:0.053, eyvalp:0.055, multiline:0, mzr:'N2', cl:0, field:0, all:1, symcolor:'brown'}, $
+           {name:'Shimakawa 15', xval:2.34, exvalm:0.18, exvalp:0.18, yval:-0.52, eyvalm:0.053, eyvalp:0.055, multiline:0, mzr:'N2', cl:1, field:0, all:0, symcolor:'brown'}, $
 
            {name:'Tran 15', xval:1.6233, exvalm:0.0115, exvalp:0.0115, yval:-0.50, eyvalm:0.05, eyvalp:0.055, multiline:1, mzr:'N2', cl:0, field:0, all:1, symcolor:'salmon'}, $
            {name:'Tran 15', xval:1.6233, exvalm:0.0115, exvalp:0.0115, yval:-0.50, eyvalm:0.05, eyvalp:0.055, multiline:1, mzr:'N2', cl:1, field:0, all:0, symcolor:'salmon'}, $
@@ -613,7 +630,7 @@ PRO degroot2015a::mzrtrend, INCLUDEFIT=includefit, FITMETALS=fitmetals, WHICHENV
         symsize = 1.0
         symthick = 1.0
      ENDELSE
-     IF keyword_set(WHICHENV) THEN BEGIN
+     IF (WHICHENV NE 'all') THEN BEGIN
         IF data[xx].cl EQ 1 THEN symbol = 's'
         IF data[xx].field EQ 1 THEN symbol = 'o'
      ENDIF ELSE BEGIN
@@ -818,17 +835,149 @@ END
 
 
 ;====================================================================================================
+PRO degroot2015a::datatable, INFILE=infile, INDIR=indir
+
+  openw, lun, 'tmptablefile.txt', /GET_LUN
+  printf, lun, '\begin{deluxetable*}{ c c c c c }'
+  printf, lun, '\tabletypesize{\footnotesize}'
+  printf, lun, '\tablecolumns{6}'
+  printf, lun, '\tablecaption{Galaxy properties and physical parameters from z$\sim$1.6 composite spectra. \label{tbl:compspecdata}}'
+  printf, lun, '\tablehead{'
+  printf, lun, '\colhead{$\langle$Stellar Mass$\rangle$\tablenotemark{a}} & \colhead{Stellar Mass\tablenotemark{b}} & ' + $
+          '\colhead{N$_{gal}\tablenotemark{c}$} & \colhead{N2\tablenotemark{d}} & \colhead{12 + log(O/H)\tablenotemark{e,}\tablenotemark{f}} \\'
+  printf, lun, '\vspace{-0.35cm} }'
+  printf, lun, '\startdata '
+
+
+  ;;;first the full sample
+  printf, lun, '\hline'
+  printf, lun, '\multicolumn{5}{c}{Full Sample} \\'
+  printf, lun, '\hline'
+  line = ''
+  infile = 'MOSFIRE_comp_clfour_smcurrent_all_highq_v3-6-1.fits'
+  indir = '/Users/adegroot/research/clusters/combination/spectroscopy/stacks/clfour/smcurrent/all/highq/'
+  data = mrdfits(strcompress(indir + infile, /REMOVE_ALL), 1)
+  FOR xx=0, n_elements(data)-1, 1 DO BEGIN
+     line = line + string(data[xx].mass, FORMAT='(f13.2)') + ' & '
+     line = line + strcompress(string(data[xx].stckmmin, FORMAT='(f13.2)') + '-' + string(data[xx].stckmmax, FORMAT='(f13.2)'), /REMOVE_ALL)  + ' & '
+     line = line + string(data[xx].nstck, FORMAT='(I)') + ' & '
+     N2 = alog10(data[xx].niir_flux / data[xx].ha_flux)
+     string1 = string(N2, FORMAT='(f13.3)')
+     N2errn = N2 - alog10((data[xx].niir_flux-data[xx].niir_fluxerr) / (data[xx].ha_flux+data[xx].ha_fluxerr)) 
+     string2 = '$_{-' + string(N2errn, FORMAT='(f13.3)') + '}'
+     N2errp =alog10((data[xx].niir_flux+data[xx].niir_fluxerr) / (data[xx].ha_flux-data[xx].ha_fluxerr)) - N2
+     string3 = '^{+' + string(N2errp, FORMAT='(f13.3)') + '}$'
+     line = line + strcompress(string1 + string2 + string3, /REMOVE_ALL) + ' & '
+     oxygen = 8.90 + 0.57 * alog10(data[xx].niir_flux / data[xx].ha_flux)
+     string1 = string(oxygen, FORMAT='(f13.2)')
+     string2 = '$_{-' + string(((0.57*N2errn)^2+(0.18/data[xx].nstck^0.5)^2)^0.5, FORMAT='(f13.2)') + '}'
+     string3 = '^{-' + string(((0.57*N2errp)^2+(0.18/data[xx].nstck^0.5)^2)^0.5, FORMAT='(f13.2)') + '}$'
+     line = line + strcompress(string1 + string2 + string3, /REMOVE_ALL )+ ' \\ ' + string(10b)
+  ENDFOR
+  printf, lun, line
+
+
+  ;;;then the cluster sample
+  printf, lun, '\hline'
+  printf, lun, '\multicolumn{5}{c}{Galaxy Cluster Sample} \\'
+  printf, lun, '\hline'
+  line = ''
+  infile = 'MOSFIRE_comp_clfour_smcurrent_envtwo_highq_v3-6-1_cl.fits'
+  indir = '/Users/adegroot/research/clusters/combination/spectroscopy/stacks/clfour/smcurrent/envtwo/highq/cluster/'
+  data = mrdfits(strcompress(indir + infile, /REMOVE_ALL), 1)
+  FOR xx=0, n_elements(data)-1, 1 DO BEGIN
+     line = line + string(data[xx].mass, FORMAT='(f13.2)') + ' & '
+     line = line + strcompress(string(data[xx].stckmmin, FORMAT='(f13.2)') + '-' + string(data[xx].stckmmax, FORMAT='(f13.2)'), /REMOVE_ALL)  + ' & '
+     line = line + string(data[xx].nstck, FORMAT='(I)') + ' & '
+     N2 = alog10(data[xx].niir_flux / data[xx].ha_flux)
+     string1 = string(N2, FORMAT='(f13.3)')
+     N2errn = N2 - alog10((data[xx].niir_flux-data[xx].niir_fluxerr) / (data[xx].ha_flux+data[xx].ha_fluxerr)) 
+     string2 = '$_{-' + string(N2errn, FORMAT='(f13.3)') + '}'
+     N2errp =alog10((data[xx].niir_flux+data[xx].niir_fluxerr) / (data[xx].ha_flux-data[xx].ha_fluxerr)) - N2
+     string3 = '^{+' + string(N2errp, FORMAT='(f13.3)') + '}$'
+     line = line + strcompress(string1 + string2 + string3, /REMOVE_ALL) + ' & '
+     oxygen = 8.90 + 0.57 * alog10(data[xx].niir_flux / data[xx].ha_flux)
+     string1 = string(oxygen, FORMAT='(f13.2)')
+     string2 = '$_{-' + string(((0.57*N2errn)^2+(0.18/data[xx].nstck^0.5)^2)^0.5, FORMAT='(f13.2)') + '}'
+     string3 = '^{-' + string(((0.57*N2errp)^2+(0.18/data[xx].nstck^0.5)^2)^0.5, FORMAT='(f13.2)') + '}$'
+     line = line + strcompress(string1 + string2 + string3, /REMOVE_ALL )+ ' \\ ' + string(10b)
+  ENDFOR
+  printf, lun, line
+
+
+  ;;;then the field sample
+  printf, lun, '\hline'
+  printf, lun, '\multicolumn{5}{c}{Galaxy Field Sample} \\'
+  printf, lun, '\hline'
+  line = ''
+  infile = 'MOSFIRE_comp_clfour_smcurrent_envtwo_highq_v3-6-1.fits'
+  indir = '/Users/adegroot/research/clusters/combination/spectroscopy/stacks/clfour/smcurrent/envtwo/highq/field/'
+  data = mrdfits(strcompress(indir + infile, /REMOVE_ALL), 1)
+  FOR xx=0, n_elements(data)-1, 1 DO BEGIN
+     line = line + string(data[xx].mass, FORMAT='(f13.2)') + ' & '
+     line = line + strcompress(string(data[xx].stckmmin, FORMAT='(f13.2)') + '-' + string(data[xx].stckmmax, FORMAT='(f13.2)'), /REMOVE_ALL)  + ' & '
+     line = line + string(data[xx].nstck, FORMAT='(I)') + ' & '
+     N2 = alog10(data[xx].niir_flux / data[xx].ha_flux)
+     string1 = string(N2, FORMAT='(f13.3)')
+     N2errn = N2 - alog10((data[xx].niir_flux-data[xx].niir_fluxerr) / (data[xx].ha_flux+data[xx].ha_fluxerr)) 
+     string2 = '$_{-' + string(N2errn, FORMAT='(f13.3)') + '}'
+     N2errp =alog10((data[xx].niir_flux+data[xx].niir_fluxerr) / (data[xx].ha_flux-data[xx].ha_fluxerr)) - N2
+     string3 = '^{+' + string(N2errp, FORMAT='(f13.3)') + '}$'
+     line = line + strcompress(string1 + string2 + string3, /REMOVE_ALL) + ' & '
+     oxygen = 8.90 + 0.57 * alog10(data[xx].niir_flux / data[xx].ha_flux)
+     IF xx EQ 0 THEN BEGIN
+        string1 = '$<$' + string(oxygen, FORMAT='(f13.2)')
+        string2 = ''
+        string3 = ''
+     ENDIF ELSE BEGIN
+        string1 = string(oxygen, FORMAT='(f13.2)')
+     string2 = '$_{-' + string(((0.57*N2errn)^2+(0.18/data[xx].nstck^0.5)^2)^0.5, FORMAT='(f13.2)') + '}'
+     string3 = '^{-' + string(((0.57*N2errp)^2+(0.18/data[xx].nstck^0.5)^2)^0.5, FORMAT='(f13.2)') + '}$'
+     ENDELSE
+     line = line + strcompress(string1 + string2 + string3, /REMOVE_ALL )+ ' \\ ' + string(10b)
+  ENDFOR
+  printf, lun, line
+
+
+
+  printf, lun, '\enddata'
+  printf, lun, '\vspace{-0.35cm}'
+  printf, lun, '\tablenotetext{a}{Average log(M$_*$/M$_\odot$) of galaxies in bin}'
+  printf, lun, '\tablenotetext{b}{Range log(M$_*$/M$_\odot$) of galaxies in bin}'
+  printf, lun, '\tablenotetext{c}{Number of galaxies in bin}'
+  printf, lun, '\tablenotetext{d}{Metallicity indicator log([NII]$\lambda6585$/H$\alpha$)}'
+  printf, lun, '\tablenotetext{e}{Oxygen abundance determined with the N2 indicator using Equation (\ref{eq:N2calibration})}'
+  printf, lun, '\tablenotetext{f}{Error bars include systematic error reduced by square root of the number of objects in bin}'
+  printf, lun, '\end{deluxetable*}'
+  
+  close, lun
+  free_lun, lun
+  spawn, 'aqua tmptablefile.txt'
+
+END
+;====================================================================================================
+
+
+
+;====================================================================================================
 PRO degroot2015a::runmzranalysis, xsubset
 
 
   IF xsubset.binset EQ 'all' THEN alltog = 1 ELSE alltog = 0
-  
-  stackdata = mrdfits('/Users/adegroot/research/clusters/combination/spectroscopy/stacks/' + $
-                      'clfour/smcurrent/all/highq/MOSFIRE_compsum_clfour_smcurrent_all_highq_v3-6-1.fits', 1, hdr)
-  ;stackdata = mrdfits('/Users/adegroot/research/clusters/combination/spectroscopy/stacks/' + $
-  ;                    'clfour/smcurrent/envtwo/highq/cluster/MOSFIRE_compsum_clfour_smcurrent_envtwo_highq_v3-6-1.fits', 1, hdr)
-  ;stackdata = mrdfits('/Users/adegroot/research/clusters/combination/spectroscopy/stacks/' + $
-  ;                    'clfour/smcurrent/envtwo/highq/field/MOSFIRE_compsum_clfour_smcurrent_envtwo_highq_v3-6-1.fits', 1, hdr)
+  CASE xsubset.name OF
+     'onezero' : stackdata = mrdfits('/Users/adegroot/research/clusters/combination/spectroscopy/stacks/' + $
+                                     'clfour/smcurrent/all/highq/MOSFIRE_compsum_clfour_smcurrent_all_highq_v3-6-1.fits', 1, hdr)
+     'oneone' : stackdata = mrdfits('/Users/adegroot/research/clusters/combination/spectroscopy/stacks/' + $
+                                    'clfour/smcurrent/envtwo/highq/cluster/MOSFIRE_compsum_clfour_smcurrent_envtwo_highq_v3-6-1.fits', 1, hdr)
+     'onetwo' : stackdata = mrdfits('/Users/adegroot/research/clusters/combination/spectroscopy/stacks/' + $
+                                    'clfour/smcurrent/envtwo/highq/field/MOSFIRE_compsum_clfour_smcurrent_envtwo_highq_v3-6-1.fits', 1, hdr)
+     ELSE : BEGIN
+        print, 'WARNING!! No stackdata file specified for this particular case. '
+        print, 'Using default full sample, no environment'
+        stackdata = mrdfits('/Users/adegroot/research/clusters/combination/spectroscopy/stacks/' + $
+                            'clfour/smcurrent/all/highq/MOSFIRE_compsum_clfour_smcurrent_all_highq_v3-6-1.fits', 1, hdr)
+     ENDELSE
+  ENDCASE  
   
   run = obj_new('mzranalysis', CURCAT=xsubset.catalog, WORKING=xsubset.name)                    ;make analysis object
   run.readcat, xsubset.catalog, INDIR='/Users/adegroot/research/clusters/combination/catalogs/' ;read in data 
@@ -837,15 +986,16 @@ PRO degroot2015a::runmzranalysis, xsubset
                                 ;run.plotmzrindiv, ALLTOG=alltog, LABEL=0                                                      ;plot individual points
                                 ;run.plotbpt, /NOIRAGN         ;plot sudo-BPT points, run with v1-0-1 of catalog!!!
                                 ;run.plotiragn                                              ;plot Donley 2012 IR AGN selection, run with v1-0-0 of catalog!!!
-  run.makebins, BINSET=xsubset.binset, NINBIN=xsubset.ninbin ;find mass bin sizes
-  run.specsort                                               ;sort data into bins
-  run.findstats                                              ;find stats for bins
-  run.specstack, SM=xsubset.sm                               ;stack spectra
-  run.collatespecstack, /STACKSPEC                           ;stack spectra
-  run.readstack, STACKFILE=0                                 ;read in the mzr stack data
+  run.makebins, BINSET=xsubset.binset, NINBIN=xsubset.ninbin  ;find mass bin sizes
+  run.specsort                                                ;sort data into bins
+  run.findstats                                               ;find stats for bins
+  ;run.specstack, SM=xsubset.sm                                ;stack spectra
+  IF xsubset.usefullerr NE 0 THEN run.buildperturb            ;build the full error spectrum
+  run.specstack, SM=xsubset.sm, JUSTFIT=1                     ;just refit the stacked spectra
+  run.collatespecstack, /STACKSPEC                            ;stack spectra
+  run.readstack, STACKFILE=0                                  ;read in the mzr stack data
                                 ;run.readstack, STACKFILE = 'MOSFIRE_comp_clfour_smcurrent_envtwo_highq_v3-6-1_each.fits' ;read in the mzr stack data
   run.findstacktags                                                                        ;find all the tags we need
-  IF xsubset.usefullerr NE 0 THEN run.buildperturb
   CASE xsubset.binset OF
      'all': thissubset = 0
      'cluster': thissubset = ['B','D','F']
