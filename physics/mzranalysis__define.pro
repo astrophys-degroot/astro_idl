@@ -290,6 +290,7 @@ PRO mzranalysis::findtags
                                 ;tgemassa:['ph_u68_lmass'], $                     ;possible tags
           tgspz1:['SP_SPECZBEST','SP_M_Z'], $              ;possible tags
           tghaflux:['SP_M_HA_FLUX'], $                     ;possible tags
+          tgehaflux:['SP_M_HA_FLUXERR'], $                 ;possible tags
           tgniiflux:['SP_M_NIIR_FLUX'], $                  ;possible tags
           tgeniiflux:['SP_M_NIIR_FLUXERR'], $              ;possible tags
           tgniiflag:['SP_M_NIIR_FLAG'], $                  ;possible tags
@@ -1315,7 +1316,9 @@ PRO mzranalysis::fitmzrstack, WHICH=which, ISERROR=iserror, $
 
   ;;;convert line fluxes to metallicity, get metallicity errors
   metals = pettini_pagel_2004(data.(self.indshaflux), data.(self.indsniiflux)) ;get metallicity
-  dmetals = 0.18 / data.(self.indsninbin)^0.5                                  ;systematic error dividing by sqrt(sample size)
+  N2 = alog10(data.(self.indsniiflux) / data.(self.indshaflux))
+  N2errp = alog10((data.(self.indsniiflux)+data.(self.indseniiflux)) / (data.(self.indshaflux)-data.(self.indsehaflux))) - N2
+  dmetals = ((0.18 / data.(self.indsninbin)^0.5)^2 + (0.57*N2errp)^2)^0.5                ;systematic error dividing by sqrt(sample size)
 
   
   ;;;load object and use fitting routine
@@ -1716,7 +1719,7 @@ PRO mzranalysis__define
           TGSNSTCK:'A', INDSNSTCK:-99,  TGSMASS:'A', INDSMASS:-99, $
           TGSEMASSI:'A', INDSEMASSI:-99, TGSEMASSA:'A', INDSEMASSA:-99, $ 
           TGSCLMEM:'A', INDSCLMEM:-99, VALSCLMEM:ptr_new(), $
-          TGSHAFLUX:'A', INDSHAFLUX:-99, $
+          TGSHAFLUX:'A', INDSHAFLUX:-99, TGSEHAFLUX:'A', INDSEHAFLUX:-99, $
           TGSNIIFLUX:'A', INDSNIIFLUX:-99, TGSENIIFLUX:'A', INDSENIIFLUX:-99, TGSNIIFLAG:'A', INDSNIIFLAG:-99, $
           TGSNINBIN:'A', INDSNINBIN:-99, $
           NIIFLAGUL:0, $
